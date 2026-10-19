@@ -27,6 +27,7 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 - `scripts/import_geodata.py`: Beschaffung und Zuschnitt amtlicher Geodaten.
 - `docs/import.md`: Ausführungsanleitung.
 - `scripts/import_osm.py`: OSM-Gebäudeimport aus lokalem Export oder via Overpass.
+- `scripts/import_water_sources.py` und `docs/loeschwasserquellen-osm.md`: Eigenständige erste OSM-Bestandsaufnahme von Hydranten, Saugstellen, Löschwasserbehältern und Löschwasserteichen; ohne Leistungs- oder Eignungsnachweis.
 - `docs/osm-import.md`: Anleitung und Datenherkunft zum OSM-Import.
 - `docs/datenqualitaet-methodik.md`: Messergebnisse, Unsicherheiten und Prüfplan zur geometrischen Widmungszuordnung.
 - `scripts/classify_buildings.py` und `config/building_classification.json`: Konservative Klassifikation der OSM-Gebäudetags.
@@ -158,6 +159,22 @@ python scripts\run_municipality.py --gemeinde 20619 --skip-geodata --osm-downloa
 ```
 
 Bei HTTP 429/502/503/504 folgen standardmäßig höchstens **zwei zusätzliche Versuche** mit Wartezeit (15 und 30 Sekunden). Alternativ kann ein anderer vertrauenswürdiger Overpass-HTTPS-Endpunkt mit `--overpass-url https://.../api` gewählt werden; öffentlichen Diensten keine schnellen unbegrenzten Wiederholungen zumuten. `--overpass-retries 0` schaltet die zusätzlichen Versuche ab. Ein dauerhaft ausgelasteter Endpunkt kann weiterhin fehlschlagen. Bereits vorhandene OSM-Daten lassen sich stattdessen über `--osm-input <datei.geojson>` verwenden.
+
+## Löschwasserquellen: erste OSM-Bestandsaufnahme
+
+Für Malta (20619) nach dem bestehenden Gemeindeimport:
+
+```powershell
+python scripts\\import_water_sources.py --gemeinde 20619 --download
+```
+
+Optional für Gmünd (20608):
+
+```powershell
+python scripts\\import_water_sources.py --gemeinde 20608 --download
+```
+
+Die Ergebnisdateien `water_sources.csv`, `water_sources.geojson` und `water_sources_manifest.json` liegen unter `data/processed/<GKZ>/water_sources/`. Die Erfassung nutzt explizite OSM-Feuerwehrwasser-Tags; sie prüft **weder Wasserverfügbarkeit noch Entnahmeleistung**. Weitere Angaben, Grenzen und Prüfschritte: [OSM-Löschwasserquellen](docs/loeschwasserquellen-osm.md).
 
 ## Daten und Veröffentlichung
 
