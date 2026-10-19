@@ -36,7 +36,7 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 - `scripts/generate_municipality_report.py`: Generiert einen Gemeindereport (Markdown und JSON) aus den vorhandenen Auswertungen.
 - `docs/gemeindebericht.md`: Aufbau, Ausführung und Datenanforderungen des Gemeindeberichts.
 
-Ein **erster, noch nicht vollständig getesteter GIS-Importer** ist unter `scripts/import_geodata.py` verfügbar; Anleitung unter [GIS-Import](docs/import.md). Die ursprünglichen Analyseprototypen, automatisierte Tests und eine fachlich validierte Löschwasserberechnung sind noch nicht veröffentlicht.
+Der Geodatenimport und die Gemeinde-Pipeline wurden für Malta (20619) regressionsgeprüft und für Gmünd in Kärnten (20608) erfolgreich ausgeführt; siehe [Gemeinde-Pipeline](docs/gemeinde-pipeline.md). Eine fachlich validierte Löschwasserbedarfsberechnung und umfassende automatisierte Tests stehen noch aus.
 
 ## Git und lokale Entwicklungsumgebung (Windows)
 
@@ -61,8 +61,8 @@ Nur verwenden, wenn das Projektverzeichnis **noch nicht existiert**:
 ```bat
 mkdir C:\pyprojects
 cd /d C:\pyprojects
-git clone https://github.com/lexxi/loeschwasserversorgung_9854_malta.git
-cd loeschwasserversorgung_9854_malta
+git clone https://github.com/lexxi/loeschwasserversorgung.git
+cd loeschwasserversorgung
 git status
 ```
 
@@ -71,7 +71,7 @@ Falls `C:\pyprojects` bereits existiert, ist `mkdir` nicht erforderlich. Ein vor
 ### Bestehendes Repository aktualisieren
 
 ```bat
-cd /d C:\pyprojects\loeschwasserversorgung_9854_malta
+cd /d C:\pyprojects\loeschwasserversorgung
 git status
 git pull --ff-only origin main
 ```
@@ -96,7 +96,7 @@ git push origin main
 ### Python-Umgebung (CMD)
 
 ```bat
-cd /d C:\pyprojects\loeschwasserversorgung_9854_malta
+cd /d C:\pyprojects\loeschwasserversorgung
 py -m venv .venv
 .\.venv\Scripts\activate.bat
 python -m pip install --upgrade pip
