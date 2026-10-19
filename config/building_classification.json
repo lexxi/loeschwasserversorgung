@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "explicit_residential": [
+    "house",
+    "detached",
+    "semidetached_house",
+    "apartments",
+    "residential",
+    "terrace",
+    "bungalow",
+    "dormitory"
+  ],
+  "explicit_non_residential": [
+    "garage",
+    "garages",
+    "shed",
+    "roof",
+    "farm_auxiliary",
+    "industrial",
+    "commercial",
+    "retail",
+    "service",
+    "church",
+    "chapel",
+    "school",
+    "office",
+    "public",
+    "hotel",
+    "ossuary",
+    "warehouse",
+    "transformer_tower",
+    "cowshed",
+    "ruins",
+    "greenhouse"
+  ],
+  "notes": "building=yes, farm, cabin, hut or unlisted tags are unknown. Address or housenumber does not establish residential use. These are OSM tag heuristics, not an official assessment."
+}

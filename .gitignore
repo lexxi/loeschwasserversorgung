@@ -1,0 +1,50 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+dist/
+build/
+*.egg-info/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+config.local.json
+*.key
+*.pem
+
+# Generated / downloaded GIS data (keep metadata only)
+data/raw/
+data/processed/
+output/
+outputs/
+results/
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.prj
+*.geojson
+*.geojsonl
+*.fgb
+*.tif
+*.tiff
+
+# Generated statistical results
+summary.csv
+buildings_stats.csv
+
+# Generated municipality reports (review before publication)
+reports/

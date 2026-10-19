@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="310" viewBox="0 0 760 310" role="img" aria-labelledby="title desc">
+<title id="title">Schematisches Gebäude mit 99 Prozent Fläche in Widmung A und 1 Prozent in Widmung B</title>
+<desc id="desc">Ein rechteckiger Gebäudegrundriss liegt nahezu vollständig in Widmung A. Ein schmaler Streifen von einem Prozent liegt in Widmung B. Nur eine schematische Darstellung, keine gemessene Geometrie.</desc>
+<rect width="760" height="310" fill="#fff"/>
+<rect x="38" y="42" width="535" height="188" fill="#d9ecfc"/>
+<rect x="573" y="42" width="149" height="188" fill="#d9f1de"/>
+<line x1="573" y1="42" x2="573" y2="230" stroke="#4d6360" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="70" y="72" font-family="Arial, sans-serif" font-size="20" fill="#22557a">Widmung A</text>
+<text x="604" y="72" font-family="Arial, sans-serif" font-size="20" fill="#24653b">Widmung B</text>
+<rect x="172" y="102" width="405" height="94" fill="#f8cda0" stroke="#8e592e" stroke-width="2"/>
+<rect x="573" y="102" width="4" height="94" fill="#d78b40" stroke="#8e592e" stroke-width="1"/>
+<text x="354" y="142" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" fill="#593616">Gebäude: 100 m²</text>
+<text x="354" y="171" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#593616">99 m² in Widmung A</text>
+<line x1="575" y1="112" x2="624" y2="90" stroke="#8e592e" stroke-width="2"/>
+<text x="629" y="92" font-family="Arial, sans-serif" font-size="16" fill="#593616">1 m² in B</text>
+<text x="380" y="262" font-family="Arial, sans-serif" font-size="17" text-anchor="middle" fill="#313131">99 % dominante Widmung + 1 % zweite Widmung</text>
+<text x="380" y="287" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#555">Prinzipdarstellung – keine tatsächliche Geometrie aus Malta</text>
+</svg>

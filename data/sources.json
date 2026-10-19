@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "project_area": "Gemeinde Malta, Kärnten, Österreich",
+  "status": "planned_not_downloaded",
+  "sources": [
+    {
+      "id": "municipality_boundary",
+      "description": "Gemeindegrenze Malta aus österreichweiten Gemeinden 2026-01-01 (Malta anhand amtlicher Gemeinde-ID/Name filtern)",
+      "provider": "Statistik Austria",
+      "source_url": "https://data.statistik.gv.at/web/meta.jsp?dataset=OGDEXT_GEM_1",
+      "download_url": "https://www.statistik.gv.at/gs-open/GEODATA/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GEODATA:STATISTIK_AUSTRIA_GEM_20260101&outputFormat=SHAPE-ZIP&format_options=CHARSET:UTF-8",
+      "dataset_date": "2026-01-01",
+      "metadata_updated": "2026-03-09",
+      "downloaded_at": null,
+      "license": "CC BY 4.0",
+      "source_verified": true,
+      "local_data_verified": false
+    },
+    {
+      "id": "zoning",
+      "description": "Flächenwidmung Kärnten als GeoPackage (Malta aus landesweitem Datensatz extrahieren)",
+      "provider": "Land Kärnten / KAGIS",
+      "source_url": "https://www.data.gv.at/katalog/dataset/cef1c710-3564-4c4a-adce-39896ba4bed8",
+      "download_url": "https://gis.ktn.gv.at/OGD/Geographie_Planung/flawi_ktn_gpkg.zip",
+      "crs": "EPSG:31258",
+      "catalog_updated": "2026-06-20",
+      "municipal_legal_effective_date": null,
+      "downloaded_at": null,
+      "license": "CC BY 4.0",
+      "source_verified": true,
+      "local_data_verified": false,
+      "notes": "Aktualisierungsdatum im Portal ist nicht gleich dem Rechtswirksamkeitsdatum sämtlicher Widmungen; Abgleich mit RIS/Verordnungen erforderlich."
+    },
+    {
+      "id": "building_plan",
+      "description": "Textlicher Bebauungsplan, Änderungen und Teilbebauungspläne (Rechtswirksamkeit je Dokument prüfen)",
+      "provider": "Gemeinde Malta / RIS Gemeinderecht",
+      "source_url": "https://malta.gv.at/verwaltung",
+      "related_urls": [
+        "https://malta.gv.at/fileadmin/malta/05-Verwaltung/Textlicher_Bebauungsplan.pdf",
+        "https://malta.gv.at/fileadmin/malta/05-Verwaltung/Bebauungsplan_AEnderung.pdf"
+      ],
+      "downloaded_at": null,
+      "license": null,
+      "source_verified": true,
+      "current_completeness_verified": false,
+      "notes": "Ältere Erläuterungen aus 1998 und Änderungsverordnung 2016 veröffentlicht; weitere Teilbebauungspläne, aktuelle Fassungen und Rechtswirksamkeit prüfen."
+    },
+    {
+      "id": "osm_buildings",
+      "description": "OpenStreetMap-Gebäude aus bestehendem lokalen Overpass-Export",
+      "provider": "OpenStreetMap-Mitwirkende",
+      "source_url": "https://www.openstreetmap.org/copyright",
+      "downloaded_at": null,
+      "source_snapshot_date": null,
+      "license": "ODbL",
+      "source_verified": true,
+      "local_data_verified": false,
+      "notes": "Vorhandener älterer Export ist kein aktueller Download; Abrufdatum/Overpass-Abfrage dokumentieren und Daten aktualisieren."
+    }
+  ],
+  "last_source_review": "2026-10-19"
+}
