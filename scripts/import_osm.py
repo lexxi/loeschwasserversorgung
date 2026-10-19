@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import time
 
 import geopandas as gpd
 
@@ -34,13 +35,34 @@ def read_boundary(path):
     return gpd.GeoDataFrame(geometry=[geom], crs="EPSG:4326")
 
 
-def download_buildings(boundary):
+def download_buildings(boundary, overpass_url=None, retries=2):
     try:
         import osmnx as ox
     except ImportError as exc:
         raise SystemExit("Für --download: python -m pip install osmnx") from exc
     ox.settings.requests_timeout = 300
-    result = ox.features_from_polygon(boundary.geometry.iloc[0], tags={"building": True})
+    if overpass_url:
+        if not overpass_url.startswith("https://"):
+            raise ValueError("Overpass-URL muss HTTPS verwenden")
+        ox.settings.overpass_url = overpass_url.rstrip("/")
+    for attempt in range(retries + 1):
+        try:
+            result = ox.features_from_polygon(boundary.geometry.iloc[0], tags={"building": True})
+            break
+        except Exception as exc:
+            # Nur vorübergehende HTTP-Überlastung erneut versuchen.
+            message = str(exc).lower()
+            temporary = any(code in message for code in
+                            ("429", "too many requests", "502", "bad gateway",
+                             "503", "service unavailable", "504", "gateway timeout",
+                             "currently at capacity"))
+            if not temporary or attempt >= retries:
+                raise
+            delay = min(15 * (2 ** attempt), 60)
+            print(f"[WARN] Overpass überlastet ({type(exc).__name__}); "
+                  f"neuer Versuch {attempt + 2}/{retries + 1} in {delay} s",
+                  flush=True)
+            time.sleep(delay)
     if result.empty:
         raise ValueError("Overpass lieferte keine Gebäude")
     result = result.reset_index()
@@ -97,10 +119,15 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--download", action="store_true", help="Fresh OSMnx/Overpass query")
     mode.add_argument("--input", type=Path, help="Existing Overpass GeoJSON")
+    parser.add_argument("--overpass-url", help="Alternativer vertrauenswürdiger Overpass HTTPS-Endpunkt")
+    parser.add_argument("--overpass-retries", type=int, default=2,
+                        help="Zusätzliche Versuche bei HTTP 429/502/503/504 (Standard: 2)")
     parser.add_argument("--gemeinde", type=str, default=None, help="5-stellige Gemeindenummer; muss zum amtlichen Import passen")
     parser.add_argument("--boundary", type=Path, default=Path("data/processed/current/malta_boundary_2026.geojson"))
     parser.add_argument("--out", type=Path, default=Path("data/processed/current/osm"))
     args = parser.parse_args()
+    if not 0 <= args.overpass_retries <= 5:
+        parser.error('--overpass-retries muss zwischen 0 und 5 liegen')
     generic_mode = args.gemeinde is not None
     if generic_mode:
         if not (len(args.gemeinde) == 5 and args.gemeinde.isdigit() and args.gemeinde.startswith("2")):
@@ -119,7 +146,7 @@ def main():
     municipality_id = args.gemeinde if generic_mode else "20619"
 
     boundary = read_boundary(args.boundary)
-    raw = download_buildings(boundary) if args.download else gpd.read_file(args.input)
+    raw = download_buildings(boundary, args.overpass_url, args.overpass_retries) if args.download else gpd.read_file(args.input)
     buildings, stats = prepare(raw, boundary)
     args.out.mkdir(parents=True, exist_ok=True)
     output = args.out / ("buildings.geojson" if generic_mode else "buildings_malta.geojson")
