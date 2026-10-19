@@ -15,6 +15,8 @@ import webbrowser
 import geopandas as gpd
 from shapely.geometry import box
 
+from municipality_text import readable_name
+
 
 COLORS = ["#4f82bd", "#e6a34a", "#4b9b75", "#b37ac5", "#d17b81", "#8c9b4d"]
 EPSG = 31287
@@ -134,7 +136,7 @@ def draw(osm_id, footprint, zoning, name):
                      f'<td>{category}</td><td>{designation}</td><td>{object_id}</td>'
                      f'<td class="num">{intersection.area:.2f}</td><td class="num"><b>{pct:.2f} %</b></td></tr>')
 
-    title = escape(name)
+    title = escape(readable_name(name))
     osm_label = escape(osm_id)
     return f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
