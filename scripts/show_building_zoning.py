@@ -16,6 +16,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from municipality_text import readable_name
+from building_context import load_context, render_context
 
 
 COLORS = ["#4f82bd", "#e6a34a", "#4b9b75", "#b37ac5", "#d17b81", "#8c9b4d"]
@@ -92,7 +93,7 @@ def choose_building(buildings, zoning, limit):
     return choice
 
 
-def draw(osm_id, footprint, zoning, name, building_data=None, back_href='ueberlappungen/index.html'):
+def draw(osm_id, footprint, zoning, name, building_data=None, back_href='ueberlappungen/index.html', context_html=''):
     zones = matching_zones(footprint, zoning)
     if not zones:
         raise ValueError("Gebäude hat keinen positiven Flächenschnitt mit Widmungen")
@@ -199,6 +200,8 @@ body{{font-family:system-ui,Arial,sans-serif;background:#f7f8fa;color:#172536;ma
 main{{max-width:1100px;margin:auto}}h1{{font-size:1.6rem;margin-bottom:4px}}
 .nav{{display:inline-block;margin:0 0 15px;padding:10px 14px;border:1px solid #b8c7d7;border-radius:7px;color:#145b9d;text-decoration:none}}
 .nav:hover{{background:#ecf3fa}}
+.location-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}}
+.location-grid .panel{{margin-top:12px}}
 h2{{font-size:1.2rem;padding:12px;margin:0}}h3{{font-size:1rem;margin:8px 0}}
 .attrs{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;padding:12px}}
 .attr{{padding:8px;border:1px solid #e0e5eb;border-radius:8px;overflow-wrap:anywhere}}
@@ -212,6 +215,8 @@ th,td{{text-align:left;padding:10px;border-bottom:1px solid #e8edf0}}.num{{text-
 <a class="nav" href="{back_link}">← Zurück zur Gebäudeübersicht</a>
 <h1>Gebäude {osm_label}</h1>
 <div class="note">{title} · Gebäudegrundfläche: {footprint.area:.2f} m² · {len(zones)} Widmungspolygone mit positivem Flächenschnitt</div>
+{context_html}
+<h2>Detail: Widmungsüberschneidung</h2>
 <div class="panel">{''.join(svg)}</div>
 <div class="panel"><table><thead><tr><th>Nr.</th><th>Kategorie</th><th>Widmung</th><th>OBJECTID</th><th class="num">Schnitt m²</th><th class="num">Anteil</th></tr></thead>
 <tbody>{''.join(table)}</tbody></table></div>
@@ -246,7 +251,9 @@ def main():
     manifest = base / "import_manifest.json"
     if manifest.is_file():
         municipality = json.loads(manifest.read_text(encoding="utf-8")).get("municipality_name", municipality)
-    result = draw(osm_id, matched.geometry.iloc[0], zoning, municipality, matched.iloc[0])
+    boundary, spatial_index = load_context(base, buildings)
+    context_html = render_context(matched.geometry.iloc[0], boundary, buildings, spatial_index)
+    result = draw(osm_id, matched.geometry.iloc[0], zoning, municipality, matched.iloc[0], context_html=context_html)
     safe_id = osm_id.replace("/", "_").replace("\\", "_")
     out = args.out or Path("reports") / args.gemeinde / f"haus_{safe_id}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
