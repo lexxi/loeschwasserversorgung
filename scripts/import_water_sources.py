@@ -133,7 +133,7 @@ def pbf_import(path):
             if w.tags.get("emergency") not in TYPES:
                 return
             try:
-                coords = [(node.lon, node.lat) for node in w.nodes if node.location.valid()]
+                coords = [(node.location.lon, node.location.lat) for node in w.nodes if node.location.valid()]
                 if len(coords) < 2:
                     skipped["invalid_way_geometry"] += 1
                     return
@@ -154,6 +154,8 @@ def pbf_import(path):
     print(f"[INFO] PBF: {len(rows)} markierte Nodes/Ways vor Gemeindefilter", flush=True)
     if any(skipped.values()):
         print(f"[WARN] PBF: ausgelassene Geometrien/Relationen: {skipped}", flush=True)
+    if not rows:
+        return gpd.GeoDataFrame(columns=["osm_id", "emergency", "geometry"], geometry="geometry", crs="EPSG:4326"), skipped
     return gpd.GeoDataFrame(rows, geometry="geometry", crs="EPSG:4326"), skipped
 
 
