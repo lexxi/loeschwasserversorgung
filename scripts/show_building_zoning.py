@@ -92,7 +92,7 @@ def choose_building(buildings, zoning, limit):
     return choice
 
 
-def draw(osm_id, footprint, zoning, name):
+def draw(osm_id, footprint, zoning, name, building_data=None):
     zones = matching_zones(footprint, zoning)
     if not zones:
         raise ValueError("Gebäude hat keinen positiven Flächenschnitt mit Widmungen")
@@ -126,6 +126,50 @@ def draw(osm_id, footprint, zoning, name):
     svg.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="4" fill="#202b38"/>')
     svg.append('</svg>')
 
+
+    def display(value):
+        if value is None:
+            return "–"
+        string = str(value).strip()
+        return escape(string) if string and string.lower() not in ("nan", "none") else "–"
+
+    allowed_building_fields = (
+        ("OSM-Gebäudetyp", "building"),
+        ("Gebäudenutzung laut OSM", "building:use"),
+        ("Stockwerke laut OSM", "building:levels"),
+        ("Einrichtung", "amenity"),
+        ("Tourismus", "tourism"),
+        ("Geschäft", "shop"),
+        ("Flächennutzung", "landuse"),
+    )
+    building_rows = []
+    if building_data is not None:
+        for label, field in allowed_building_fields:
+            shown = display(building_data.get(field))
+            if shown != "–":
+                building_rows.append(f"<tr><th>{escape(label)}</th><td>{shown}</td></tr>")
+    building_rows.append(f"<tr><th>OSM-ID</th><td>{escape(osm_id)}</td></tr>")
+    building_rows.append(f"<tr><th>Grundfläche (OSM)</th><td>{footprint.area:.2f} m²</td></tr>")
+    building_rows.append(f"<tr><th>Geometrietyp</th><td>{escape(footprint.geom_type)}</td></tr>")
+    building_rows.append(f"<tr><th>Widmungsschnitte</th><td>{len(zones)}</td></tr>")
+
+    zone_details = []
+    zone_fields = ("OBJECTID", "KATEGORIE", "WIDMUNG", "BEZEICHNUNG",
+                   "KURZBEZEICHNUNG", "CODE", "WIDCODE", "GEMNR")
+    for i, (zone, intersection, pct) in enumerate(zones):
+        rows = []
+        for field in zone_fields:
+            if field in zone.index:
+                rows.append(f"<tr><th>{escape(field)}</th><td>{display(zone[field])}</td></tr>")
+        rows.extend((
+            f"<tr><th>Gesamtfläche Widmungspolygon</th><td>{zone.geometry.area:.2f} m²</td></tr>",
+            f"<tr><th>Schnittfläche mit Gebäude</th><td>{intersection.area:.2f} m²</td></tr>",
+            f"<tr><th>Anteil am Gebäude</th><td>{pct:.2f} %</td></tr>",
+        ))
+        color = COLORS[i % len(COLORS)]
+        zone_details.append(f'<section class="attr"><h3><span class="swatch" style="background:{color}"></span>'
+                            f'Widmungspolygon {i + 1}</h3><table>{"".join(rows)}</table></section>')
+
     table = []
     for i, (zone, intersection, pct) in enumerate(zones):
         category = escape(str(zone.get("KATEGORIE") or "Unbekannt"))
@@ -144,6 +188,10 @@ def draw(osm_id, footprint, zoning, name):
 <style>
 body{{font-family:system-ui,Arial,sans-serif;background:#f7f8fa;color:#172536;margin:0;padding:25px}}
 main{{max-width:1100px;margin:auto}}h1{{font-size:1.6rem;margin-bottom:4px}}
+h2{{font-size:1.2rem;padding:12px;margin:0}}h3{{font-size:1rem;margin:8px 0}}
+.attrs{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;padding:12px}}
+.attr{{padding:8px;border:1px solid #e0e5eb;border-radius:8px;overflow-wrap:anywhere}}
+.attr table th{{width:48%;font-weight:600}}
 .note{{color:#546173}}.panel{{background:white;border:1px solid #dce2e7;border-radius:10px;overflow:hidden;margin-top:16px}}
 svg{{width:100%;height:auto;display:block}}table{{border-collapse:collapse;width:100%}}
 th,td{{text-align:left;padding:10px;border-bottom:1px solid #e8edf0}}.num{{text-align:right;white-space:nowrap}}
@@ -155,6 +203,8 @@ th,td{{text-align:left;padding:10px;border-bottom:1px solid #e8edf0}}.num{{text-
 <div class="panel">{''.join(svg)}</div>
 <div class="panel"><table><thead><tr><th>Nr.</th><th>Kategorie</th><th>Widmung</th><th>OBJECTID</th><th class="num">Schnitt m²</th><th class="num">Anteil</th></tr></thead>
 <tbody>{''.join(table)}</tbody></table></div>
+<div class="panel"><h2>OSM-Gebäudeattribute</h2><div class="attrs"><section class="attr"><table>{''.join(building_rows)}</table></section></div></div>
+<div class="panel"><h2>Attribute der geschnittenen Widmungsflächen</h2><div class="attrs">{''.join(zone_details)}</div></div>
 <p class="note">Das Gebäude ist schwarz umrandet. Helle Farben zeigen die geschnittenen Widmungspolygone im Ausschnitt;
 kräftige Farben zeigen den jeweiligen Flächenschnitt <strong>innerhalb</strong> der Gebäudegrundfläche.
 Der dunkle Punkt markiert den geometrischen Schwerpunkt (nicht den für den GIS-Join verwendeten Repräsentativpunkt).</p>
@@ -184,7 +234,7 @@ def main():
     manifest = base / "import_manifest.json"
     if manifest.is_file():
         municipality = json.loads(manifest.read_text(encoding="utf-8")).get("municipality_name", municipality)
-    result = draw(osm_id, matched.geometry.iloc[0], zoning, municipality)
+    result = draw(osm_id, matched.geometry.iloc[0], zoning, municipality, matched.iloc[0])
     safe_id = osm_id.replace("/", "_").replace("\\", "_")
     out = args.out or Path("reports") / args.gemeinde / f"haus_{safe_id}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
