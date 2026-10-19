@@ -18,7 +18,7 @@ python scripts\import_water_sources.py --gemeinde 20608 --download
 
 Ein neues Laden der amtlichen GIS-Daten oder erneuter Gebäudedownload ist dafür **nicht** erforderlich.
 
-Bei überlastetem Overpass: Die Downloadfunktion versucht HTTP 429/502/503/504 bis zu zweimal erneut (15 s / 30 s). Optional: `--overpass-retries 0` oder `--overpass-url https://.../api`.
+Bei überlastetem oder nicht erreichbarem Overpass: Die Downloadfunktion versucht HTTP 429/502/503/504 sowie Connect-/Read-Timeouts bis zu zweimal erneut (15 s / 30 s); pro Verbindungsversuch sind maximal 90 Sekunden konfiguriert. Alternativ kann ein anderer Overpass-Endpunkt mit `--overpass-url https://overpass.private.coffee/api` genutzt werden (betrieben von Private.coffee, keine Verfügbarkeitsgarantie). Der Endpunkt muss als **Basis-URL ohne `/interpreter`** übergeben werden. Mit `--overpass-retries 0` entfällt die Wiederholung.
 
 Zur reproduzierbaren Verarbeitung vorhandener Quellen: `--input C:\Pfad\osm_export.geojson` statt `--download`. Der GeoJSON-Export benötigt OSM-`emergency`-Tags und OSM-Element-IDs.
 
