@@ -61,7 +61,8 @@ def clean(value):
 def osm_download(boundary, overpass_url=None, retries=2):
     import osmnx as ox
 
-    ox.settings.requests_timeout = 300
+    # OSMnx nutzt diesen Wert auch als TCP-Connect-Timeout. Lange Hänger vermeiden.
+    ox.settings.requests_timeout = 90
     if overpass_url:
         if not overpass_url.startswith("https://"):
             raise ValueError("Overpass-Endpunkt muss HTTPS verwenden")
@@ -82,12 +83,13 @@ def osm_download(boundary, overpass_url=None, retries=2):
             temporary = any(v in message for v in (
                 "429", "too many requests", "502", "bad gateway", "503",
                 "service unavailable", "504", "gateway timeout",
-                "currently at capacity",
+                "currently at capacity", "connecttimeout", "readtimeout",
+                "connection timed out", "timed out", "winerror 10060",
             ))
             if not temporary or attempt >= retries:
                 raise
             delay = min(15 * (2 ** attempt), 60)
-            print(f"[WARN] Overpass überlastet; neuer Versuch "
+            print(f"[WARN] Overpass nicht erreichbar/überlastet ({type(exc).__name__}); neuer Versuch "
                   f"{attempt + 2}/{retries + 1} in {delay} s", flush=True)
             time.sleep(delay)
     raise AssertionError("Unreachable")
