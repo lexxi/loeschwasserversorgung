@@ -64,7 +64,7 @@ def main():
             "detail": filename,
         })
         (out / filename).write_text(
-            draw(osm_id, footprint, zoning, municipality, building),
+            draw(osm_id, footprint, zoning, municipality, building, back_href="index.html"),
             encoding="utf-8",
         )
 
