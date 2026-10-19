@@ -140,6 +140,17 @@ python -m pip install -r requirements.txt
 
 Danach den Gemeindeimport wiederholen. Voraussetzung: Die zuständige Stammzertifizierungsstelle ist korrekt im Windows-Zertifikatsspeicher installiert. Falls der Fehler bestehen bleibt, die Zertifikatskette durch die IT prüfen lassen; **nicht** die TLS-Prüfung abschalten (`verify=False`, unverified SSL-Kontext).
 
+### Overpass überlastet (HTTP 502/503/504)
+
+Ein öffentlicher Overpass-Server kann bei voller Warteschlange zeitweise mit `502 Bad Gateway` abbrechen. Das ist **kein** Fehler der lokalen Gebäude-/GIS-Verarbeitung. Nach einem erfolgreichen amtlichen Import lässt sich die Pipeline direkt beim OSM-Download fortsetzen:
+
+```powershell
+git pull --ff-only origin main
+python scripts\run_municipality.py --gemeinde 20619 --skip-geodata --osm-download
+```
+
+Bei HTTP 429/502/503/504 folgen standardmäßig höchstens **zwei zusätzliche Versuche** mit Wartezeit (15 und 30 Sekunden). Alternativ kann ein anderer vertrauenswürdiger Overpass-HTTPS-Endpunkt mit `--overpass-url https://.../api` gewählt werden; öffentlichen Diensten keine schnellen unbegrenzten Wiederholungen zumuten. `--overpass-retries 0` schaltet die zusätzlichen Versuche ab. Ein dauerhaft ausgelasteter Endpunkt kann weiterhin fehlschlagen. Bereits vorhandene OSM-Daten lassen sich stattdessen über `--osm-input <datei.geojson>` verwenden.
+
 ## Daten und Veröffentlichung
 
 OSM-Daten stehen unter der Open Database License (ODbL); amtliche GIS-Daten haben jeweils eigene Nutzungsbedingungen. **Vor einer Veröffentlichung von Eingangs- oder abgeleiteten Daten sind Quelle, Lizenz und Attribution zu prüfen.** Interne Wasserleitungs-, Hydranten- und Kapazitätsdaten gehören nicht ohne gesonderte Freigabe in ein öffentliches Repository.
