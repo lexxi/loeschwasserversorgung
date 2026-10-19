@@ -67,7 +67,7 @@ Abweichungen können auch von neu heruntergeladenen Daten stammen. Bei Fehlermel
 - Referenzpunkt-Zuordnung und positive Gebäudeflächenüberschneidung sind getrennte Prüfgrößen.
 - Historische Vergleichsdaten fehlen bei neu hinzugenommenen Gemeinden möglicherweise.
 - Vor einer Veröffentlichung gelten die Hinweise zu Datenqualität, Datenlizenzen und Wasserinfrastruktur.
-- **Geplante Repository-Umbenennung:** Nach erfolgreichem Test mehrerer Gemeinden soll `loeschwasserversorgung_9854_malta` in einen gemeindeunabhängigen Namen wie `loeschwasserversorgung` umbenannt werden. Derzeit **kein Rename**, bestehende lokale Klone und Git-Remotes bleiben gültig.
+- **Neues Repository:** `lexxi/loeschwasserversorgung` wurde mit eigenständiger Git-Historie aus dem bereinigten aktuellen Projektstand angelegt. Historische Commits des früheren Malta-Repositories wurden nicht importiert.
 
 ## Regressionstest: Ergebnis 19.10.2026
 
