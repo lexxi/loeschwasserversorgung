@@ -13,6 +13,8 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
+from municipality_text import readable_name
+
 
 def read_json(path: Path) -> dict:
     if not path.is_file():
@@ -50,7 +52,7 @@ def compute(base: Path) -> tuple[dict, str]:
     joined = read_json(base / "building_zoning" / "summary.json")
     classification = read_json(base / "building_classification" / "summary.json")
     municipality_id = str(manifest.get("municipality_id", "")).strip()
-    municipality_name = str(manifest.get("municipality_name", "")).strip()
+    municipality_name = readable_name(str(manifest.get("municipality_name", "")).strip())
     if not municipality_id or not municipality_name:
         raise ValueError("Gemeinde-ID oder -Name fehlt im Import-Manifest.")
     if str(osm.get("municipality_id", "")).strip() != municipality_id:
