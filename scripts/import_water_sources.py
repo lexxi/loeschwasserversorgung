@@ -192,7 +192,10 @@ def main():
         writer.writeheader()
         writer.writerows(records)
     # GeoJSON nur mit zuvor kuratierten Feldern (keine OSM-Namen/Adressen).
-    frame.to_file(geojson_file, driver="GeoJSON")
+    if frame.empty:
+        geojson_file.write_text('{"type":"FeatureCollection","features":[]}\\n', encoding="utf-8")
+    else:
+        frame.to_file(geojson_file, driver="GeoJSON")
     counts = {label: sum(r["type"] == label for r in records) for label in TYPES.values()}
     metadata = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
