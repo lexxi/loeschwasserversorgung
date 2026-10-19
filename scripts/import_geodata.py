@@ -13,12 +13,14 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import ssl
 from pathlib import Path
 import tempfile
 from urllib.request import Request, urlopen
 import zipfile
 
 import geopandas as gpd
+import truststore
 
 GEMEINDE_ID = "20619"
 GEMEINDE_NAME = "Malta"
@@ -41,7 +43,7 @@ def download(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     tmp = destination.with_suffix(destination.suffix + ".part")
     try:
-        with urlopen(Request(url, headers={"User-Agent": "Malta-LWV-geodata-import/0.1"}), timeout=180) as response, tmp.open("wb") as out:
+        with urlopen(Request(url, headers={"User-Agent": "Löschwasserversorgung-geodata-import/0.2"}), timeout=180, context=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)) as response, tmp.open("wb") as out:
             while block := response.read(1024 * 1024):
                 out.write(block)
         if not zipfile.is_zipfile(tmp):
