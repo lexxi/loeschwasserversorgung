@@ -1,3 +1,2 @@
 geopandas>=1.0,<2
-fiona>=1.10,<2
 osmnx>=2.0,<3
