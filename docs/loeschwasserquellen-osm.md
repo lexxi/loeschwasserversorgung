@@ -22,6 +22,32 @@ Bei überlastetem oder nicht erreichbarem Overpass: Die Downloadfunktion versuch
 
 Zur reproduzierbaren Verarbeitung vorhandener Quellen: `--input C:\Pfad\osm_export.geojson` statt `--download`. Der GeoJSON-Export benötigt OSM-`emergency`-Tags und OSM-Element-IDs.
 
+
+## Ohne Overpass: lokaler OSM-PBF-Import (empfohlen bei API-Ausfall)
+
+Wenn mehrere Overpass-Server gleichzeitig nicht erreichbar sind, kann das Skript **ohne jede Overpass-Anfrage** direkt die österreichischen OSM-Rohdaten von Geofabrik lesen:
+
+1. [Geofabrik – Österreich](https://download.geofabrik.de/europe/austria.html) öffnen und **`austria-latest.osm.pbf`** herunterladen. Der Datenauszug ist ungefähr 775 MB groß. **Nicht** das deutlich größere Shapefile-/GeoPackage-ZIP nehmen.
+2. Datei beispielsweise nach `data/raw/austria-latest.osm.pbf` legen.
+3. Einmalig `python -m pip install osmium` installieren (pyosmium hat Windows-Wheels einschließlich Python 3.14).
+4. Den Offline-Import ausführen:
+
+```powershell
+git pull --ff-only origin main
+python -m pip install osmium
+python scripts\import_water_sources.py --gemeinde 20619 --pbf data\raw\austria-latest.osm.pbf
+```
+
+Mit derselben PBF-Datei lässt sich anschließend **jede weitere Kärntner Gemeinde** untersuchen:
+
+```powershell
+python scripts\import_water_sources.py --gemeinde 20608 --pbf data\raw\austria-latest.osm.pbf
+```
+
+Im PBF-Modus werden explizit gekennzeichnete OSM-**Nodes und Ways** (auch geschlossene Flächen) eingelesen und anhand der amtlichen Gemeindegeometrie gefiltert. Getaggte **OSM-Relationen** werden in dieser ersten Offline-Variante gezählt, aber noch **nicht geometrisch verarbeitet**. Die ausgelassenen Objekte werden in der Konsole und im Manifest dokumentiert. Ein Way wird in der Ausgabe durch einen geometrischen Repräsentativpunkt dargestellt, der **nicht zwingend die eigentliche Entnahmestelle** markiert. Die PBF-SHA256-Prüfsumme wird im Manifest für spätere Reproduzierbarkeit gespeichert.
+
+Geofabrik-Download: [OpenStreetMap Austria](https://download.geofabrik.de/europe/austria.html); Parser: [pyosmium](https://github.com/osmcode/pyosmium). Der reine lokale Import braucht **keinen Onlinezugriff**.
+
 ## Übernommene OSM-Kategorien
 
 | OSM-Tag | Inventarkategorie | Fachliche Bedeutung |
