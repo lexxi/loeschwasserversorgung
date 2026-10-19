@@ -16,7 +16,7 @@ import time
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon, LineString
 
 from import_osm import read_boundary
 
@@ -95,6 +95,68 @@ def osm_download(boundary, overpass_url=None, retries=2):
     raise AssertionError("Unreachable")
 
 
+
+def pbf_import(path):
+    """Liest nur explizit markierte Nodes/Ways aus einem regionalen OSM-PBF.
+
+    pyosmium loest Way-Knotenkoordinaten aus dem selben PBF auf. OSM-Relationen
+    bleiben in dieser ersten Offline-Version ausgeschlossen und werden gemeldet.
+    """
+    try:
+        import osmium
+    except ImportError as exc:
+        raise SystemExit("Fuer --pbf bitte installieren: python -m pip install osmium") from exc
+    if not path.is_file():
+        raise FileNotFoundError(f"OSM-PBF fehlt: {path}")
+
+    rows = []
+    skipped = {"invalid_way_geometry": 0, "tagged_relations": 0}
+
+    class Collector(osmium.SimpleHandler):
+        def add_object(self, kind, item, geometry):
+            tags = item.tags
+            kind_tag = tags.get("emergency")
+            if kind_tag not in TYPES:
+                return
+            data = {"osm_id": f"{kind}/{item.id}", "emergency": kind_tag,
+                    "geometry": geometry}
+            for field in FIELDS[1:]:
+                data[field] = tags.get(field)
+            rows.append(data)
+
+        def node(self, n):
+            if n.tags.get("emergency") not in TYPES or not n.location.valid():
+                return
+            self.add_object("node", n, Point(n.location.lon, n.location.lat))
+
+        def way(self, w):
+            if w.tags.get("emergency") not in TYPES:
+                return
+            try:
+                coords = [(node.lon, node.lat) for node in w.nodes if node.location.valid()]
+                if len(coords) < 2:
+                    skipped["invalid_way_geometry"] += 1
+                    return
+                geom = Polygon(coords) if len(coords) >= 4 and coords[0] == coords[-1] else LineString(coords)
+                if geom.is_empty or not geom.is_valid:
+                    skipped["invalid_way_geometry"] += 1
+                    return
+                self.add_object("way", w, geom)
+            except (ValueError, RuntimeError):
+                skipped["invalid_way_geometry"] += 1
+
+        def relation(self, r):
+            if r.tags.get("emergency") in TYPES:
+                skipped["tagged_relations"] += 1
+
+    handler = Collector()
+    handler.apply_file(str(path), locations=True)
+    print(f"[INFO] PBF: {len(rows)} markierte Nodes/Ways vor Gemeindefilter", flush=True)
+    if any(skipped.values()):
+        print(f"[WARN] PBF: ausgelassene Geometrien/Relationen: {skipped}", flush=True)
+    return gpd.GeoDataFrame(rows, geometry="geometry", crs="EPSG:4326"), skipped
+
+
 def prepare(raw, boundary):
     if raw.crs is None:
         raise ValueError("OSM-Daten ohne Koordinatenreferenzsystem")
@@ -163,6 +225,7 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--download", action="store_true", help="Aktueller Overpass-Import")
     mode.add_argument("--input", type=Path, help="Lokaler OSM-GeoJSON-Export")
+    mode.add_argument("--pbf", type=Path, help="Offline-OSM-PBF, z. B. Geofabrik Austria")
     parser.add_argument("--overpass-url", help="Alternativer HTTPS-Endpunkt")
     parser.add_argument("--overpass-retries", type=int, default=2)
     args = parser.parse_args()
@@ -181,7 +244,13 @@ def main():
     if str(identity.get("municipality_id")) != args.gemeinde:
         parser.error("Import-Manifest stimmt nicht zur Gemeinde")
     boundary = read_boundary(boundary_path)
-    raw = osm_download(boundary, args.overpass_url, args.overpass_retries) if args.download else gpd.read_file(args.input)
+    pbf_skipped = None
+    if args.pbf:
+        raw, pbf_skipped = pbf_import(args.pbf)
+    elif args.download:
+        raw = osm_download(boundary, args.overpass_url, args.overpass_retries)
+    else:
+        raw = gpd.read_file(args.input)
     frame, records = prepare(raw, boundary)
 
     out = base / "water_sources"
@@ -204,7 +273,10 @@ def main():
         "municipality_id": args.gemeinde,
         "municipality_name": identity.get("municipality_name"),
         "source": "OpenStreetMap contributors (ODbL)",
-        "source_mode": "overpass" if args.download else "local_geojson",
+        "source_mode": "overpass" if args.download else ("local_osm_pbf" if args.pbf else "local_geojson"),
+        "pbf_file": str(args.pbf) if args.pbf else None,
+        "pbf_sha256": sha256(args.pbf) if args.pbf else None,
+        "pbf_skipped": pbf_skipped,
         "input_sha256": sha256(args.input) if args.input else None,
         "boundary_sha256": sha256(boundary_path),
         "filter": {"emergency": list(TYPES)},
@@ -219,6 +291,7 @@ def main():
             "OSM-Attribute wie pressure/capacity sind Rohwerte und kein Leistungsnachweis.",
             "Linien/Flächen werden als repräsentativer Punkt dargestellt.",
             "Natürliche Gewässer ohne explizite Feuerwehr-Entnahmetags sind nicht erfasst.",
+            "Im PBF-Modus werden Relationsobjekte nicht ausgewertet (im Manifest gezaehlt).",
         ],
     }
     manifest_file.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
