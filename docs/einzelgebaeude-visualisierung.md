@@ -39,6 +39,26 @@ Auch Gebäude mit drei oder mehr Schnitten lassen sich darstellen. Bei überlage
 
 Diese Grafik **erklärt geometrische Schnitte**, legt aber keine rechtlich maßgebliche Widmung fest. Sie nutzt keine Orthofotos und zeigt keine Hausnummern. Die erzeugten HTML-Dateien befinden sich im per `.gitignore` ausgeschlossenen `reports/`-Verzeichnis und werden nicht automatisch veröffentlicht.
 
+
+## Gesamtliste aller Gebäude mit mehreren Widmungsschnitten
+
+Die interaktive Einzelobjekt-Auswahl zeigt nur eine kleine Stichprobe. Für **alle** Gebäude mit mindestens zwei positiven Widmungs-Flächenschnitten gibt es zusätzlich den lokalen HTML-/CSV-Katalog:
+
+```powershell
+git pull --ff-only origin main
+python scripts\list_building_overlaps.py --gemeinde 20619 --open
+python scripts\list_building_overlaps.py --gemeinde 20608 --open
+```
+
+Der HTML-Katalog unter `reports/<gemeinde>/ueberlappungen/index.html` enthält eine **durchsuchbare Tabelle** mit OSM-ID, Gebäudetyp, Gebäudegrundfläche, Anzahl der Widmungspolygone, größtem und zweitgrößtem Schnittanteil, Kategorie und OBJECTIDs. **Jede OSM-ID ist anklickbar** und öffnet eine automatisch erzeugte, vollständige Gebäudeansicht. Daneben wird `ueberlappungen.csv` (UTF-8 mit BOM, Semikolon) für Excel und eigene Auswertungen abgelegt.
+
+Die Detailansicht ergänzt nun:
+
+- **OSM-Gebäudeattribute** (soweit vorhanden): `building`, `building:use`, `building:levels`, `amenity`, `tourism`, `shop`, `landuse`, OSM-ID, Grundfläche, Geometrietyp.
+- **Amtliche Attribute jedes geschnittenen Polygons**, soweit in KAGIS vorhanden: OBJECTID, KATEGORIE, WIDMUNG, BEZEICHNUNG, KURZBEZEICHNUNG, CODE, WIDCODE, GEMNR, gesamte Polygonfläche, Gebäudeschnittfläche und Schnittanteil.
+
+**Datenschutz und Einschränkung:** Hausnummern, Straßennamen und OSM-Name werden **bewusst nicht** in den automatisch generierten HTML-/CSV-Dateien ausgegeben. Die Dateien befinden sich lokal im ignorierten `reports/`-Ordner; sie werden nicht auf GitHub hochgeladen. Anteil und Gebäudetyp sind geometrische/OSM-basierte Angaben, keine rechtswirksame Zuordnung oder amtliche Nutzungsklassifikation. Die Liste enthält jeden Mehrfachschnitt, also ausdrücklich auch 99/1-%-Fälle; keine automatische Bewertung als Fehler.
+
 ## Voraussetzungen
 
 Zuerst `scripts/run_municipality.py` für die Gemeinde ausführen, sodass `data/processed/<gemeinde>/osm/buildings.geojson` und `data/processed/<gemeinde>/zoning.geojson` vorhanden sind. Benötigt werden die bestehenden Projekt-Abhängigkeiten, insbesondere GeoPandas und Shapely; kein QGIS und kein zusätzlicher Plotter.
