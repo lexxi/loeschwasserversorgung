@@ -16,6 +16,7 @@ import webbrowser
 
 from municipality_text import readable_name
 from show_building_zoning import load_data, matching_zones, draw
+from building_context import load_context, render_context
 
 
 def main():
@@ -29,6 +30,7 @@ def main():
         parser.error("Ungültige Kärntner Gemeindenummer")
     base = Path("data/processed") / mid
     buildings, zoning = load_data(base)
+    boundary, spatial_index = load_context(base, buildings)
     manifest = base / "import_manifest.json"
     municipality = mid
     if manifest.is_file():
@@ -63,8 +65,9 @@ def main():
             "objectids": " / ".join(str(z[0].get("OBJECTID") or "–") for z in zones),
             "detail": filename,
         })
+        context_html = render_context(footprint, boundary, buildings, spatial_index)
         (out / filename).write_text(
-            draw(osm_id, footprint, zoning, municipality, building, back_href="index.html"),
+            draw(osm_id, footprint, zoning, municipality, building, back_href="index.html", context_html=context_html),
             encoding="utf-8",
         )
 
