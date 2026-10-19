@@ -138,8 +138,7 @@ def main() -> None:
             parser.error(f"Landesweites GeoPackage fehlt: {gpkg}")
 
         boundary, municipality_name = select_municipality(valid_crs(gpd.read_file(shp), "Gemeinden"), municipality_id)
-        import fiona
-        layers = fiona.listlayers(gpkg)
+        layers = gpd.list_layers(gpkg)["name"].tolist()
         if args.zoning_layer:
             if args.zoning_layer not in layers:
                 raise ValueError(f"Layer nicht gefunden: {args.zoning_layer}. Vorhanden: {layers}")
