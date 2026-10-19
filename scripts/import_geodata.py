@@ -22,6 +22,8 @@ import zipfile
 import geopandas as gpd
 import truststore
 
+from municipality_text import readable_name
+
 GEMEINDE_ID = "20619"
 GEMEINDE_NAME = "Malta"
 TARGET_EPSG = 31287
@@ -101,7 +103,7 @@ def select_municipality(frame: gpd.GeoDataFrame, municipality_id: str) -> tuple[
         )
     if selection.geometry.is_empty.any() or (~selection.geometry.is_valid).any():
         raise ValueError("Gemeindegrenze hat ungültige oder leere Geometrie")
-    return selection.to_crs(epsg=TARGET_EPSG), str(names.loc[selection.index[0]])
+    return selection.to_crs(epsg=TARGET_EPSG), readable_name(str(names.loc[selection.index[0]]))
 
 
 def main() -> None:
