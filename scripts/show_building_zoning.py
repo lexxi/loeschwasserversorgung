@@ -92,7 +92,7 @@ def choose_building(buildings, zoning, limit):
     return choice
 
 
-def draw(osm_id, footprint, zoning, name, building_data=None):
+def draw(osm_id, footprint, zoning, name, building_data=None, back_href='ueberlappungen/index.html'):
     zones = matching_zones(footprint, zoning)
     if not zones:
         raise ValueError("Gebäude hat keinen positiven Flächenschnitt mit Widmungen")
@@ -189,6 +189,7 @@ def draw(osm_id, footprint, zoning, name, building_data=None):
                      f'<td class="num">{intersection.area:.2f}</td><td class="num"><b>{pct:.2f} %</b></td></tr>')
 
     title = escape(readable_name(name))
+    back_link = escape(back_href, quote=True)
     osm_label = escape(osm_id)
     return f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -196,6 +197,8 @@ def draw(osm_id, footprint, zoning, name, building_data=None):
 <style>
 body{{font-family:system-ui,Arial,sans-serif;background:#f7f8fa;color:#172536;margin:0;padding:25px}}
 main{{max-width:1100px;margin:auto}}h1{{font-size:1.6rem;margin-bottom:4px}}
+.nav{{display:inline-block;margin:0 0 15px;padding:10px 14px;border:1px solid #b8c7d7;border-radius:7px;color:#145b9d;text-decoration:none}}
+.nav:hover{{background:#ecf3fa}}
 h2{{font-size:1.2rem;padding:12px;margin:0}}h3{{font-size:1rem;margin:8px 0}}
 .attrs{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;padding:12px}}
 .attr{{padding:8px;border:1px solid #e0e5eb;border-radius:8px;overflow-wrap:anywhere}}
@@ -206,6 +209,7 @@ th,td{{text-align:left;padding:10px;border-bottom:1px solid #e8edf0}}.num{{text-
 .swatch{{display:inline-block;width:14px;height:14px;margin-right:8px;vertical-align:middle;border-radius:3px}}
 @media(max-width:720px){{body{{padding:10px}}table{{font-size:.78rem}}th,td{{padding:5px}}}}
 </style></head><body><main>
+<a class="nav" href="{back_link}">← Zurück zur Gebäudeübersicht</a>
 <h1>Gebäude {osm_label}</h1>
 <div class="note">{title} · Gebäudegrundfläche: {footprint.area:.2f} m² · {len(zones)} Widmungspolygone mit positivem Flächenschnitt</div>
 <div class="panel">{''.join(svg)}</div>
