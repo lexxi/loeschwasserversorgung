@@ -153,16 +153,24 @@ def draw(osm_id, footprint, zoning, name, building_data=None):
     building_rows.append(f"<tr><th>Geometrietyp</th><td>{escape(footprint.geom_type)}</td></tr>")
     building_rows.append(f"<tr><th>Widmungsschnitte</th><td>{len(zones)}</td></tr>")
 
+    id_counts = (zoning["OBJECTID"].astype(str).value_counts().to_dict()
+                 if "OBJECTID" in zoning.columns else {})
     zone_details = []
     zone_fields = ("OBJECTID", "KATEGORIE", "WIDMUNG", "BEZEICHNUNG",
                    "KURZBEZEICHNUNG", "CODE", "WIDCODE", "GEMNR")
     for i, (zone, intersection, pct) in enumerate(zones):
-        rows = []
+        # Der GeoJSON-Zeilenindex identifiziert den Datensatz in diesem Import.
+        # OBJECTID ist im KAGIS-Layer nicht zwingend eindeutig.
+        rows = [f"<tr><th>GeoJSON-Datensatz (0-basiert)</th><td>{int(zone.name)}</td></tr>"]
+        oid = str(zone.get("OBJECTID", ""))
+        if oid and id_counts.get(oid, 0) > 1:
+            rows.append(f"<tr><th>OBJECTID mehrfach vorhanden</th><td>"
+                        f"{id_counts[oid]} Datensätze in dieser Gemeinde</td></tr>")
         for field in zone_fields:
             if field in zone.index:
                 rows.append(f"<tr><th>{escape(field)}</th><td>{display(zone[field])}</td></tr>")
         rows.extend((
-            f"<tr><th>Gesamtfläche Widmungspolygon</th><td>{zone.geometry.area:.2f} m²</td></tr>",
+            f"<tr><th>Fläche dieser Polygongeometrie</th><td>{zone.geometry.area:.2f} m² / {zone.geometry.area / 1_000_000:.4f} km²</td></tr>",
             f"<tr><th>Schnittfläche mit Gebäude</th><td>{intersection.area:.2f} m²</td></tr>",
             f"<tr><th>Anteil am Gebäude</th><td>{pct:.2f} %</td></tr>",
         ))
@@ -210,7 +218,7 @@ kräftige Farben zeigen den jeweiligen Flächenschnitt <strong>innerhalb</strong
 Der dunkle Punkt markiert den geometrischen Schwerpunkt (nicht den für den GIS-Join verwendeten Repräsentativpunkt).</p>
 <p class="note">Anteile beziehen sich auf die gesamte OSM-Gebäudegrundfläche. Sie müssen bei Datenlücken oder geometrischen
 Überlagerungen nicht exakt 100 % ergeben. Keine automatische rechtliche Priorisierung, keine Prüfung der Rechtswirksamkeit.
-Keine Hausnummern und keine Kartendienste eingebunden; HTML/SVG funktioniert offline.</p>
+Die OBJECTID kann mehrfach vorkommen; zur eindeutigen Zuordnung innerhalb des jeweiligen Imports dient zusätzlich der GeoJSON-Datensatzindex (0-basiert). Keine Hausnummern und keine Kartendienste eingebunden; HTML/SVG funktioniert offline.</p>
 </main></body></html>"""
 
 
