@@ -34,6 +34,7 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 - `scripts/run_municipality.py`: Gemeindebezogener Gesamtlauf von Geodatenimport bis Gemeindebericht.
 - `docs/gemeinde-pipeline.md`: Anleitung für weitere Kärntner Gemeinden und Regressionstest.
 - `scripts/show_building_zoning.py` und `docs/einzelgebaeude-visualisierung.md`: Einzelgebäude mit den tatsächlich geschnittenen Widmungspolygonen offline als HTML anzeigen (ohne QGIS).
+- `scripts/list_building_overlaps.py`: Durchsuchbare HTML-/CSV-Gesamtliste aller Gebäude mit Mehrfachschnitt, inklusive anklickbarer grafischer Detailansichten.
 - `scripts/generate_municipality_report.py`: Generiert einen Gemeindereport (Markdown und JSON) aus den vorhandenen Auswertungen.
 - `docs/gemeindebericht.md`: Aufbau, Ausführung und Datenanforderungen des Gemeindeberichts.
 
@@ -119,6 +120,13 @@ python scripts\run_municipality.py --gemeinde 20608 --osm-download --repair-inva
 ```
 
 Ausgaben: `data/processed/20619/`, `data/processed/20608/` und `reports/<gemeinde>/gemeindebericht.md`. Die Datenverzeichnisse bleiben lokal und werden von Git ignoriert. Bei späteren Läufen auf demselben Rechner entfällt `--download-geodata`, sofern die ZIP-Dateien bereits unter `data/raw/` liegen. **Achtung:** Ein neuer Download kann einen anderen Datenstand liefern. `--repair-invalid` repariert ungültige Widmungspolygone ausdrücklich und dokumentiert die Anzahl; keine rechtliche Prüfung.
+
+Gesamtliste der Überschneidungen für eine Gemeinde im Browser öffnen:
+
+```powershell
+python scripts\list_building_overlaps.py --gemeinde 20619 --open
+python scripts\list_building_overlaps.py --gemeinde 20608 --open
+```
 
 Einzelne Gebäude und ihre Widmungs-Flächenschnitte lassen sich anschließend **ohne QGIS** als Offline-HTML zeigen:
 
