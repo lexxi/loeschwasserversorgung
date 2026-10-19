@@ -68,3 +68,23 @@ Zuerst `scripts/run_municipality.py` für die Gemeinde ausführen, sodass `data/
 Im Malta-Datensatz wurde festgestellt, dass die KAGIS-`OBJECTID 5227477` **44 separaten Polygon-Datensätzen** zugeordnet ist. Deren Flächen summieren sich auf ungefähr **255,5812 km²**. Die Detailseite hatte bei einem konkreten Datensatz **252,8020 km²** ausgegeben: das ist die Fläche **dieser einen Polygongeometrie**, nicht die Summe aller Datensätze mit derselben OBJECTID.
 
 Deshalb zeigt die Detailansicht zusätzlich den **0-basierten GeoJSON-Datensatzindex** und bei mehrfachen OBJECTIDs die Anzahl der Vorkommen. Der Index ist nur innerhalb **des jeweiligen importierten GeoJSON-Datenstandes** stabil; nach einem erneuten Import kann er sich ändern. Zur Reproduzierbarkeit gehören somit Datensatzstand/Quelldatei, Datensatzindex und OBJECTID zusammen. Gleiche OBJECTIDs dürfen nicht als Beleg dafür gelten, dass geometrisch nur ein einziges Polygon existiert.
+
+## Lage und Umgebung eines konkreten Gebäudes
+
+Jede neu erzeugte Gebäude-Detailseite enthält zusätzlich zur Widmungsüberschneidung:
+
+1. **Gemeindekarte** mit gesamter Gemeindegrenze und rotem Standortmarker.
+2. **Umgebungskarte (±250 m)** mit weiteren lokal importierten OSM-Gebäudeumrissen (grau) und dem ausgewählten Gebäude (rot), Nordhinweis und 100-m-Maßstabsbalken.
+3. **WGS84-Koordinaten** des gebäudeinternen Repräsentativpunkts und einen anklickbaren Link zur Position auf OpenStreetMap (externe Website, benötigt Internet).
+
+Die Gemeinde- und Umgebungskarten werden als SVG **ohne Netzverbindung** direkt in jede HTML-Detailseite eingebettet. **Straßen, Adressen, Orthofotos und Kataster sind nicht enthalten.** Ein Nachbargebäude erscheint nur, wenn es im vorliegenden lokalen OSM-Import vorkommt. Der Lagepunkt ist der geometrische OSM-Gebäuderepräsentativpunkt, keine amtlich bestätigte Postadresse. Der externe OSM-Link ist als solcher erkennbar und wird nicht automatisch geladen.
+
+Nach einem Update müssen bereits erzeugte HTML-Dateien **neu generiert** werden:
+
+```powershell
+git pull --ff-only origin main
+python scripts\list_building_overlaps.py --gemeinde 20619 --open
+python scripts\list_building_overlaps.py --gemeinde 20608 --open
+```
+
+Für ein einzelnes Gebäude genügt `python scripts\show_building_zoning.py --gemeinde 20608 --osm-id relation/5148314 --open`. Keine Geodaten-Neuimporte erforderlich.
