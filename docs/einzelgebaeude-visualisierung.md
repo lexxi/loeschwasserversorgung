@@ -62,3 +62,9 @@ Die Detailansicht ergänzt nun:
 ## Voraussetzungen
 
 Zuerst `scripts/run_municipality.py` für die Gemeinde ausführen, sodass `data/processed/<gemeinde>/osm/buildings.geojson` und `data/processed/<gemeinde>/zoning.geojson` vorhanden sind. Benötigt werden die bestehenden Projekt-Abhängigkeiten, insbesondere GeoPandas und Shapely; kein QGIS und kein zusätzlicher Plotter.
+
+## Wiederholte KAGIS-OBJECTIDs
+
+Im Malta-Datensatz wurde festgestellt, dass die KAGIS-`OBJECTID 5227477` **44 separaten Polygon-Datensätzen** zugeordnet ist. Deren Flächen summieren sich auf ungefähr **255,5812 km²**. Die Detailseite hatte bei einem konkreten Datensatz **252,8020 km²** ausgegeben: das ist die Fläche **dieser einen Polygongeometrie**, nicht die Summe aller Datensätze mit derselben OBJECTID.
+
+Deshalb zeigt die Detailansicht zusätzlich den **0-basierten GeoJSON-Datensatzindex** und bei mehrfachen OBJECTIDs die Anzahl der Vorkommen. Der Index ist nur innerhalb **des jeweiligen importierten GeoJSON-Datenstandes** stabil; nach einem erneuten Import kann er sich ändern. Zur Reproduzierbarkeit gehören somit Datensatzstand/Quelldatei, Datensatzindex und OBJECTID zusammen. Gleiche OBJECTIDs dürfen nicht als Beleg dafür gelten, dass geometrisch nur ein einziges Polygon existiert.
