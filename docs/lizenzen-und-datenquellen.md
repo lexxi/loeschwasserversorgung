@@ -6,9 +6,9 @@ Stand der Prüfung: 20. Oktober 2026.
 
 ## 1. Software-Quellcode dieses Repositories
 
-Im Repository wurde bislang **keine `LICENSE`-Datei hinterlegt**, und es wurde noch keine eigene Open-Source-Lizenz durch den Rechteinhaber ausgewählt. Deshalb ist die Nutzung über die gesetzlichen Schranken und explizite Rechte hinaus nicht allgemein freigegeben.
+Der eigene Projektcode und die selbst erstellte Projektdokumentation stehen seit 20. Oktober 2026 unter der **[MIT License](../LICENSE)**, Copyright © 2026 lexxi. Bei Weitergabe des Codes müssen der Copyright- und der Lizenzhinweis erhalten bleiben.
 
-Die Wahl einer Softwarelizenz (z. B. MIT, Apache-2.0 oder GPL-3.0) muss der Repository-Inhaber selbst treffen. Diese Wahl gilt nur für eigene, lizenzierbare Projektbestandteile und ändert **nicht** die Nutzungsrechte an importierten OSM-, OGD- oder ODB-Daten.
+Die MIT-Lizenz gilt **nicht automatisch** für externe Daten, fremde Inhalte oder daraus abgeleitete Datenbestände. Insbesondere ändert sie **nicht** die Nutzungsrechte an importierten OSM-, OGD- oder ODB-Daten.
 
 ## 2. Geodatenquellen
 
@@ -53,7 +53,7 @@ Die vier historischen OSM-Wasserquellen aus Malta werden ausschließlich lokal a
 
 ## 4. Noch offen vor einer externen Veröffentlichung
 
-1. **Softwarelizenz wählen:** Der Projektinhaber legt fest, unter welcher Lizenz sein Code veröffentlicht werden soll.
+1. **Softwarelizenz: erledigt.** Der eigene Code steht unter der MIT-Lizenz; [LICENSE](../LICENSE) ist im Repository enthalten.
 2. **ODB-Datenfreigabe schriftlich klären:** Dürfen Exportdaten, Karten, Objektkoordinaten oder nur aggregierte Auswertungen weitergegeben werden, und an wen? Ein vorhandener API-Key ist keine öffentliche Publikationserlaubnis.
 3. **OSM-Attribution in jeder öffentlichen Karte/Publikation prüfen** sowie gegebenenfalls Zugangs-/Weitergabepflichten für zugrunde liegende ODbL-Daten erfüllen.
 4. **Amtliche Datenstände und Änderungen dokumentieren:** Manifestdaten beibehalten; bei veröffentlichten KAGIS-/Statistik-Austria-Karten CC-BY-Hinweise sichtbar platzieren.
