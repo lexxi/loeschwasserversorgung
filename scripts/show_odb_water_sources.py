@@ -99,16 +99,18 @@ def main():
         typ = str(props.get("type", "unbekannt"))
         status = str(props.get("status_raw", ""))
         ident = str(props.get("odb_id", pos))
+        name = str(props.get("name") or "").strip()
         xm, ym = transformer.transform(geom.x, geom.y)
         x, y = project(xm, ym)
         label, status_color = STATUS.get(status, ("Status ungeklärt", "#818892"))
         type_color = COLORS.get(typ, "#66717f")
         type_counts[typ] += 1
         status_counts[label] += 1
-        tip = escape(f"ODB {ident} | {typ} | {label}")
+        tip = escape(f"{name or typ} | {typ} | {label} | ODB {ident}")
         markers.append(
             f'<g class="marker" data-type="{escape(typ, quote=True)}" '
-            f'data-status="{escape(status, quote=True)}" data-id="{escape(ident, quote=True)}">'
+            f'data-status="{escape(status, quote=True)}" data-id="{escape(ident, quote=True)}" '
+            f'data-name="{escape(name, quote=True)}">'
             f'<title>{tip}</title>'
             f'<circle cx="{x:.2f}" cy="{y:.2f}" r="7" fill="{type_color}" '
             f'stroke="{status_color}" stroke-width="3.3"/>'
@@ -154,9 +156,9 @@ small{color:#596b7e}
 <main><aside>
 <h2>Kategorien</h2>__TOGGLES__
 <h2>Status</h2>__STATUSES__
-<h2>Objektsuche</h2><input type="search" id="search" placeholder="ODB-ID filtern">
+<h2>Objektsuche</h2><input type="search" id="search" placeholder="Titel oder ODB-ID filtern">
 <p><strong id="visible">__COUNT__</strong> sichtbare Entnahmestellen</p>
-<small>Farbe innen = Quellentyp; Umrandung = Status. Punkt anklicken/berühren für Details. Status ist kein Nachweis der Entnahmeleistung.</small>
+<small>Farbe innen = Quellentyp; Umrandung = Status. Punkt mit der Maus berühren oder anklicken für Titel und Details. Status ist kein Nachweis der Entnahmeleistung.</small>
 </aside><div class="mapbox"><div class="controls">
 <button id="zoom-in" type="button">+</button><button id="zoom-out" type="button">−</button>
 <button id="reset" type="button">Gesamtansicht</button>
@@ -177,7 +179,7 @@ __MARKERS__
    const types=selected('.filter-type'),statuses=selected('.filter-status'),term=search.value.trim().toLowerCase();
    let shown=0;
    for(const m of markers){
-     const ok=types.has(m.dataset.type)&&statuses.has(m.dataset.status)&&m.dataset.id.toLowerCase().includes(term);
+     const ok=types.has(m.dataset.type)&&statuses.has(m.dataset.status)&&(m.dataset.id.toLowerCase().includes(term)||m.dataset.name.toLowerCase().includes(term));
      m.style.display=ok?'':'none';if(ok)shown++;
    }
    visible.textContent=shown;
@@ -199,10 +201,15 @@ __MARKERS__
  svg.addEventListener('pointerdown',ev=>{if(ev.target.closest('.marker'))return;drag={x:ev.clientX,y:ev.clientY,v:{...view}};svg.setPointerCapture(ev.pointerId)});
  svg.addEventListener('pointermove',ev=>{if(!drag)return;const b=svg.getBoundingClientRect();view.x=drag.v.x-(ev.clientX-drag.x)*drag.v.w/b.width;view.y=drag.v.y-(ev.clientY-drag.y)*drag.v.h/b.height;setView()});
  svg.addEventListener('pointerup',()=>drag=null);svg.addEventListener('pointercancel',()=>drag=null);
- for(const m of markers)m.addEventListener('click',()=>{
+ function describe(m){
    const label=({'1':'verwendbar','2':'eingeschränkt verwendbar','3':'nicht verwendbar'})[m.dataset.status]||'unbekannt';
-   document.getElementById('detail').textContent='ODB-ID: '+m.dataset.id+' | '+m.dataset.type+' | '+label;
- });
+   document.getElementById('detail').textContent=(m.dataset.name||'Ohne Titel')+' | ODB-ID: '+m.dataset.id+' | '+m.dataset.type+' | '+label;
+ }
+ for(const m of markers){
+   m.addEventListener('mouseenter',()=>describe(m));
+   m.addEventListener('focus',()=>describe(m));
+   m.addEventListener('click',()=>describe(m));
+ }
  update();
 })();
 </script></body></html>"""
