@@ -14,7 +14,40 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#243349}
 .file{fill:#edf1f7;stroke:#8293a7;stroke-width:2}
 .analysis{fill:#fff0df;stroke:#ef983e;stroke-width:2}
 </style>
-<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#2e6aab"/></marker></defs>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#2e6aab"/></marker>
+<!-- Self-contained vector symbols: no fonts or external image URLs -->
+<symbol id="symbol-austria" viewBox="0 0 64 48">
+  <path d="M6 22 13 17 18 20 23 11 29 14 34 8 41 14 47 10 52 17 59 18 55 26 61 30 51 35 45 33 38 40 31 37 26 42 18 36 12 37 9 29 3 27Z"
+        fill="#fff" stroke="#326caa" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M12 24 55 24 M14 30 48 30" stroke="#df5151" stroke-width="3" opacity=".8"/>
+</symbol>
+<symbol id="symbol-map" viewBox="0 0 48 48">
+  <path d="M5 9 17 5 31 10 43 5V38L31 43 17 38 5 43Z" fill="#b6d6ef" stroke="#326caa" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M17 5V38M31 10V43" stroke="#326caa" stroke-width="2.5" fill="none"/>
+</symbol>
+<symbol id="symbol-water" viewBox="0 0 48 48">
+  <path d="M24 4C20 13 10 22 10 30a14 14 0 0 0 28 0C38 22 28 13 24 4Z" fill="#79badb" stroke="#2876a6" stroke-width="2.5"/>
+  <path d="M16 31c1 6 5 9 10 9" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</symbol>
+<symbol id="symbol-house" viewBox="0 0 48 48">
+  <path d="M5 23 24 7 43 23" stroke="#2c658f" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10 21V42H38V21" fill="#a8d0ec" stroke="#2c658f" stroke-width="2.5"/>
+  <rect x="20" y="29" width="8" height="13" rx="1" fill="white" stroke="#2c658f" stroke-width="2"/>
+</symbol>
+<symbol id="symbol-gear" viewBox="0 0 48 48">
+  <path d="M21 3H27L29 9 34 11 40 8 44 13 41 19 43 22 46 25 44 31 38 31 35 36 37 42 32 45 27 41 21 45 16 42 17 36 12 32 5 32 3 26 8 22 8 18 4 14 8 9 14 11 19 9Z"
+        fill="#62b881" stroke="#2f7551" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="24" cy="24" r="9" fill="white" stroke="#2f7551" stroke-width="3"/>
+</symbol>
+<symbol id="symbol-file" viewBox="0 0 48 48">
+  <path d="M10 3H29L40 14V45H10Z" fill="#f8fafc" stroke="#697d94" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M29 3V14H40M16 23H34M16 30H34M16 37H30" fill="none" stroke="#697d94" stroke-width="2.2" stroke-linecap="round"/>
+</symbol>
+<symbol id="symbol-chart" viewBox="0 0 48 48">
+  <rect x="3" y="5" width="42" height="38" rx="6" fill="#fff8ef" stroke="#db8b31" stroke-width="2.5"/>
+  <path d="M12 35V25M24 35V14M36 35V20" fill="none" stroke="#dd903b" stroke-width="5" stroke-linecap="round"/>
+</symbol>
+</defs>
 <rect width="1600" height="950" fill="#fff"/>
 <text x="800" y="52" text-anchor="middle" class="h">Datenfluss / Verarbeitungsübersicht – Löschwasserversorgung</text>
 <text x="800" y="81" text-anchor="middle" class="sub">Gemeindeanalyse aus amtlichen Geodaten, Kärntner Objektdatenbank und OSM-Gebäuden</text>
@@ -24,46 +57,46 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#243349}
 <rect x="1101" y="115" width="474" height="45" rx="9" fill="#ed8a37"/><text x="1338" y="144" text-anchor="middle" class="head">Analysen / Berichte</text>
 
 <!-- source nodes -->
-<rect class="source" x="28" y="190" width="272" height="94" rx="10"/><text class="name" x="45" y="220">Statistik Austria</text><text class="info" x="45" y="247">Gemeindegrenzen</text>
-<rect class="source" x="28" y="305" width="272" height="94" rx="10"/><text class="name" x="45" y="335">KAGIS</text><text class="info" x="45" y="362">Flächenwidmung / Bauland</text>
-<rect class="source" x="28" y="448" width="272" height="116" rx="10"/><text class="name" x="45" y="479">Kärntner Objektdatenbank</text><text class="info" x="45" y="509">GeoJSON, Kategorie 1724</text><text class="info" x="45" y="532">Wasserentnahmestellen</text>
-<rect class="source" x="28" y="648" width="272" height="95" rx="10"/><text class="name" x="45" y="680">OpenStreetMap</text><text class="info" x="45" y="711">Gebäudegrundflächen</text>
+<rect class="source" x="28" y="190" width="272" height="94" rx="10"/><text class="name" x="45" y="220">Statistik Austria</text><text class="info" x="45" y="247">Gemeindegrenzen</text><use href="#symbol-austria" x="244" y="232" width="43" height="33"/>
+<rect class="source" x="28" y="305" width="272" height="94" rx="10"/><text class="name" x="45" y="335">KAGIS</text><text class="info" x="45" y="362">Flächenwidmung / Bauland</text><use href="#symbol-map" x="251" y="358" width="30" height="30"/>
+<rect class="source" x="28" y="448" width="272" height="116" rx="10"/><text class="name" x="45" y="479">Kärntner Objektdatenbank</text><text class="info" x="45" y="509">GeoJSON, Kategorie 1724</text><text class="info" x="45" y="532">Wasserentnahmestellen</text><use href="#symbol-water" x="250" y="522" width="28" height="30"/>
+<rect class="source" x="28" y="648" width="272" height="95" rx="10"/><text class="name" x="45" y="680">OpenStreetMap</text><text class="info" x="45" y="711">Gebäudegrundflächen</text><use href="#symbol-house" x="244" y="698" width="37" height="37"/>
 
 <!-- imports -->
 <rect class="process" x="323" y="229" width="340" height="136" rx="10"/>
 <text class="name" x="342" y="255">scripts/import_geodata.py</text>
-<text class="info" x="342" y="286">• Gemeindegrenzen importieren</text><text class="info" x="342" y="311">• Widmung importieren</text><text class="info" x="342" y="336">• Bauland ableiten</text>
+<text class="info" x="342" y="286">• Gemeindegrenzen importieren</text><text class="info" x="342" y="311">• Widmung importieren</text><text class="info" x="342" y="336">• Bauland ableiten</text><use href="#symbol-gear" x="620" y="322" width="30" height="30"/>
 <rect class="process" x="323" y="448" width="340" height="116" rx="10"/>
 <text class="name" x="342" y="477">scripts/import_odb_water_sources.py</text>
-<text class="info" x="342" y="508">• Lokalen GeoJSON-Export lesen</text><text class="info" x="342" y="535">• An Gemeindegrenze filtern</text>
+<text class="info" x="342" y="508">• Lokalen GeoJSON-Export lesen</text><text class="info" x="342" y="535">• An Gemeindegrenze filtern</text><use href="#symbol-gear" x="619" y="528" width="30" height="30"/>
 <rect class="process" x="323" y="630" width="340" height="128" rx="10"/>
 <text class="name" x="342" y="658">scripts/import_osm.py</text>
 <text class="info" x="342" y="681">oder</text><text class="name" x="342" y="703">scripts/import_osm_buildings_pbf.py</text>
-<text class="info" x="342" y="731">Gebäude aus Overpass / lokalem PBF</text>
+<text class="info" x="342" y="731">Gebäude aus Overpass / lokalem PBF</text><use href="#symbol-gear" x="619" y="735" width="28" height="28"/>
 
 <!-- intermediate files -->
 <rect class="file" x="684" y="229" width="392" height="136" rx="10"/>
 <text class="name" x="701" y="254">data/processed/&lt;GKZ&gt;/</text>
 <text class="path" x="701" y="281">boundary.geojson</text><text class="path" x="701" y="305">zoning.geojson · bauland.geojson</text>
-<text class="path" x="701" y="329">import_manifest.json</text>
+<text class="path" x="701" y="329">import_manifest.json</text><use href="#symbol-file" x="1035" y="320" width="29" height="29"/>
 <rect class="file" x="684" y="448" width="392" height="116" rx="10"/>
 <text class="name" x="701" y="475">data/processed/&lt;GKZ&gt;/odb_water_sources/</text>
 <text class="path" x="701" y="502">odb_water_sources.geojson / .csv</text>
-<text class="path" x="701" y="531">odb_water_sources_manifest.json</text>
+<text class="path" x="701" y="531">odb_water_sources_manifest.json</text><use href="#symbol-file" x="1035" y="523" width="29" height="29"/>
 <rect class="file" x="684" y="630" width="392" height="128" rx="10"/>
 <text class="name" x="701" y="660">data/processed/&lt;GKZ&gt;/osm/</text>
-<text class="path" x="701" y="690">buildings.geojson</text><text class="path" x="701" y="714">osm_manifest.json</text>
+<text class="path" x="701" y="690">buildings.geojson</text><text class="path" x="701" y="714">osm_manifest.json</text><use href="#symbol-file" x="1035" y="705" width="29" height="29"/>
 
 <!-- analysis boxes and outputs -->
 <rect class="analysis" x="1101" y="196" width="474" height="96" rx="10"/>
-<text class="name" x="1118" y="227">scripts/show_odb_water_sources.py</text><text class="path" x="1118" y="254">reports/&lt;GKZ&gt;/odb_wasserentnahmestellen.html</text><text class="info" x="1118" y="275">Interaktive Offline-Karte</text>
+<text class="name" x="1118" y="227">scripts/show_odb_water_sources.py</text><text class="path" x="1118" y="254">reports/&lt;GKZ&gt;/odb_wasserentnahmestellen.html</text><text class="info" x="1118" y="275">Interaktive Offline-Karte</text><use href="#symbol-chart" x="1539" y="253" width="26" height="27"/>
 <rect class="analysis" x="1101" y="378" width="474" height="97" rx="10"/>
 <text class="name" x="1118" y="409">scripts/analyze_odb_water_sources.py</text><text class="path" x="1118" y="437">reports/&lt;GKZ&gt;/odb_bestandsanalyse.*</text>
-<text class="info" x="1118" y="458">Bestandsanalyse (Markdown, CSV, JSON)</text>
+<text class="info" x="1118" y="458">Bestandsanalyse (Markdown, CSV, JSON)</text><use href="#symbol-chart" x="1539" y="435" width="26" height="27"/>
 <rect class="analysis" x="1101" y="600" width="474" height="100" rx="10"/>
 <text class="name" x="1118" y="632">scripts/analyze_buildings_odb_distance.py</text>
 <text class="path" x="1118" y="658">reports/&lt;GKZ&gt;/gebaeude_odb_abstaende.*</text>
-<text class="info" x="1118" y="682">Abstände aller erfassten Gebäude zur ODB</text>
+<text class="info" x="1118" y="682">Abstände aller erfassten Gebäude zur ODB</text><use href="#symbol-chart" x="1539" y="660" width="26" height="27"/>
 
 <!-- connections -->
 <path class="arrow" marker-end="url(#arr)" d="M300 238H309V273H323"/>
