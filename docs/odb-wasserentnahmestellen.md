@@ -60,3 +60,15 @@ Die eigenständige HTML-Datei arbeitet **ohne Webkarten, externe Bibliotheken od
 **Ausgeschlossen:** sämtliche vier archivierten OSM-Hydranten aus Malta. Sie werden weder eingelesen noch auf der Karte dargestellt. Die Karte stellt nur Quellstandorte dar, keine geprüfte hydraulische oder normative Versorgung.
 
 Nach einer Aktualisierung des Skripts muss der ODB-Importer erneut laufen, damit die Titel (`Name`) aus dem lokalen Originalexport in die Ergebnisdatei übernommen werden.
+
+## Erste räumliche Bestandsanalyse (ohne OSM)
+
+```powershell
+git pull --ff-only origin main
+python scripts\analyze_odb_water_sources.py --gemeinde 20619
+ii reports\20619\odb_bestandsanalyse.md
+```
+
+Das Skript liest **nur** die lokale ODB-GeoJSON-Datei und schreibt drei lokale Berichte unter `reports/20619/`: `odb_bestandsanalyse.md`, `odb_bestandsanalyse.csv` und `odb_bestandsanalyse.json`. Es ermittelt Kategorien, Statuswerte, den nächsten anderen ODB-Punkt, den nächsten als „verwendbar“ klassifizierten ODB-Punkt und die Anzahl weiterer Quellen in 100/250/500 m Entfernung.
+
+**Achtung:** Die Werte sind deskriptive Luftlinienabstände in `EPSG:31287`. Die drei Entfernungsschwellen sind ausdrücklich **keine Versorgungsradien**. Ohne gesicherte Entnahmeleistung, Hydraulik, tatsächliche Erreichbarkeit und Bedarfsbewertung können daraus weder Abdeckungsgrade noch Unterversorgungen abgeleitet werden. Die vier archivierten OSM-Hydranten werden nicht geladen.
