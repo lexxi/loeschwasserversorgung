@@ -14,7 +14,7 @@ Die in der Anwendung sichtbare Hauptkategorie **1724 – Wasserentnahmestellen**
 | Überflurhydrant | 1728 |
 | Unterflurhydrant | 1727 |
 
-Der erste manuell geprüfte Export enthielt **41 Objekte**, davon 32 Überflurhydranten, 3 Unterflurhydranten, 3 Bach mit Stau, 2 Saugstellen und 1 Löschwasserteich. `sliceddata=0`. Statuscodes: 40 × `1`, 1 × `2`. **Der fachliche Sinn dieser Statuscodes ist bisher ungeklärt.** 41 ist die Anzahl der exportierten Features, nicht bereits die GIS-geprüfte Anzahl innerhalb der amtlichen Gemeindegrenze.
+Der erste manuell geprüfte Export enthielt **41 Objekte**, davon 32 Überflurhydranten, 3 Unterflurhydranten, 3 Bach mit Stau, 2 Saugstellen und 1 Löschwasserteich. `sliceddata=0`. Statuscodes: 40 × `1`, 1 × `2`. **Status 2 bedeutet laut Nutzerangabe „eingeschränkt verwendbar“.** Die Bedeutung von Status 1 ist noch nicht bestätigt. 41 ist die Anzahl der exportierten Features, nicht bereits die GIS-geprüfte Anzahl innerhalb der amtlichen Gemeindegrenze.
 
 ## Export und Import
 
@@ -31,7 +31,7 @@ python scripts\check_project.py --gemeinde 20619
 Das Skript erwartet vorhandene amtliche `data/processed/20619/boundary.geojson` und `import_manifest.json`, nutzt die Gemeindegrenze als räumlichen Filter und schreibt unter `data/processed/20619/odb_water_sources/`:
 
 - `odb_water_sources.csv` (Semikolon, UTF-8 mit BOM),
-- `odb_water_sources.geojson` (nur Objekt-ID, Kategorie, Statusrohcode, Punktkoordinaten),
+- `odb_water_sources.geojson` (nur Objekt-ID, Kategorie, Statusrohcode, vorsichtig zugeordnetes Statuslabel und Punktkoordinaten),
 - `odb_water_sources_manifest.json` (Quell-Hash, Filterergebnisse, Gesamtzahlen/Status/Kategorien und Einschränkungen).
 
 Zur Datensparsamkeit werden `Name`, `Text`, `Links`, `Image`, `Editurl` **nicht** in die Ergebnisdateien übernommen. Der Originalexport bleibt im lokalen, von Git ignorierten `data/raw/`-Ordner. Nur exakte ODB-Ids im autorisierten Datenbestand werden übernommen, nicht veröffentlicht.
@@ -42,5 +42,5 @@ Zur Datensparsamkeit werden `Name`, `Text`, `Links`, `Image`, `Editurl` **nicht*
 - `sliceddata=0` ist ein Hinweis gegen die Kürzung der Kartenausgabe; kein Beweis vollständiger Daten.
 - Es werden nur **Point-Geometrien** und die bekannten fünf Wasserentnahmestellen-Kategorien importiert. Objekte außerhalb der amtlichen Gemeindegrenze werden lediglich gezählt und nicht ausgegeben.
 - ODB und OSM werden **nicht** blind zusammengeführt: identische Einrichtungen könnten in beiden Beständen stehen.
-- Statuscode, Verfügbarkeit, Wassermenge, Druck, technische Eignung und tatsächliche Vollständigkeit bleiben bis zur fachlichen Verifizierung offen.
+- Status 2 ist als „eingeschränkt verwendbar“ bekannt; Status 1 wird bewusst nur als Rohcode mit dem Label „nicht bestätigt“ geführt. Die tatsächliche Verfügbarkeit, Wassermenge, Druck, technische Eignung und Vollständigkeit bleiben bis zur fachlichen Verifizierung offen.
 - Die Nutzung/Freigabe der Daten sowie eine eventuelle API-Anbindung müssen mit der zuständigen Stelle geklärt werden. API-Key-Zugriff ist nicht aus dem Browser-GeoJSON-Endpunkt abzuleiten.
