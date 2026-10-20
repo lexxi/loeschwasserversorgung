@@ -1,5 +1,7 @@
 # Abgleich OSM ↔ Objektdatenbank: Löschwasserquellen
 
+> **Projektentscheidung (20.10.2026):** Die vier für Malta (GKZ 20619) importierten OSM-Hydranten bleiben ausschließlich als lokaler historischer Vergleichsbestand erhalten. Sie werden **nicht mehr dargestellt, nicht mit ODB vereinigt und nicht in die weitere Löschwasserversorgungsanalyse oder Berechnungen einbezogen**. Der ODB-Bestand ist die maßgebliche Arbeitsdatenquelle. Die nachfolgend beschriebenen OSM-Vergleichswerkzeuge dienen nur der Nachvollziehbarkeit früherer Untersuchungen und sind nicht Bestandteil der aktiven Analysepipeline.
+
 Der Abgleich ist **lokal**, read-only gegenüber den beiden Originalimporten und verwendet weder Web-API noch API-Schlüssel.
 
 ## Voraussetzungen
