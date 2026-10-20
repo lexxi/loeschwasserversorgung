@@ -94,6 +94,11 @@ def municipality(mid):
             "Übersicht": out / "ueberlappungen" / "index.html",
             "CSV": out / "ueberlappungen" / "ueberlappungen.csv",
         }),
+        stage("ODB-Wasserentnahmestellen", {
+            "ODB-CSV": base / "odb_water_sources" / "odb_water_sources.csv",
+            "ODB-GeoJSON": base / "odb_water_sources" / "odb_water_sources.geojson",
+            "ODB-Manifest": base / "odb_water_sources" / "odb_water_sources_manifest.json",
+        }, {"ODB-Manifest": mid}),
         stage("OSM-Löschwasserquellen", {
             "CSV": base / "water_sources" / "water_sources.csv",
             "GeoJSON": base / "water_sources" / "water_sources.geojson",
@@ -170,6 +175,8 @@ def main():
             else:
                 suggest("OSM-Austria-PBF herunterladen: https://download.geofabrik.de/europe/austria.html")
                 suggest(f"python scripts\\import_water_sources.py --gemeinde {mid} --pbf data\\raw\\austria-latest.osm.pbf")
+        # ODB ist eine optional berechtigt bezogene Fachdatenquelle:
+        # nicht automatisch zum Herunterladen oder Login auffordern.
         if not by_stage["OSM-Gebäude"]["ok"]:
             suggest(f"python scripts\\run_municipality.py --gemeinde {mid} --skip-geodata --osm-download")
         elif not all(by_stage[name]["ok"] for name in (
