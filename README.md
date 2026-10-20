@@ -28,6 +28,7 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 - `docs/import.md`: Ausführungsanleitung.
 - `scripts/import_osm.py`: OSM-Gebäudeimport aus lokalem Export oder via Overpass.
 - `scripts/import_water_sources.py` und `docs/loeschwasserquellen-osm.md`: Eigenständige erste OSM-Bestandsaufnahme von Hydranten, Saugstellen, Löschwasserbehältern und Löschwasserteichen; ohne Leistungs- oder Eignungsnachweis.
+- `scripts/import_odb_water_sources.py` und `docs/odb-wasserentnahmestellen.md`: Separater lokaler Import von berechtigt exportierten Objektdatenbank-Wasserentnahmestellen (GeoJSON-Kategorie 1724).
 - `docs/osm-import.md`: Anleitung und Datenherkunft zum OSM-Import.
 - `docs/datenqualitaet-methodik.md`: Messergebnisse, Unsicherheiten und Prüfplan zur geometrischen Widmungszuordnung.
 - `scripts/classify_buildings.py` und `config/building_classification.json`: Konservative Klassifikation der OSM-Gebäudetags.
@@ -184,6 +185,16 @@ python scripts\\import_water_sources.py --gemeinde 20608 --download
 ```
 
 Die Ergebnisdateien `water_sources.csv`, `water_sources.geojson` und `water_sources_manifest.json` liegen unter `data/processed/<GKZ>/water_sources/`. Die Erfassung nutzt explizite OSM-Feuerwehrwasser-Tags; sie prüft **weder Wasserverfügbarkeit noch Entnahmeleistung**. Weitere Angaben, Grenzen und Prüfschritte: [OSM-Löschwasserquellen](docs/loeschwasserquellen-osm.md).
+
+### Objektdatenbank: lokale Fachdaten (getrennt von OSM)
+
+Den über den berechtigten Objektdatenbank-Zugang gespeicherten GeoJSON-Export der Kategorie 1724 lokal nach `data/raw/odb_wasserentnahmestellen.geojson` legen. Danach:
+
+```powershell
+python scripts\import_odb_water_sources.py --gemeinde 20619 --input data\raw\odb_wasserentnahmestellen.geojson
+```
+
+Der Import filtert auf die amtliche Gemeindegrenze, übernimmt ID, Kategorie, Statusrohcode und Koordinaten und speichert lokale Ergebnisse unter `data/processed/20619/odb_water_sources/`. Keine Anmeldung oder API-Key-Verwendung durch dieses Skript. Details: [ODB-Wasserentnahmestellen](docs/odb-wasserentnahmestellen.md).
 
 ## Daten und Veröffentlichung
 
