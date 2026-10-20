@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import Point
+from shapely.geometry import Point, shape
 
 ROOT = Path(__file__).resolve().parent.parent
 METRIC_CRS = "EPSG:31287"
@@ -41,19 +41,45 @@ COLUMNS = (
 
 
 def load_points(path, id_field, type_field):
+    """GeoJSON bewusst direkt lesen; keine impliziten GDAL-Geometrieumwandlungen."""
     if not path.is_file():
         raise FileNotFoundError(f"Datenbestand fehlt: {path}")
-    gdf = gpd.read_file(path)
-    if gdf.crs is None:
-        raise ValueError(f"Kein CRS angegeben: {path}")
-    if not {id_field, type_field}.issubset(gdf.columns):
-        raise ValueError(f"ID/Typ-Felder fehlen in {path}")
-    if not gdf.empty and (gdf.geometry.isna().any()
-                           or not gdf.geometry.geom_type.eq("Point").all()):
-        raise ValueError(f"Erwartet ausschließlich Point-Geometrien: {path}")
-    if gdf[id_field].isna().any() or gdf[id_field].astype(str).duplicated().any():
-        raise ValueError(f"Fehlende/doppelte Objekt-ID: {path}")
-    return gdf.to_crs(METRIC_CRS)
+    data = json.loads(path.read_text(encoding="utf-8-sig"))
+    if data.get("type") != "FeatureCollection" or not isinstance(data.get("features"), list):
+        raise ValueError(f"Kein gültiger GeoJSON-FeatureCollection-Export: {path}")
+
+    rows = []
+    points = []
+    ids = set()
+    for position, feature in enumerate(data["features"], start=1):
+        properties = feature.get("properties")
+        geometry = feature.get("geometry")
+        if not isinstance(properties, dict) or id_field not in properties or type_field not in properties:
+            raise ValueError(f"Feature {position}: ID/Typ fehlen: {path}")
+        identifier = str(properties[id_field]).strip() if properties[id_field] is not None else ""
+        if not identifier or identifier in ids:
+            raise ValueError(f"Feature {position}: fehlende/doppelte ID: {path}")
+        ids.add(identifier)
+        try:
+            geom = shape(geometry)
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise ValueError(f"Feature {position} ({identifier}): ungültige GeoJSON-Geometrie: {exc}") from exc
+        if not isinstance(geom, Point) or geom.is_empty or not geom.is_valid:
+            raise ValueError(
+                f"Feature {position} ({identifier}): erwartet Point, "
+                f"gefunden {geom.geom_type}; Eingabedatei: {path}"
+            )
+        if not (-180 <= geom.x <= 180 and -90 <= geom.y <= 90):
+            raise ValueError(f"Feature {position} ({identifier}): Koordinaten außerhalb WGS84")
+        rows.append(properties.copy())
+        points.append(geom)
+
+    frame = gpd.GeoDataFrame(rows, geometry=points, crs="EPSG:4326")
+    # Leere FeatureCollections mit vollständig definierten Spalten erlauben.
+    if frame.empty:
+        frame = gpd.GeoDataFrame(columns=[id_field, type_field, "geometry"],
+                                 geometry="geometry", crs="EPSG:4326")
+    return frame.to_crs(METRIC_CRS)
 
 
 def nearest(point, candidates):
