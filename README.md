@@ -33,6 +33,7 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 - `scripts/classify_buildings.py` und `config/building_classification.json`: Konservative Klassifikation der OSM-Gebäudetags.
 - `docs/gebaeudeklassifikation.md`: Regeln und Grenzen der Gebäudezuordnung.
 - `scripts/run_municipality.py`: Gemeindebezogener Gesamtlauf von Geodatenimport bis Gemeindebericht.
+- `scripts/check_project.py` und `docs/projektcheck.md`: Lokaler Projektcheck (Python-Pakete, Git, Rohdaten, Gemeindeimporte und Löschwasserquellen) mit Handlungsempfehlungen.
 - `docs/gemeinde-pipeline.md`: Anleitung für weitere Kärntner Gemeinden und Regressionstest.
 - `scripts/show_building_zoning.py` und `docs/einzelgebaeude-visualisierung.md`: Einzelgebäude mit den tatsächlich geschnittenen Widmungspolygonen offline als HTML anzeigen (ohne QGIS).
 - `scripts/list_building_overlaps.py`: Durchsuchbare HTML-/CSV-Gesamtliste aller Gebäude mit Mehrfachschnitt, inklusive anklickbarer grafischer Detailansichten.
@@ -70,6 +71,14 @@ git status
 ```
 
 Falls `C:\pyprojects` bereits existiert, ist `mkdir` nicht erforderlich. Ein vorhandenes lokales Projektverzeichnis nicht durch erneutes Klonen überschreiben.
+
+### Lokalen Projektstand prüfen (besonders beim Rechnerwechsel)
+
+```powershell
+python scripts\check_project.py
+```
+
+Das Skript benötigt keine zusätzlichen Python-Pakete, führt keine Downloads oder Änderungen durch und zeigt die fehlenden Bestandteile sowie nächste Befehle an. Weitere Optionen: [Projektcheck](docs/projektcheck.md).
 
 ### Bestehendes Repository aktualisieren
 
