@@ -85,3 +85,16 @@ python scripts\analyze_buildings_odb_distance.py --gemeinde 20619
 Benötigt `data/processed/20619/osm/buildings.geojson` und die importierten ODB-Quellen. Fehlt das Gebäudeinventar auf diesem Rechner, zuerst das bestehende Gebäudeimport-Verfahren auf diesem Rechner ausführen oder die lokalen, nicht ins öffentliche Repo gehörenden Ergebnisse aus der anderen Installation übernehmen.
 
 Erzeugt `reports/20619/gebaeude_odb_abstaende.csv` (je Gebäude) und `reports/20619/gebaeude_odb_abstaende.json` (Zusammenfassung). Entfernungen beziehen sich auf den **nächsten Punkt zur Gebäudegrundfläche**, nicht auf den Gebäude-Mittelpunkt. Hauptabstand: nur ODB-Quellen mit Status 1 („verwendbar“); Status 2 wird lediglich als separate Zusatzinformation ausgewertet, Status 3 nicht. Keine normativen Versorgungsradien oder Eignungsaussagen; keine Wasserleistung oder Schlauchwege verfügbar.
+
+## Gebäudeimporte ohne Overpass
+
+Wenn `import_osm.py --download` mit einem `ConnectTimeout` gegen einen Overpass-Server scheitert, lässt sich das vorhandene **lokale Österreich-PBF** wiederverwenden:
+
+```powershell
+git pull --ff-only origin main
+python -m pip install osmium
+python scripts\import_osm_buildings_pbf.py --gemeinde 20619 --pbf data\raw\austria-latest.osm.pbf
+python scripts\analyze_buildings_odb_distance.py --gemeinde 20619
+```
+
+Der Offline-Importer legt `data/processed/20619/osm/buildings.geojson` sowie `osm_manifest.json` an; es werden keine Daten auf GitHub gespeichert. **Einschränkung:** Der PBF-Importer erfasst geschlossene, als Gebäude getaggte Ways; Gebäude, die nur über reine Multipolygon-Relationen beschrieben werden, werden noch nicht rekonstruiert und im Manifest ausgewiesen. Der Bericht muss entsprechend als OSM-basierte Bestandsaufnahme und nicht als amtlich vollständiges Gebäudeinventar verstanden werden.
