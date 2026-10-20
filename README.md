@@ -198,7 +198,7 @@ Der Import filtert auf die amtliche Gemeindegrenze, übernimmt ID, Kategorie, St
 
 ## Daten und Veröffentlichung
 
-OSM-Daten stehen unter der Open Database License (ODbL); amtliche GIS-Daten haben jeweils eigene Nutzungsbedingungen. **Vor einer Veröffentlichung von Eingangs- oder abgeleiteten Daten sind Quelle, Lizenz und Attribution zu prüfen.** Interne Wasserleitungs-, Hydranten- und Kapazitätsdaten gehören nicht ohne gesonderte Freigabe in ein öffentliches Repository.
+Die Nutzungsbedingungen sind für die einzelnen Quellen verschieden: **Statistik Austria (Gemeindegrenzen 2026): CC BY 4.0; Land Kärnten/KAGIS (Flächenwidmung): CC BY 4.0; OpenStreetMap (Gebäude): ODbL 1.0.** Für die **Kärntner Objektdatenbank** ist keine öffentliche Weitergabelizenz nachgewiesen: Die Exportdaten und standortbezogenen Ergebnisse bleiben lokal, solange keine geeignete Freigabe vorliegt.\n\nAlle Quellenangaben, Metadaten-Nachweise und Hinweise zur Veröffentlichung: **[Lizenzen und Datenquellen](docs/lizenzen-und-datenquellen.md)**. Eine Datenlizenz ist nicht gleichbedeutend mit der Lizenz unseres Quellcodes.
 
 ## Rechtliche Hinweise
 
@@ -206,7 +206,7 @@ Siehe [Rechtsgrundlagen](docs/rechtsgrundlagen.md). Maßgeblich sind die jeweils
 
 ## Lizenz
 
-Noch festzulegen. Bis zur ausdrücklichen Lizenzvergabe sind die Repository-Inhalte nicht automatisch Open Source.
+**Die Softwarelizenz ist noch vom Repository-Inhaber festzulegen.** Das öffentliche Repository enthält derzeit keine `LICENSE`-Datei; die öffentliche Lesbarkeit allein erlaubt keine beliebige Weiterverwendung des Codes. Eine spätere Softwarelizenz ändert die Rechte an Statistik-Austria-, KAGIS-, OSM- oder ODB-Daten nicht. Siehe [Lizenz- und Quellenübersicht](docs/lizenzen-und-datenquellen.md).
 
 ## Datenfluss
 
