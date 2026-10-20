@@ -25,7 +25,7 @@ CATEGORIES = {
     "Unterflurhydrant": 1727,
 }
 STATUS_LABELS = {"1": "verwendbar", "2": "eingeschränkt verwendbar", "3": "nicht verwendbar"}
-FIELDS = ("odb_id", "type", "status_raw", "status_label", "latitude", "longitude")
+FIELDS = ("odb_id", "name", "type", "status_raw", "status_label", "latitude", "longitude")
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -119,7 +119,8 @@ def main():
         if category not in CATEGORIES:
             rejected["unknown_category"] += 1
             continue
-        row = {"odb_id": odb_id, "type": category, "status_raw": status,
+        row = {"odb_id": odb_id, "name": str(properties.get("Name") or "").strip(),
+               "type": category, "status_raw": status,
                "status_label": STATUS_LABELS.get(status, "nicht bestätigt"),
                "latitude": round(geom.y, 7), "longitude": round(geom.x, 7)}
         rows.append(row)
@@ -163,7 +164,7 @@ def main():
         "limitations": [
             "Status 1 = verwendbar, Status 2 = eingeschränkt verwendbar, Status 3 = nicht verwendbar (gemäß Rückmeldung aus der ODB). Die Statusangabe ersetzt keine Vor-Ort-Prüfung.",
             "GeoJSON-Kartenauszug ist kein Nachweis der gesamten Gemeindeabdeckung.",
-            "Verwendet nur ODB-Id, Type, Status und Point-Koordinaten.",
+            "Verwendet nur ODB-Id, Name, Type, Status und Point-Koordinaten; lokale Daten nicht veröffentlichen.",
             "Standort, Einsatzbereitschaft und Löschwasserleistung sind nicht verifiziert.",
             "Keine OSM-Datensatz-Zusammenführung oder Dublettenbeurteilung.",
         ],
