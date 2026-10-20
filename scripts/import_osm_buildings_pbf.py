@@ -50,10 +50,6 @@ def read_pbf_buildings(pbf, boundary):
             except (ValueError, RuntimeError, osmium.InvalidLocationError):
                 counts["invalid_or_unclosed_ways"] += 1
                 return
-            if not all(xmin <= x <= xmax and ymin <= y <= ymax for x, y in (coordinates[0],)):
-                # Nicht anhand des ersten Knotens ausfiltern, da das Polygon
-                # die Gemeindegrenze auch mit anderen Knoten schneiden kann.
-                pass
             poly_minx = min(p[0] for p in coordinates)
             poly_maxx = max(p[0] for p in coordinates)
             poly_miny = min(p[1] for p in coordinates)
