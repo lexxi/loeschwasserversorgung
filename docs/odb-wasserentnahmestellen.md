@@ -98,3 +98,9 @@ python scripts\analyze_buildings_odb_distance.py --gemeinde 20619
 ```
 
 Der Offline-Importer legt `data/processed/20619/osm/buildings.geojson` sowie `osm_manifest.json` an; es werden keine Daten auf GitHub gespeichert. **Einschränkung:** Der PBF-Importer erfasst geschlossene, als Gebäude getaggte Ways; Gebäude, die nur über reine Multipolygon-Relationen beschrieben werden, werden noch nicht rekonstruiert und im Manifest ausgewiesen. Der Bericht muss entsprechend als OSM-basierte Bestandsaufnahme und nicht als amtlich vollständiges Gebäudeinventar verstanden werden.
+
+## Datenflussdiagramm
+
+![Datenfluss Löschwasserversorgung](datenfluss-loeschwasserversorgung.svg)
+
+[SVG-Grafik öffnen](datenfluss-loeschwasserversorgung.svg). Das Diagramm dokumentiert den aktiven Workflow ohne OSM-Wasserquellen.
