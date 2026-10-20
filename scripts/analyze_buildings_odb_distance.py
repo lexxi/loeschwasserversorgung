@@ -17,7 +17,6 @@ from statistics import median
 
 import geopandas as gpd
 from shapely.geometry import Point, shape
-from shapely.ops import transform
 from pyproj import Transformer
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -46,7 +45,7 @@ def load_sources(path):
             "id": str(props.get("odb_id") or ""),
             "type": str(props.get("type") or ""),
             "status": str(props.get("status_raw") or ""),
-            "geom": transform(project, geom),
+            "geom": Point(*project(geom.x, geom.y)),
         })
     return sources
 
