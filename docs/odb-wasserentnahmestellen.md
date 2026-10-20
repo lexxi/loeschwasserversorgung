@@ -31,10 +31,10 @@ python scripts\check_project.py --gemeinde 20619
 Das Skript erwartet vorhandene amtliche `data/processed/20619/boundary.geojson` und `import_manifest.json`, nutzt die Gemeindegrenze als räumlichen Filter und schreibt unter `data/processed/20619/odb_water_sources/`:
 
 - `odb_water_sources.csv` (Semikolon, UTF-8 mit BOM),
-- `odb_water_sources.geojson` (nur Objekt-ID, Kategorie, Statusrohcode, vorsichtig zugeordnetes Statuslabel und Punktkoordinaten),
+- `odb_water_sources.geojson` (nur Objekt-ID, Kategorie, Statusrohcode, Statuslabel, lokalen Objekttitel (Name) und Punktkoordinaten),
 - `odb_water_sources_manifest.json` (Quell-Hash, Filterergebnisse, Gesamtzahlen/Status/Kategorien und Einschränkungen).
 
-Zur Datensparsamkeit werden `Name`, `Text`, `Links`, `Image`, `Editurl` **nicht** in die Ergebnisdateien übernommen. Der Originalexport bleibt im lokalen, von Git ignorierten `data/raw/`-Ordner. Nur exakte ODB-Ids im autorisierten Datenbestand werden übernommen, nicht veröffentlicht.
+Zur Datensparsamkeit werden `Text`, `Links`, `Image`, `Editurl` **nicht** in die Ergebnisdateien übernommen. Das Feld `Name` wird für die lokale Titelanzeige und Suche übernommen; Ergebnisse dürfen nicht öffentlich hochgeladen werden. Der Originalexport bleibt im lokalen, von Git ignorierten `data/raw/`-Ordner. Nur exakte ODB-Ids im autorisierten Datenbestand werden übernommen, nicht veröffentlicht.
 
 ### Wichtige Abgrenzungen
 
@@ -55,6 +55,8 @@ python scripts\show_odb_water_sources.py --gemeinde 20619
 ii reports\20619\odb_wasserentnahmestellen.html
 ```
 
-Die eigenständige HTML-Datei arbeitet **ohne Webkarten, externe Bibliotheken oder Internetverbindung**. Sie zeigt die amtliche Gemeindegrenze sowie ausschließlich die importierten ODB-Punkte. Verfügbar sind Filter nach den fünf Typen, drei Statuscodes, eine Suche nach ODB-ID, Zoom und Verschieben sowie Details auf Klick.
+Die eigenständige HTML-Datei arbeitet **ohne Webkarten, externe Bibliotheken oder Internetverbindung**. Sie zeigt die amtliche Gemeindegrenze sowie ausschließlich die importierten ODB-Punkte. Verfügbar sind Filter nach den fünf Typen, drei Statuscodes, eine Suche nach ODB-ID oder Objekttitel, Zoom und Verschieben sowie Titelanzeige beim Darüberfahren oder Klick.
 
 **Ausgeschlossen:** sämtliche vier archivierten OSM-Hydranten aus Malta. Sie werden weder eingelesen noch auf der Karte dargestellt. Die Karte stellt nur Quellstandorte dar, keine geprüfte hydraulische oder normative Versorgung.
+
+Nach einer Aktualisierung des Skripts muss der ODB-Importer erneut laufen, damit die Titel (`Name`) aus dem lokalen Originalexport in die Ergebnisdatei übernommen werden.
