@@ -24,7 +24,8 @@ CATEGORIES = {
     "Überflurhydrant": 1728,
     "Unterflurhydrant": 1727,
 }
-FIELDS = ("odb_id", "type", "status_raw", "latitude", "longitude")
+STATUS_LABELS = {"2": "eingeschränkt verwendbar"}  # Status 1 noch nicht bestätigt
+FIELDS = ("odb_id", "type", "status_raw", "status_label", "latitude", "longitude")
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -119,6 +120,7 @@ def main():
             rejected["unknown_category"] += 1
             continue
         row = {"odb_id": odb_id, "type": category, "status_raw": status,
+               "status_label": STATUS_LABELS.get(status, "nicht bestätigt"),
                "latitude": round(geom.y, 7), "longitude": round(geom.x, 7)}
         rows.append(row)
         output_features.append({"type": "Feature", "geometry": feature["geometry"],
@@ -154,11 +156,12 @@ def main():
         "count": len(rows),
         "count_by_type": dict(sorted(Counter(row["type"] for row in rows).items())),
         "count_by_status_raw": dict(sorted(Counter(row["status_raw"] for row in rows).items())),
+        "known_status_labels": STATUS_LABELS,
         "rejected": dict(sorted(rejected.items())),
         "csv_sha256": sha256(csv_path),
         "geojson_sha256": sha256(geojson_path),
         "limitations": [
-            "Statuscodes 1/2 fachlich nicht interpretiert.",
+            "Status 2 wurde als eingeschränkt verwendbar angegeben; Bedeutung von Status 1 noch ungeklärt.",
             "GeoJSON-Kartenauszug ist kein Nachweis der gesamten Gemeindeabdeckung.",
             "Verwendet nur ODB-Id, Type, Status und Point-Koordinaten.",
             "Standort, Einsatzbereitschaft und Löschwasserleistung sind nicht verifiziert.",
