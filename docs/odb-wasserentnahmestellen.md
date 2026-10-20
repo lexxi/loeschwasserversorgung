@@ -44,3 +44,17 @@ Zur Datensparsamkeit werden `Name`, `Text`, `Links`, `Image`, `Editurl` **nicht*
 - ODB und OSM werden **nicht** blind zusammengeführt: identische Einrichtungen könnten in beiden Beständen stehen.
 - Status 1 ist als „verwendbar“, Status 2 als „eingeschränkt verwendbar“ und Status 3 als „nicht verwendbar“ bekannt. Die Rohcodes bleiben unverändert gespeichert. Die tatsächliche Verfügbarkeit, Wassermenge, Druck, technische Eignung und Vollständigkeit bleiben bis zur fachlichen Verifizierung offen.
 - Die Nutzung/Freigabe der Daten sowie eine eventuelle API-Anbindung müssen mit der zuständigen Stelle geklärt werden. API-Key-Zugriff ist nicht aus dem Browser-GeoJSON-Endpunkt abzuleiten.
+
+## Offline-Karte (ODB-only)
+
+Nach dem lokalen ODB-Import:
+
+```powershell
+git pull --ff-only origin main
+python scripts\show_odb_water_sources.py --gemeinde 20619
+ii reports\20619\odb_wasserentnahmestellen.html
+```
+
+Die eigenständige HTML-Datei arbeitet **ohne Webkarten, externe Bibliotheken oder Internetverbindung**. Sie zeigt die amtliche Gemeindegrenze sowie ausschließlich die importierten ODB-Punkte. Verfügbar sind Filter nach den fünf Typen, drei Statuscodes, eine Suche nach ODB-ID, Zoom und Verschieben sowie Details auf Klick.
+
+**Ausgeschlossen:** sämtliche vier archivierten OSM-Hydranten aus Malta. Sie werden weder eingelesen noch auf der Karte dargestellt. Die Karte stellt nur Quellstandorte dar, keine geprüfte hydraulische oder normative Versorgung.
