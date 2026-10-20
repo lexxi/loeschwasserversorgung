@@ -207,3 +207,9 @@ Siehe [Rechtsgrundlagen](docs/rechtsgrundlagen.md). Maßgeblich sind die jeweils
 ## Lizenz
 
 Noch festzulegen. Bis zur ausdrücklichen Lizenzvergabe sind die Repository-Inhalte nicht automatisch Open Source.
+
+## Datenfluss
+
+![Datenfluss Löschwasserversorgung](docs/datenfluss-loeschwasserversorgung.svg)
+
+Die [bearbeitbare SVG-Datenflussgrafik](docs/datenfluss-loeschwasserversorgung.svg) zeigt Datenquellen, Importskripte, Zwischenstände und Berichte ohne die archivierten OSM-Wasserquellen.
