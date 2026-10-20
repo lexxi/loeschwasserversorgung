@@ -24,7 +24,7 @@ CATEGORIES = {
     "Überflurhydrant": 1728,
     "Unterflurhydrant": 1727,
 }
-STATUS_LABELS = {"1": "verwendbar", "2": "eingeschränkt verwendbar"}
+STATUS_LABELS = {"1": "verwendbar", "2": "eingeschränkt verwendbar", "3": "nicht verwendbar"}
 FIELDS = ("odb_id", "type", "status_raw", "status_label", "latitude", "longitude")
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -161,7 +161,7 @@ def main():
         "csv_sha256": sha256(csv_path),
         "geojson_sha256": sha256(geojson_path),
         "limitations": [
-            "Status 1 = verwendbar, Status 2 = eingeschränkt verwendbar (gemäß Rückmeldung aus der ODB). Die Statusangabe ersetzt keine Vor-Ort-Prüfung.",
+            "Status 1 = verwendbar, Status 2 = eingeschränkt verwendbar, Status 3 = nicht verwendbar (gemäß Rückmeldung aus der ODB). Die Statusangabe ersetzt keine Vor-Ort-Prüfung.",
             "GeoJSON-Kartenauszug ist kein Nachweis der gesamten Gemeindeabdeckung.",
             "Verwendet nur ODB-Id, Type, Status und Point-Koordinaten.",
             "Standort, Einsatzbereitschaft und Löschwasserleistung sind nicht verifiziert.",
