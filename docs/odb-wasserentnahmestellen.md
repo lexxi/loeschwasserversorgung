@@ -14,7 +14,7 @@ Die in der Anwendung sichtbare Hauptkategorie **1724 – Wasserentnahmestellen**
 | Überflurhydrant | 1728 |
 | Unterflurhydrant | 1727 |
 
-Der erste manuell geprüfte Export enthielt **41 Objekte**, davon 32 Überflurhydranten, 3 Unterflurhydranten, 3 Bach mit Stau, 2 Saugstellen und 1 Löschwasserteich. `sliceddata=0`. Statuscodes: 40 × `1`, 1 × `2`. **Status 1 bedeutet „verwendbar“, Status 2 „eingeschränkt verwendbar“** (laut Rückmeldung aus der Objektdatenbank). 41 ist die Anzahl der exportierten Features, nicht bereits die GIS-geprüfte Anzahl innerhalb der amtlichen Gemeindegrenze.
+Der erste manuell geprüfte Export enthielt **41 Objekte**, davon 32 Überflurhydranten, 3 Unterflurhydranten, 3 Bach mit Stau, 2 Saugstellen und 1 Löschwasserteich. `sliceddata=0`. Statuscodes: 40 × `1`, 1 × `2`. **Status 1 bedeutet „verwendbar“, Status 2 „eingeschränkt verwendbar“, Status 3 „nicht verwendbar“** (laut Rückmeldung aus der Objektdatenbank). 41 ist die Anzahl der exportierten Features, nicht bereits die GIS-geprüfte Anzahl innerhalb der amtlichen Gemeindegrenze.
 
 ## Export und Import
 
@@ -42,5 +42,5 @@ Zur Datensparsamkeit werden `Name`, `Text`, `Links`, `Image`, `Editurl` **nicht*
 - `sliceddata=0` ist ein Hinweis gegen die Kürzung der Kartenausgabe; kein Beweis vollständiger Daten.
 - Es werden nur **Point-Geometrien** und die bekannten fünf Wasserentnahmestellen-Kategorien importiert. Objekte außerhalb der amtlichen Gemeindegrenze werden lediglich gezählt und nicht ausgegeben.
 - ODB und OSM werden **nicht** blind zusammengeführt: identische Einrichtungen könnten in beiden Beständen stehen.
-- Status 1 ist als „verwendbar“, Status 2 als „eingeschränkt verwendbar“ bekannt. Die Rohcodes bleiben unverändert gespeichert. Die tatsächliche Verfügbarkeit, Wassermenge, Druck, technische Eignung und Vollständigkeit bleiben bis zur fachlichen Verifizierung offen.
+- Status 1 ist als „verwendbar“, Status 2 als „eingeschränkt verwendbar“ und Status 3 als „nicht verwendbar“ bekannt. Die Rohcodes bleiben unverändert gespeichert. Die tatsächliche Verfügbarkeit, Wassermenge, Druck, technische Eignung und Vollständigkeit bleiben bis zur fachlichen Verifizierung offen.
 - Die Nutzung/Freigabe der Daten sowie eine eventuelle API-Anbindung müssen mit der zuständigen Stelle geklärt werden. API-Key-Zugriff ist nicht aus dem Browser-GeoJSON-Endpunkt abzuleiten.
