@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
+import json
 from html import escape
 from pathlib import Path
 from urllib.parse import quote
@@ -15,6 +16,8 @@ import webbrowser
 
 ROOT = Path(__file__).resolve().parent.parent
 REPORTS = ROOT / "reports"
+REFERENCES = REPORTS / "references"
+SOURCE_CATALOG = ROOT / "config" / "reference_documents.json"
 
 PAGES = (
     ("Karten", (
@@ -107,6 +110,45 @@ def document(title: str, body: str, back: str | None = None) -> str:
             '</body></html>')
 
 
+def references_section(relative_prefix: str) -> str:
+    """Build dual offline/online links from the explicit versioned catalog."""
+    if not SOURCE_CATALOG.is_file():
+        return ""
+    data = json.loads(SOURCE_CATALOG.read_text(encoding="utf-8"))
+    groups = {}
+    for source in data["documents"]:
+        group = source.get("category", "Weitere Dokumente")
+        groups.setdefault(group, []).append(source)
+    blocks = ['<section><h2>Rechtsgrundlagen und Fachquellen – offline / online</h2>',
+              '<p>Offline-Dokumente bleiben lokal gespeichert. Externe Links benötigen Internet. '
+              'Die jeweilige Fassung und die Anwendbarkeit sind gesondert zu prüfen.</p>']
+    for title, items in groups.items():
+        blocks.append(f'<h2>{escape(title)}</h2><div class="grid">')
+        for source in items:
+            filename = source["filename"]
+            if Path(filename).name != filename or not filename.lower().endswith(".pdf"):
+                raise ValueError(f"Unsicherer Dateiname in Quellenkatalog: {filename}")
+            target = REFERENCES / filename
+            offline = (f'<a href="{escape(href(relative_prefix+"references/"+filename),quote=True)}">'
+                       'Offline öffnen</a>') if target.is_file() else (
+                       '<span>Offline noch nicht vorhanden</span>')
+            online = (f'<a href="{escape(source["online_url"],quote=True)}" '
+                      'target="_blank" rel="noopener noreferrer">Online öffnen</a>')
+            alternate = source.get("additional_online_url")
+            if alternate:
+                online += (f' · <a href="{escape(alternate,quote=True)}" '
+                           'target="_blank" rel="noopener noreferrer">Weitere Originalquelle</a>')
+            blocks.append(
+                f'<div class="tile"><strong>{escape(source["title"])}</strong>'
+                f'<span>{escape(source.get("edition",""))}</span>'
+                f'<p>{offline} · {online}</p>'
+                f'<span>{escape(source.get("usage_note",""))}</span></div>'
+            )
+        blocks.append('</div>')
+    blocks.append('</section>')
+    return "".join(blocks)
+
+
 def generate_municipality(mid: str, folder: Path) -> tuple[Path, int]:
     sections = []
     count = 0
@@ -142,6 +184,7 @@ def generate_municipality(mid: str, folder: Path) -> tuple[Path, int]:
             'Nachweis der Löschwasserversorgung oder einer Gebäudeklasse. '
             'Insbesondere die ODB-Karten enthalten nichtöffentliche Standortdaten; '
             'diese Seite und ihre Unterseiten nur lokal verwenden.</div>')
+    body += references_section("../")
     body += "".join(sections) if sections else (
         '<p class="empty">Noch keine Karten oder Berichte gefunden. '
         'Zuerst die entsprechenden Analyseskripte ausführen.</p>')
@@ -190,6 +233,7 @@ def main() -> None:
             '<h2>Gemeinden</h2>')
     body += '<div class="grid">' + "".join(entries) + '</div>' if entries else (
         '<p class="empty">Keine Gemeindeberichte vorhanden.</p>')
+    body += references_section("")
     root_index = REPORTS / "index.html"
     root_index.write_text(document("Löschwasserversorgung – Berichtszentrale", body),
                           encoding="utf-8")
