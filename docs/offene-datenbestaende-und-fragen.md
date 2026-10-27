@@ -105,3 +105,17 @@ python scripts\probe_bev_address_municipality.py --gemeinde 20619 --check-buildi
 ```
 
 **Nächste offene Fragen:** Ist `inspireId_GKZ` für Malta eindeutig? Welcher Feldwert trägt die tatsächlich sichtbare Hausnummer? Gibt es pro `localId_ADRCD` mehrere Matching-Einträge und Gebäude-Subcodes? Welche Geometrie ist Zugang und welche Baukörper? Erst nach diesen Befunden wird ein lokaler Gemeindeexport mit vollständiger Adressbeschreibung und der Verbindung zu OSM-Grundrissen erstellt.
+
+### Malta: erster BEV-Filter erfolgreich (27.10.2026)
+
+Die lokale Probe ergab:
+
+- `AD_Municipality.localId_GKZ = 20619`, Gemeindename `Malta`.
+- Der tatsächliche INSPIRE-Gemeindeschlüssel lautet **`AT.BEV.AD.GKZ.20619`**.
+- **824 Matching-Tabellenzeilen**, **824 unterschiedliche `localId_ADRCD`**, **0 NULL-Adresscodes** für den bisherigen GKZ-Teilzeichenfolgenfilter; da alle Beispieldatensätze exakt den bestätigten GKZ-Schlüssel tragen, wurde das Skript jetzt auf **exakten Gleichheitsfilter** umgestellt. Die Zahl muss beim erneuten Lauf bestätigt werden.
+- `addressIdentifierGeneral` enthält erkennbare Hausnummernwerte (Beispiele `1`, `2`, `7a`, `7b`).
+- `locatorLevelValue` in den Beispielen: `siteLevel`; das allein bestätigt **nicht**, dass die Geometrie innerhalb eines OSM-Gebäudepolygons liegt.
+
+**Folgerung:** Die früher genannte Bestandskennzahl **758** ist nicht mit dem nun abgefragten BEV-Datenstand gleichzusetzen. Derzeit sind **824 verschiedene Adresscodes**, aber noch **nicht 824 Gebäude** oder zwingend **824 unterschiedliche postalische Hausnummern** nachgewiesen.
+
+**Nächster Prüfbefehl:** `python scripts\probe_bev_address_municipality.py --gemeinde 20619 --check-building-links`. Er liefert zusätzlich vorhandene `AD_BuildingGeometry`-Zeilen, die Anzahl verknüpfter Adresscodes und Gebäudesubcodes sowie Beispielwerte. Keine automatische Verknüpfung mit OSM-Gebäuden vor Prüfung der Geometrien und Datenmodell-Semantik.
