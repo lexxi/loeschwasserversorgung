@@ -75,7 +75,7 @@ python scripts\\inventory_gk_building_attributes.py --gemeinde 20619 --expected-
 python scripts\\analyze_gk_data_completeness.py --gemeinde 20619 --expected-count 1686
 ```
 
-**Optional vorab:** Für den BEV-Teil muss `reports/20619/addresses/gebaeude_adressen.csv` vorhanden sein (aus `join_bev_building_points_osm.py`); für den ALS-Teil `reports/20619/gk_inventory/gebaeude_als_hoehen.csv` (aus der bestehenden ALS-Analyse). Fehlende optionale Quellen werden als „nicht geladen“ gekennzeichnet. Bestehende Quelldateien werden nicht überschrieben.
+**Optional vorab:** Für den BEV-Teil muss `reports/20619/addresses/gebaeude_adressen.csv` vorhanden sein (aus `join_bev_building_points_osm.py`); für den ALS-Teil bevorzugt `reports/20619/gk_inventory/gebaeude_als_hoehen_gemeinde.csv` aus der **gemeindeweiten** ALS-Analyse; nur wenn diese Datei fehlt, wird die ältere `gebaeude_als_hoehen.csv` des begrenzten Testausschnitts verwendet. Achtung: Der begrenzte Ausschnitt kann sehr viele `outside_raster`-Einträge verursachen. Fehlende optionale Quellen werden als „nicht geladen“ gekennzeichnet. Bestehende Quelldateien werden nicht überschrieben.
 
 **Ergebnisse (nur lokal):** `reports/20619/gk_inventory/gk_datenvollstaendigkeit.csv` und `gk_datenvollstaendigkeit_summary.json`. Die Ausgabe behandelt geometrische BEV-Matches ausdrücklich nur als Kandidaten. Aus den vorhandenen GIS-Quellen wird kein rechtlich bestätigtes Fluchtniveau, keine gesamte BGF und keine GK abgeleitet. Die acht Prüffelder bilden die Datenerhebung ab; nicht jede GK-Variante verlangt dieselben Merkmale.
 
