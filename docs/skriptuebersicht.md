@@ -47,6 +47,7 @@ Dieses Verzeichnis erklärt für **jedes Python-Skript** in [`scripts/`](../scri
 | [`download_bev_als.py`](../scripts/download_bev_als.py) | Wählt BEV-ALS-Kacheln reproduzierbar anhand der Gebäude-/Gemeindegeometrie aus; erstellt Plan oder lädt auf ausdrückliches `--download` komplette DSM/DTM-Kacheln. **Sehr große Dateien, nicht Standard für den Pilotversuch.** | Gebäude bzw. Grenze; fixer BEV-Stichtag | Optional `data/raw/bev/<Stichtag>/DSM/` und `DTM/` mit Original-TIFFs sowie `bev_als_<GKZ>_<source>_lock.json` (URL, SHA-256) |
 | [`download_bev_als_subset.py`](../scripts/download_bev_als_subset.py) | **Bevorzugter Pilot:** Liest kleine, gleich ausgerichtete Ausschnitte aus den BEV-COG-Rastern über HTTPS-Teilabrufe. Vermeidet komplette 50-km-Kacheln. | Gebäude-Geometrie; Stichtag; optional Gebäude-ID, Radius; GDAL/rasterio mit HTTP-Range-Unterstützung | `data/raw/bev/<Stichtag>/subsets/<GKZ>/dom_malta.tif`, `dgm_malta.tif`, `subset_manifest.json` |
 | [`process_bev_als_municipality.py`](../scripts/process_bev_als_municipality.py) | **Gesamte Gemeinde:** gruppiert OSM-Gebäude in belegte 2-km-Zellen, lädt nur benötigte DSM-/DTM-Fenster, prüft/cachet sie mit SHA-256 und berechnet alle Höhenindikatoren in einer CSV. Unterstützt Planmodus, inkrementellen Download und gesonderte Analyse. | `buildings.geojson`, fixer BEV-Stichtag, online COG-Raster | `data/raw/bev/<Stichtag>/municipality_tiles/<GKZ>/<tile-id>/dom.tif`, `dgm.tif`, `manifest.json`; `reports/<GKZ>/gk_inventory/gebaeude_als_hoehen_gemeinde.csv`, `als_hoehen_gemeinde_summary.json` |
+| [`review_building_als_heights.py`](../scripts/review_building_als_heights.py) | Führt den gemeindeweiten Höhenbericht per **OSM-ID** mit vorhandenen Gebäude-Tags zusammen. Ermittelt Höhe-Perzentile, heuristische Qualitätsflags und erstellt eine **offline bedienbare SVG-Karte** mit Filtern, Suche und Gebäudedetails. Keine GK- oder Löschwasserzuordnung. | `data/processed/<GKZ>/osm/buildings.geojson`, `reports/<GKZ>/gk_inventory/gebaeude_als_hoehen_gemeinde.csv` | `reports/<GKZ>/gk_inventory/gebaeude_gk_merkmale_mit_als.csv`, `als_hoehen_qualitaet.json`, `gebaeude_als_hoehenkarte.html` |
 | [`analyze_buildings_als_height.py`](../scripts/analyze_buildings_als_height.py) | Verknüpft OSM-Grundrisse mit einem passenden DOM-/DGM-Rasterpaar; berechnet Median, P90, Maximum und Qualitätsflags der **geschätzten Objekthöhe**, nicht Fluchtniveau oder GK. | `buildings.geojson`, passend ausgerichtete lokale DOM-/DGM-GeoTIFFs, identische Höhenreferenz und Datenstand | `reports/<GKZ>/gk_inventory/gebaeude_als_hoehen.csv`, `als_hoehen_summary.json` |
 
 Für den nächsten Test **nicht** `download_bev_als.py --download` ausführen. Der Vollkachel-Download für Malta ist bereits an der 8-GiB-Sicherheitsgrenze gescheitert. Die kleinen Ausschnitte sind der praktikable Versuch.
@@ -208,3 +209,23 @@ Alternativ `--download --analyze` für Download und Gesamtauswertung in einem Au
 
 **Noch offen:** Für Gebäude, die eine 50-km-BEV-Kachelgrenze überschreiten, wird zunächst `crosses_bev_tile` dokumentiert – diese benötigen einen späteren expliziten Mehrkachel-Abgleich. Wegen Bewuchs, Dachgeometrie, historischen Befliegungen und Rasterwerten bleibt auch `estimated` eine **nicht überprüfte Objekthöhe**. Kein automatischer Rückschluss auf Fluchtniveau, Geschosszahl oder GK.
 
+
+## Gebäudehöhen gemeinsam prüfen: Bericht und Offline-Karte
+
+Nach dem erfolgreichen gemeindeweiten BEV-ALS-Lauf mit **1.634 geschätzten Objekthöhen und 52 Fällen mit zu wenigen Pixeln**:
+
+```powershell
+git pull --ff-only origin main
+python scripts\review_building_als_heights.py --gemeinde 20619 --open
+```
+
+Das Skript benötigt nur die bereits vorhandenen **lokalen** Gebäudegrundrisse und `gebaeude_als_hoehen_gemeinde.csv`; es führt **keinen Download** aus. Es vergleicht die OSM-IDs **streng eins zu eins** und stoppt, wenn Gebäude zwischenzeitlich importiert, gelöscht oder umnummeriert wurden. Dadurch werden keine Höhen einem falschen Gebäude zugeordnet.
+
+Lokale Ergebnisse:
+- `reports/20619/gk_inventory/gebaeude_gk_merkmale_mit_als.csv`: kombinierte OSM-Attribute, geometrische Grundfläche, BEV-Höhenindikatoren, Qualität, Prüfhinweise; `gk_actual=unknown`.
+- `reports/20619/gk_inventory/als_hoehen_qualitaet.json`: Anzahl nach Status, Höhenverteilung (Median, P05 und P95) und Prüfflag-Häufigkeiten.
+- `reports/20619/gk_inventory/gebaeude_als_hoehenkarte.html`: vollständig lokale SVG-Übersicht aller Gebäude, mit Farbklassen, Ein-/Ausblenden, OSM-ID-Suche, Zoom und anklickbaren Details.
+
+Die Farbklassen **unter 3 / 3–6 / 6–9 / 9–12 / 12–18 / ab 18 m** sind frei gewählte **Visualisierungsintervalle und ausdrücklich keine OIB-GK-Grenzen**. Prüfhinweise sind ebenfalls **nur heuristisch**: geschätzter Median unter 1 m, ab 25 m, große Differenz von Maximum zu Median ab 10 m oder Rasterabdeckung unter 85 %. Gebäude mit `too_few_pixels` werden gesondert gekennzeichnet. Alle Statistiken zur Höhenverteilung berücksichtigen nur Datensätze mit `quality=estimated`. Dachaufbauten, Bäume, unterschiedliche ALS-Aufnahmedaten und kleine Gebäude können Abweichungen verursachen.
+
+Die Karte benötigt **keine externe Karten-API** und enthält keine ODB-Wasserquellen. Trotzdem bleiben CSV, JSON und HTML unter dem lokal gehaltenen `reports/`-Ordner. **Objekthöhe ≠ OIB-Fluchtniveau; weder Geschosszahl noch GK oder Löschwasserbedarf werden daraus bestimmt.**
