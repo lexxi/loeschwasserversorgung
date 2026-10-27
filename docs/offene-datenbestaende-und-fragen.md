@@ -255,3 +255,25 @@ python scripts\review_building_als_heights.py --gemeinde 20619 --open
 Danach die **neuen**, lokal berechneten Fallzahlen ablesen und mit dem bisherigen Ausgangsstand **747 strikt innerhalb / 29 nahe / 12 ohne Treffer** vergleichen. Der neue `boundary_tolerance`-Bestand darf nicht vorausberechnet werden; die Anzahl steht erst nach erneutem lokalen Skriptlauf fest. Wenn die Prüfkarten in der Berichtszentrale erscheinen sollen: `python scripts\generate_report_index.py --gemeinde 20619 --open`.
 
 **Noch offen:** Ein fachlicher Reviewstatus (bestätigt/abgelehnt/ungeklärt, Bearbeiter, Datum, Bild-/Quellenbeleg) sollte getrennt von dieser rein geometrischen Kategorie gespeichert werden.
+
+### 2-m-Toleranz: lokal bestätigte Ergebnisse (27.10.2026)
+
+Alle drei Verarbeitungsschritte wurden lokal erfolgreich ausgeführt: `join_bev_building_points_osm.py --boundary-tolerance-m 2 --overwrite`, `show_bev_osm_review_map.py --open` und `review_building_als_heights.py --open`.
+
+| Status | Vorher (ohne Toleranz) | Jetzt (2 m) | Interpretation |
+| --- | ---: | ---: | --- |
+| `inside_unique` | 747 | **747** | Strenge Innentreffer, unverändert |
+| `boundary_tolerance` | 0 | **16** | Vorläufige geometrische Zuordnung innerhalb 2 m mit genau einem Kandidaten |
+| `near_review` | 29 | **13** | Weiterhin ungeklärte Nahfälle |
+| `unmatched` | 12 | **12** | Kein OSM-Grundriss innerhalb 15 m |
+| **Summe BEV-Gebäudepunkte** | **788** | **788** | Vollständige, disjunkte Zuordnung |
+
+- **753 von 1.686 OSM-Gebäuden** besitzen nun mindestens einen zugeordneten BEV-Gebäudereferenzpunkt (einschließlich Toleranz); ohne Toleranz waren es **737**. **933 OSM-Gebäude** besitzen derzeit keinen solchen Punkt.
+- **756 unterschiedliche BEV-Adresscodes** sind den geometrisch zugeordneten BEV-Punkten zugehörig (vorher 740).
+- Die Prüflandkarte zeigt weiterhin **41 Fälle**: 16 separat grün dargestellte **Toleranzfälle** zur Validierung, 13 `near_review` und 12 `unmatched`. Damit **25 ungeklärte** Fälle ohne Zuordnung; **16 zusätzliche vorläufig zugeordnete** Fälle, die trotzdem fachlich geprüft werden sollten.
+- Die Prüfkarte wurde mit **1.686 OSM-Gebäuden** und **1.383 OSM-Straßen-/Wegegeometrien** erfolgreich erstellt: `reports/20619/addresses/bev_osm_pruefkarte.html`.
+- Die Gebäudehöhenkarte und CSV wurden erneut mit eingebundenen amtlichen Adressen erstellt: **1.686 Gebäude**, **1.634 ALS-Höhenschätzungen**; Qualitätsflags unverändert (55 sehr niedrige Schätzungen, 52 unzureichende Pixel, 14 große Dachhöhenspannen).
+
+**Methodischer Vorbehalt:** Die neue Kennzahl **753** ist keine Zahl amtlich bestätigter BEV/OSM-Gebäudeidentitäten; die 16 Toleranzpunkte sind explizit nur Kandidaten unter unserer selbst gewählten 2-m-Heuristik. Für Analysen, die ausschließlich streng geprüfte Geometriezuordnungen verwenden sollen, ist weiterhin die Menge der **737 OSM-Gebäude mit `inside_unique`** maßgeblich. Die 45 amtlichen Adresscodes ohne BEV-Gebäudepunkt werden durch diese Berechnung nicht verändert.
+
+**Nächste fachliche Arbeiten:** Die **13 Nahfälle** und **12 nicht zuordenbaren BEV-Punkte** untersuchen, anschließend die **16 grün markierten Toleranzfälle** plausibilisieren. Eine manuell freigegebene Zuordnung getrennt mit Quelle, Prüfer und Datum dokumentieren; weder OSM- noch BEV-Rohdaten überschreiben.
