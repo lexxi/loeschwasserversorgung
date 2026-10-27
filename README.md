@@ -27,6 +27,7 @@ Die Übersicht folgt der tatsächlichen Ordnerstruktur des Repositories. Innerha
 
 - [`config/building_classification.json`](config/building_classification.json) – Konservative Klassifikation der OSM-Gebäudetags.
 - [`config/firewater_rulebook.json`](config/firewater_rulebook.json) – Versionierter, noch fachlich zu validierender Entwurf der GK-/Löschwasser-Regelbasis; keine automatische Freigabe.
+- [`config/reference_documents.json`](config/reference_documents.json) – Quellenkatalog mit Edition, Offline-Dateinamen und offiziellen Online-Links.
 
 ### `data/` – Datenquellen und lokale GIS-Daten
 
@@ -62,6 +63,7 @@ Die Übersicht folgt der tatsächlichen Ordnerstruktur des Repositories. Innerha
 Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **jedes Skripts** steht in der [Skriptübersicht](docs/skriptuebersicht.md).
 
 - `analyze_buildings_als_height.py` – Gebäudehöhen aus passenden BEV-Rastern schätzen.
+- `archive_reference_documents.py` – OIB-Referenz-PDFs offline archivieren, andere berechtigte PDFs importieren und Prüfsummen sichern.
 - `analyze_buildings_odb_distance.py` – Luftlinienabstände der Gebäude zu ODB-Quellen.
 - `analyze_odb_water_sources.py` – ODB-Bestandsstatistik.
 - `building_context.py` – Hilfsmodul zur Gebäude-Lageansicht.
@@ -100,7 +102,7 @@ Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **
 - `LICENSE` – Repository-Lizenz.
 - `README.md` – Projekteinstieg und Bedienung.
 - `requirements.txt` – Python-Abhängigkeiten.
-- `reports/` – Lokal erzeugte Karten, CSV-/JSON-Ergebnisse und Gemeindeberichte (**nicht eingecheckt**). Einstieg über `reports/index.html`, erstellt mit `generate_report_index.py`.
+- `reports/` – Lokal erzeugte Karten, CSV-/JSON-Ergebnisse, Gemeindeberichte und das Referenzarchiv `reports/references/` (**nicht eingecheckt**). Einstieg über `reports/index.html`, erstellt mit `generate_report_index.py`.
 
 Der Geodatenimport und die ältere Gemeinde-Pipeline wurden für Malta (20619) regressionsgeprüft und für Gmünd in Kärnten (20608) erfolgreich ausgeführt; siehe [Gemeinde-Pipeline](docs/gemeinde-pipeline.md). Eine fachlich validierte Löschwasserbedarfsberechnung und umfassende automatisierte Tests stehen noch aus.
 
@@ -292,3 +294,14 @@ Für eine **gemeindeweite** BEV-ALS-Höheninventur ohne Vollkachel-Download: [`s
 **Höhenwerte prüfen und auf Offline-Karte ansehen:** Nach der gemeindeweiten ALS-Auswertung `python scripts/review_building_als_heights.py --gemeinde 20619 --open` ausführen. Erstellt die gemeinsame Gebäudemerkmals-CSV, einen Qualitätsbericht und eine klickbare Gebäudehöhenkarte unter `reports/20619/gk_inventory/`. Näheres in der [Skriptübersicht](docs/skriptuebersicht.md).
 
 **Lokale Startseite für Karten und Berichte:** `python scripts/generate_report_index.py --gemeinde 20619 --open` erstellt `reports/index.html` und `reports/20619/index.html` mit Links auf alle bereits vorhandenen Unterseiten. Der Index bleibt lokal; ODB-Berichte nicht öffentlich veröffentlichen. [Details](docs/skriptuebersicht.md).
+
+## Offline-Fachquellen
+
+Die Referenzen zu GK und Löschwasser (OIB 2023, TRVB 137 F/21, ÖBFV VB-01/23 und Kärntner RIS-Recht) sind in [`config/reference_documents.json`](config/reference_documents.json) versioniert. Zum lokalen Bezug der drei öffentlich direkt abrufbaren OIB-PDFs und zur Aktualisierung der Offline-/Online-Links:
+
+```powershell
+python scripts\archive_reference_documents.py --download
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Die Originale liegen **ausschließlich lokal** unter `reports/references/`, mit SHA-256-Manifest. Die technischen Richtlinien und RIS-Fassungen können bei entsprechender Berechtigung/Prüfung mittels `--import-file` aufgenommen werden. Nicht vorhandene Originale haben in der Indexseite nur einen Online-Link. [Bedienung und Rechtehinweise](docs/skriptuebersicht.md#offline-quellenarchiv-oib-trvb-öbfv-und-ris).
