@@ -53,3 +53,16 @@
 6. Erst nach fachlicher Klärung konkrete GK- oder Versorgungsschlüsse ziehen.
 
 **Pflege:** Bei jedem neuen Datenbestand Status und Datum in dieser Datei aktualisieren. Gelöste Themen bleiben zur Nachvollziehbarkeit mit Ergebnis und Quellbeleg bestehen.
+
+## Paketprüfung (BEV 01.10.2026) – implementiert 27.10.2026
+
+Für den aktuellen BEV-INSPIRE-Stichtag existiert ein [Metadateneintrag 01.10.2026](https://data.europa.eu/data/datasets/bed08735-6342-49a2-8eae-6247363187c3?locale=de). Die Dateiadressen müssen über dessen Distribution/BEV-Katalog abgerufen werden; solange ein stabiler Direktdownload nicht geprüft wurde, wird **keine URL im Programm geraten**.
+
+Der erste Offline-Prüfschritt ist [`scripts/inspect_bev_address_package.py`](../scripts/inspect_bev_address_package.py). Er kann nach einmaligem manuellem Download die Inhalte von ZIP-Dateien auflisten, in GPKGs Layer und Felder auslesen oder CSV-/GeoJSON-Metadaten anzeigen. Es gibt **keinen Netzaufruf, keinen Import und keine Zuordnung**.
+
+```powershell
+git pull --ff-only origin main
+python scripts\inspect_bev_address_package.py --input "C:\Pfad\BEV-Adressdaten.zip" --gemeinde 20619
+```
+
+Für ein entpacktes GeoPackage entsprechend `--input "C:\Pfad\datei.gpkg"`. Erst nach tatsächlicher Schema-Prüfung werden GKZ-Filter, Schlüsselverknüpfungen und gegebenenfalls ein Gebäudegeometrie-Abgleich entwickelt. Originalpakete lokal unter `data/raw/bev/addresses/` sichern.
