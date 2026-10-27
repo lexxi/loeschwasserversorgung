@@ -214,3 +214,19 @@ Erst nachdem die lokale Ausgabe der Zuordnung vorliegt, können wir belastbar sa
 - `reports/20619/addresses/bev_osm_zuordnung_summary.json`
 
 Damit ist die **erste Geometriezuordnung umgesetzt**, die fachliche Verifizierung und Behandlung der Prüffälle bleiben ausdrücklich offen.
+
+### Interaktive BEV/OSM-Prüfkarte (27.10.2026)
+
+Neu: [`scripts/show_bev_osm_review_map.py`](../scripts/show_bev_osm_review_map.py) erstellt aus dem **bereits erfolgten** BEV-/OSM-Abgleich eine lokale HTML-Karte `reports/20619/addresses/bev_osm_pruefkarte.html`. Sie lädt nur lokale Projektdateien und verwendet **keine Internet-Kartenkacheln**. Die ursprüngliche OSM-/BEV-Zuordnung wird nicht verändert.
+
+```powershell
+git pull --ff-only origin main
+python scripts\show_bev_osm_review_map.py --gemeinde 20619 --open
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Für den vorliegenden Stand werden **41 offene BEV-Punktfälle** erwartet: **29 `near_review`**, **12 `unmatched`**, **0 `multiple_or_boundary`**. Die Karte prüft vor dem Rendern, ob die Statuszahlen aus CSV und JSON zusammenpassen und ob die 788 BEV-Gebäude-Subcodes im lokalen GeoJSON exakt zum Zuordnungsergebnis passen. Bei widersprüchlichen Daten bricht sie ab und fordert einen erneuten Abgleich.
+
+**Bedienung:** Fälle mit Status-Checkboxen filtern, über die Subcode-Auswahlliste oder „Nächster sichtbarer Prüffall“ auf einen BEV-Gebäudepunkt zentrieren; OSM-Gebäude und Straßen einzeln ein-/ausblenden; zoomen und verschieben. Auf Basis der vorhandenen Kandidaten-IDs werden mögliche OSM-Polygone hervorgehoben. **Rote `unmatched`-Punkte haben im 15-m-Radius keinen OSM-Treffer; das ist keine Aussage, dass es dort kein reales Gebäude gibt.** Der standardmäßig 15 m große Prüfradius stammt aus der vorherigen Zuordnung und ist kein gesetzlicher Abstand.
+
+**Weiteres Vorgehen:** Die 41 Fälle anhand von Punktlage, Gebäudepolygon, aktuellem OSM-Stand und ggf. zugelassenen amtlichen Luftbild-/Gebäudedaten prüfen. Erst danach eine **separate, nachvollziehbare Review-Entscheidungsliste** entwerfen (Bearbeiter, Datum, Nachweis, Korrekturtyp, optional OSM-ID). Keine manuelle Entscheidung in die Original-BEV-/OSM-Exporte schreiben. Die vollständige Offline-Karte inklusive BEV-Adress- und Gebäudedaten gehört **nicht in das öffentliche Repository**.
