@@ -71,6 +71,8 @@ def main():
         if args.id not in known:
             p.error(f"Unbekannte Quelle: {args.id}")
         target = DEST / known[args.id]["filename"]
+        if known[args.id]["id"] in ("k_btv_2024", "k_gfpo_2000") and not args.as_of:
+            p.error("Fuer RIS-Exporte ist --as-of YYYY-MM-DD zwingend erforderlich")
         if target.exists():
             p.error(f"Datei existiert bereits; kein Ueberschreiben: {target}")
         src = args.import_file.resolve(strict=True)
@@ -84,8 +86,6 @@ def main():
             os.replace(temporary,target)
         finally:
             temporary.unlink(missing_ok=True)
-        if known[args.id]["id"] in ("k_btv_2024", "k_gfpo_2000") and not args.as_of:
-            p.error("Fuer RIS-Exporte ist --as-of YYYY-MM-DD zwingend erforderlich")
         imported_as_of[args.id] = args.as_of
         print(f"[IMPORT] {args.id} -> {target}")
         modified = True
