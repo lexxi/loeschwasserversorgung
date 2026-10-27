@@ -82,6 +82,28 @@ def polygons_svg(geom):
     return " ".join(parts)
 
 
+def lines_svg(geom):
+    if geom is None or geom.is_empty:
+        return ""
+    lines = [geom] if geom.geom_type == "LineString" else (
+        geom.geoms if geom.geom_type == "MultiLineString" else []
+    )
+    return " ".join(
+        "M " + " L ".join(f"{x:.2f},{-y:.2f}" for x, y in line.coords)
+        for line in lines if len(line.coords) > 1
+    )
+
+
+def road_class(kind):
+    if kind in ("motorway", "trunk", "primary", "secondary", "tertiary",
+                "motorway_link", "trunk_link", "primary_link", "secondary_link",
+                "tertiary_link"):
+        return "major"
+    if kind in ("residential", "unclassified", "living_street", "service", "road"):
+        return "local"
+    return "path"
+
+
 def percentile(values, pct):
     if not values:
         return None
@@ -105,6 +127,29 @@ def main():
     for p in (buildings_path, heights_path):
         if not p.is_file():
             parser.error(f"Eingabe fehlt: {p}")
+    boundary_path = ROOT / "data" / "processed" / mid / "boundary.geojson"
+    roads_path = ROOT / "data" / "processed" / mid / "osm" / "roads.geojson"
+    if not boundary_path.is_file():
+        parser.error(f"Gemeindegrenze fehlt: {boundary_path}")
+    boundary = gpd.read_file(boundary_path)
+    if boundary.empty or boundary.crs is None:
+        raise ValueError("Gemeindegrenze leer oder ohne Koordinatensystem")
+    border = boundary.to_crs(31287).geometry.union_all()
+    if border.is_empty:
+        raise ValueError("Gemeindegrenze ohne Geometrie")
+    roads_markup = []
+    if roads_path.is_file():
+        roads = gpd.read_file(roads_path)
+        if roads.crs is None:
+            raise ValueError("OSM-Strassen ohne Koordinatensystem")
+        for _, road in roads.to_crs(31287).iterrows():
+            road_svg = lines_svg(road.geometry)
+            if road_svg:
+                kind = safe_text(road.get("highway"))
+                roads_markup.append(
+                    f'<path class="road {road_class(kind)}" d="{escape(road_svg, quote=True)}">'
+                    f'<title>{escape(safe_text(road.get("name")) or kind)}</title></path>'
+                )
     frame = gpd.read_file(buildings_path)
     if frame.empty or frame.crs is None or "osm_id" not in frame:
         raise ValueError("Ungueltiger OSM-Gebaeudebestand")
@@ -207,10 +252,11 @@ def main():
     }
     json_path = outdir / "als_hoehen_qualitaet.json"
     json_path.write_text(json.dumps(stats,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    bounds = frame.total_bounds
+    bounds = border.bounds
     xmin, ymin, xmax, ymax = map(float,bounds)
     pad=max(30.0,(xmax-xmin)*0.035,(ymax-ymin)*0.035)
     vb = [xmin-pad,-ymax-pad,(xmax-xmin)+2*pad,(ymax-ymin)+2*pad]
+    outline_path = polygons_svg(border)
     svg_paths = []
     for path,r in plotted:
         attrs = json.dumps({
@@ -242,7 +288,13 @@ header{background:#193b51;color:white;padding:12px 18px}h1{font-size:19px;margin
 header p{margin:0;color:#d2e5ed}.layout{display:grid;grid-template-columns:310px 1fr;height:calc(100vh - 75px)}
 aside{padding:15px;overflow:auto;background:white;border-right:1px solid #d3dce2}
 main{min-width:0;position:relative}svg{width:100%;height:100%;touch-action:none;cursor:grab;background:#eaf1f4}
-svg.drag{cursor:grabbing}path.building{stroke:#43555c;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer}
+svg.drag{cursor:grabbing}
+#boundary{fill:#f4f8f1;stroke:#537b61;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
+.road{fill:none;pointer-events:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.road.major{stroke:#d4a370;stroke-width:2.4}
+.road.local{stroke:#b7bfc8;stroke-width:1.65}
+.road.path{stroke:#9bab9a;stroke-width:1;stroke-dasharray:3 3}
+path.building{stroke:#43555c;stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer}
 path.building:hover,path.building.selected{stroke:#092d53;stroke-width:2.5}
 label{display:flex;align-items:center;gap:8px;margin:9px 0}.swatch{width:13px;height:13px;display:inline-block;border-radius:3px}
 input[type=text]{width:100%;padding:9px;border:1px solid #cad5df;border-radius:6px}
@@ -255,11 +307,18 @@ aside{overflow:auto}main{min-height:300px}}
 <p>__COUNT__ OSM-Gebäude · __ESTIMATED__ mit geschätzter Höhe · Nur Offline-GIS-Indizien – keine Gebäudeklassen</p></header>
 <div class="layout"><aside><strong>Höhenklassen: Median DOM − DGM</strong>
 <p><small>Filter zeigen rein geometrische Objekthöhen, keine Geschosszahlen oder OIB-Fluchtniveaus.</small></p>
-__LEGEND__<hr><label for="search">OSM-ID suchen</label><input type="text" id="search" placeholder="z. B. way/12345">
+__LEGEND__<hr>
+<strong>Kartenebenen</strong>
+<label><input type="checkbox" id="show-boundary" checked> Gemeindegrenze</label>
+<label><input type="checkbox" id="show-roads" checked> OSM-Straßen und Wege (__ROADCOUNT__)</label>
+<hr><label for="search">OSM-ID suchen</label><input type="text" id="search" placeholder="z. B. way/12345">
 <p><button id="find">Suchen</button></p><strong>Gebäudedetails</strong><div id="detail">Gebäude auf der Karte anklicken.</div>
 <p><small>Farben und Prüfflag-Schwellen sind visuelle Hilfen. Die Hintergrundkarte hat keine Online-Kacheln.</small></p>
 </aside><main><svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="__VIEWBOX__"
-preserveAspectRatio="xMidYMid meet"><g id="shapes">__PATHS__</g></svg>
+preserveAspectRatio="xMidYMid meet">
+<path id="boundary" d="__OUTLINE__" fill-rule="evenodd"/>
+<g id="roads">__ROADS__</g>
+<g id="shapes">__PATHS__</g></svg>
 <div class="tools"><button id="plus">+</button><button id="minus">−</button><button id="reset">Zurücksetzen</button></div>
 </main></div><script>
 (()=>{const map=document.getElementById('map'), paths=[...document.querySelectorAll('.building')];
@@ -279,6 +338,10 @@ paths.forEach(p=>p.addEventListener('click',()=>moveTo(p)));
 function filters(){const enabled=new Set([...document.querySelectorAll('.toggle:checked')].map(x=>x.value));
 paths.forEach(p=>p.style.display=enabled.has(p.dataset.band)?'':'none');}
 document.querySelectorAll('.toggle').forEach(x=>x.addEventListener('change',filters));
+document.getElementById('show-boundary').addEventListener('change',ev=>{
+document.getElementById('boundary').style.display=ev.target.checked?'':'none';});
+document.getElementById('show-roads').addEventListener('change',ev=>{
+document.getElementById('roads').style.display=ev.target.checked?'':'none';});
 document.getElementById('find').onclick=()=>{let query=document.getElementById('search').value.trim().toLowerCase();
 if(!query)return;let p=paths.find(el=>JSON.parse(el.dataset.info).id.toLowerCase()===query);
 if(!p){document.getElementById('detail').textContent='OSM-ID nicht gefunden.';return;}
@@ -292,7 +355,8 @@ v.width*=scale;v.height*=scale;v.x=cx-v.width/2;v.y=cy-v.height/2;}
 document.getElementById('plus').onclick=()=>zoom(.7);
 document.getElementById('minus').onclick=()=>zoom(1.4);
 map.addEventListener('wheel',ev=>{ev.preventDefault();zoom(ev.deltaY<0?.8:1.25);},{passive:false});
-map.addEventListener('pointerdown',ev=>{drag={x:ev.clientX,y:ev.clientY,view:[map.viewBox.baseVal.x,map.viewBox.baseVal.y]};
+map.addEventListener('pointerdown',ev=>{if(ev.target.closest('.building'))return;
+drag={x:ev.clientX,y:ev.clientY,view:[map.viewBox.baseVal.x,map.viewBox.baseVal.y]};
 map.setPointerCapture(ev.pointerId);map.classList.add('drag');});
 map.addEventListener('pointermove',ev=>{if(!drag)return;let v=map.viewBox.baseVal;
 v.x=drag.view[0]-(ev.clientX-drag.x)*v.width/map.clientWidth;
@@ -304,6 +368,9 @@ map.addEventListener('pointercancel',()=>{drag=null;map.classList.remove('drag')
     html = (template.replace("__COUNT__",str(len(rows)))
             .replace("__ESTIMATED__",str(sum(r["height_quality"]=="estimated" for r in rows)))
             .replace("__LEGEND__",legend)
+            .replace("__ROADCOUNT__",str(len(roads_markup)))
+            .replace("__ROADS__","\n".join(roads_markup))
+            .replace("__OUTLINE__",escape(outline_path,quote=True))
             .replace("__VIEWBOX__"," ".join(f"{v:.2f}" for v in vb))
             .replace("__PATHS__","\n".join(svg_paths)))
     map_path=outdir/"gebaeude_als_hoehenkarte.html"
