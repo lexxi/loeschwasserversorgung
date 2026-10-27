@@ -46,6 +46,7 @@ Dieses Verzeichnis erklärt für **jedes Python-Skript** in [`scripts/`](../scri
 | [`inventory_gk_building_attributes.py`](../scripts/inventory_gk_building_attributes.py) | Inventarisiert bei **allen** Gebäuden vorhandene OSM-Nutzungs-, Höhen- und Geschossindizien sowie fehlende **verifizierte** GK-Merkmale. Vergibt keine GK. | `data/processed/<GKZ>/osm/buildings.geojson` | `reports/<GKZ>/gk_inventory/gebaeude_gk_merkmale.csv`, `summary.json` |
 | [`download_bev_als.py`](../scripts/download_bev_als.py) | Wählt BEV-ALS-Kacheln reproduzierbar anhand der Gebäude-/Gemeindegeometrie aus; erstellt Plan oder lädt auf ausdrückliches `--download` komplette DSM/DTM-Kacheln. **Sehr große Dateien, nicht Standard für den Pilotversuch.** | Gebäude bzw. Grenze; fixer BEV-Stichtag | Optional `data/raw/bev/<Stichtag>/DSM/` und `DTM/` mit Original-TIFFs sowie `bev_als_<GKZ>_<source>_lock.json` (URL, SHA-256) |
 | [`download_bev_als_subset.py`](../scripts/download_bev_als_subset.py) | **Bevorzugter Pilot:** Liest kleine, gleich ausgerichtete Ausschnitte aus den BEV-COG-Rastern über HTTPS-Teilabrufe. Vermeidet komplette 50-km-Kacheln. | Gebäude-Geometrie; Stichtag; optional Gebäude-ID, Radius; GDAL/rasterio mit HTTP-Range-Unterstützung | `data/raw/bev/<Stichtag>/subsets/<GKZ>/dom_malta.tif`, `dgm_malta.tif`, `subset_manifest.json` |
+| [`process_bev_als_municipality.py`](../scripts/process_bev_als_municipality.py) | **Gesamte Gemeinde:** gruppiert OSM-Gebäude in belegte 2-km-Zellen, lädt nur benötigte DSM-/DTM-Fenster, prüft/cachet sie mit SHA-256 und berechnet alle Höhenindikatoren in einer CSV. Unterstützt Planmodus, inkrementellen Download und gesonderte Analyse. | `buildings.geojson`, fixer BEV-Stichtag, online COG-Raster | `data/raw/bev/<Stichtag>/municipality_tiles/<GKZ>/<tile-id>/dom.tif`, `dgm.tif`, `manifest.json`; `reports/<GKZ>/gk_inventory/gebaeude_als_hoehen_gemeinde.csv`, `als_hoehen_gemeinde_summary.json` |
 | [`analyze_buildings_als_height.py`](../scripts/analyze_buildings_als_height.py) | Verknüpft OSM-Grundrisse mit einem passenden DOM-/DGM-Rasterpaar; berechnet Median, P90, Maximum und Qualitätsflags der **geschätzten Objekthöhe**, nicht Fluchtniveau oder GK. | `buildings.geojson`, passend ausgerichtete lokale DOM-/DGM-GeoTIFFs, identische Höhenreferenz und Datenstand | `reports/<GKZ>/gk_inventory/gebaeude_als_hoehen.csv`, `als_hoehen_summary.json` |
 
 Für den nächsten Test **nicht** `download_bev_als.py --download` ausführen. Der Vollkachel-Download für Malta ist bereits an der 8-GiB-Sicherheitsgrenze gescheitert. Die kleinen Ausschnitte sind der praktikable Versuch.
@@ -170,4 +171,40 @@ python scripts\download_bev_als_subset.py --gemeinde 20619 --stichtag 20250915
 ```
 
 **Falls ein früherer Lauf bereits eine lokale TIFF-Datei erzeugt hat:** Das Skript überschreibt sie bewusst nicht. Vor einem erneuten Versuch die vorhandene Datei/deren Herkunft prüfen; nur bekannte, unvollständige Pilotdateien gezielt entfernen. Bei erneutem Fehler die Ausgabe mit **Rasterursprung, Dimensionen und der konkreten DSM-/DTM-Fehlermeldung** dokumentieren. Ein korrektes DSM-/DTM-Gitter ist Voraussetzung für `analyze_buildings_als_height.py`.
+
+
+## Gesamter BEV-Datenbestand für Malta – kleine, wiederverwendbare Teilfenster
+
+Nach erfolgreichem 2 × 2 km-Pilot (**389 geschätzte Gebäudehöhen, 1.290 Gebäude außerhalb des Pilotausschnitts**) ergänzt `process_bev_als_municipality.py` die **gebäudeweise flächendeckende** Höhenanalyse. Dabei werden **nur Zellen mit OSM-Gebäuden** berücksichtigt; je Zelle wird die tatsächlich benötigte **Gebäudeumhüllende plus 5 m** aus dem jeweiligen BEV-COG gelesen. Das Skript lädt **keine 50-km-Originalkacheln**. Es benutzt für DOM und DGM dasselbe tatsächliche 1-m-Raster und führt die Qualitätskontrollen des Pilot-Analysers aus.
+
+**Schritt 1: Downloadplan anzeigen, noch ohne Datenübertragung:**
+
+```powershell
+git pull --ff-only origin main
+python scripts\process_bev_als_municipality.py --gemeinde 20619 --stichtag 20250915
+```
+
+**Schritt 2: Zunächst maximal drei Zellen herunterladen und prüfen:**
+
+```powershell
+python scripts\process_bev_als_municipality.py --gemeinde 20619 --stichtag 20250915 --download --max-tiles 3
+```
+
+**Schritt 3: Nach erfolgreichem Pilot alle übrigen benötigten Ausschnitte beziehen:**
+
+```powershell
+python scripts\process_bev_als_municipality.py --gemeinde 20619 --stichtag 20250915 --download
+```
+
+**Schritt 4: Über alle 1.686 Gebäude einen zusammengeführten Bericht erstellen:**
+
+```powershell
+python scripts\process_bev_als_municipality.py --gemeinde 20619 --stichtag 20250915 --analyze
+```
+
+Alternativ `--download --analyze` für Download und Gesamtauswertung in einem Aufruf. Die ursprünglichen Pilotraster bleiben unangetastet. Die Gemeindeergebnisse bekommen **eigene Dateinamen**, um `gebaeude_als_hoehen.csv` aus dem ersten Pilot nicht zu überschreiben.
+
+**Wiederaufnahme:** Ein erfolgreich bezogener DSM-/DTM-Kachel-Ausschnitt liegt zusammen mit genauen Quell-URLs, Ausschnittskoordinaten, BEV-Stichtag und SHA-256-Werten im lokalen `manifest.json`. Bei erneuten Läufen wird dieser Cache verifiziert. Fehlende Dateien werden heruntergeladen, sofern kein widersprüchlicher/teilweise vorhandener Cache vorliegt. **Cache-Korruption, Rasterunterschiede und nicht vollständig erfasste Gebäude am 50-km-BEV-Kachelrand führen zu einer klaren Fehlermeldung bzw. eigenem Qualitätsstatus** statt zu stiller Nutzung. Kachel-/Gebäudegeometrien ändern sich möglicherweise durch einen neuen OSM-Import; der aktuelle Cache kann dann nur bei übereinstimmenden Ausschnittgrenzen genutzt werden.
+
+**Noch offen:** Für Gebäude, die eine 50-km-BEV-Kachelgrenze überschreiten, wird zunächst `crosses_bev_tile` dokumentiert – diese benötigen einen späteren expliziten Mehrkachel-Abgleich. Wegen Bewuchs, Dachgeometrie, historischen Befliegungen und Rasterwerten bleibt auch `estimated` eine **nicht überprüfte Objekthöhe**. Kein automatischer Rückschluss auf Fluchtniveau, Geschosszahl oder GK.
 
