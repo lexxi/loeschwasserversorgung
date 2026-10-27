@@ -77,7 +77,10 @@ def main():
     base = ROOT / "reports" / mid
     inventory_file = base / "gk_inventory" / "gebaeude_gk_merkmale.csv"
     bev_file = base / "addresses" / "gebaeude_adressen.csv"
-    als_file = base / "gk_inventory" / "gebaeude_als_hoehen.csv"
+    als_file = base / "gk_inventory" / "gebaeude_als_hoehen_gemeinde.csv"
+    if not als_file.is_file():
+        als_file = base / "gk_inventory" / "gebaeude_als_hoehen.csv"
+        print("[WARNUNG] Gemeindeweite ALS-CSV nicht vorhanden; verwende ggf. begrenzten ALS-Pilotausschnitt.")
     inventory = keyed(load_csv(inventory_file, required=["osm_id", "building", "footprint_m2"]), "OSM-Inventar")
     if a.expected_count is not None and len(inventory) != a.expected_count:
         raise ValueError(f"Erwartet {a.expected_count} Gebaeude, gefunden {len(inventory)}")
