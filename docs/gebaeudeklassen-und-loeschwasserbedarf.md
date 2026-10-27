@@ -206,3 +206,26 @@ Das Skript nutzt `rasterio` und `numpy`, transformiert die OSM-Gebäudegrundriss
 Randpixel werden nach Möglichkeit durch einen 1-m-Innenpuffer ausgeschlossen. Bei zu wenig Pixeln, geringer Rasterabdeckung, fehlenden Rasterbereichen oder unplausibler Höhe liefert das Skript eine Warnklasse anstelle einer unkritischen Interpretation. Auch `estimated` bedeutet **nur algorithmisch geschätzte Objekthöhe**, keine geprüfte Gebäudehöhe. Dachaufsätze, Bäume, Datenalter und die Differenz aus DOM/DGM können die Werte verfälschen. **Fluchtniveau, Geschosszahl, GK1–GK5 und Löschwasserbedarf werden ausdrücklich nicht daraus bestimmt.** Alle Raster und Reports bleiben lokal.
 
 Vor einer größeren Auswertung zuerst einige bekannte Gebäude in QGIS/Orthofoto stichprobenartig mit den Höhenwerten vergleichen.
+
+## AP 2 – Reproduzierbarer BEV-ALS-Download
+
+Um die manuelle BEV-Kachelauswahl zu vermeiden, gibt es [`scripts/download_bev_als.py`](../scripts/download_bev_als.py). Der Ablauf basiert auf den offiziellen [BEV ALS-DOM-](https://www.bev.gv.at/Services/Produkte/Digitales-Oberflaechenmodell/ALS-Oberflaechenmodell.html) und [ALS-DGM-Produktseiten](https://www.bev.gv.at/Services/Produkte/Digitales-Gelaendehoehenmodell/ALS-Hoehenraster.html) sowie den veröffentlichten `data.bev.gv.at/download/ALS/DSM/<STICHTAG>/`- bzw. `DTM/`-Dateiadressen.
+
+**Standardmäßig erfolgt kein Download.** Das Skript liest die OSM-Gebäudegrundrisse der Gemeinde, transformiert sie nach EPSG:3035 und schneidet ihre Umrisse mit dem BEV-50-km-Raster. Für jedes getroffene Blatt werden die beiden Dateinamen `ALS_DSM_CRS3035RES50000mN…E….tif` und `ALS_DTM_CRS3035RES50000mN…E….tif` mit dem gewählten **fixen BEV-Stichtag** erzeugt. Es wird **nicht** automatisch die neueste Serie geladen: Damit sind die URLs reproduzierbar. Optional `--source boundary` für die gesamte Gemeindegrenze statt nur der Gebäudegrundflächen.
+
+```powershell
+git pull --ff-only origin main
+python scripts\download_bev_als.py --gemeinde 20619 --stichtag 20250915
+```
+
+Erst nach Prüfung der Ausgabe kann der vollständige Download bewusst aktiviert werden:
+
+```powershell
+python scripts\download_bev_als.py --gemeinde 20619 --stichtag 20250915 --download
+```
+
+**Achtung:** Jede 50-km-Kachel ist bei 1 m Auflösung extrem groß; DOM und DGM belegen zusammen möglicherweise viele GiB. Das Programm lädt **volle BEV-Kacheln**, noch nicht kleine Gemeindeausschnitte. Pro Quelldatei gilt zunächst ein Limit von 8 GiB (anpassbar durch `--max-file-gb`). Die Dateiablage ist `data/raw/bev/20250915/DSM|DTM/` und bleibt wegen `data/raw/` lokal. Die BEV-Webserver-Verfügbarkeit und der genaue Stichtag der Serie müssen beim ersten Aufruf geprüft werden. HTTP 404 wird klar gemeldet; das Skript weicht **nicht** stillschweigend auf eine andere Ausgabe aus.
+
+Zu jedem erfolgreichen Download wird ein `bev_als_<GKZ>_<SOURCE>_lock.json` erzeugt, das Datum, die gewählten Kacheln, genaue Quell-URLs, Dateigrößen und **SHA-256-Prüfsummen** speichert. Vorhandene Dateien werden vor Wiederverwendung gegen das Lockfile geprüft; abweichende Dateien und geänderte Auswahl werden nicht unbemerkt ersetzt. **Bei erstmaligem Download** wird die dann gelieferte Dateiversion durch SHA-256 fixiert. Ein identischer Stichtag ohne Hash-Verifizierung alleine würde eine spätere serverseitige Ersetzung nicht nachweisen.
+
+Die Kachelauswahl muss vor dem Folgeprozess gegen die Quelle geprüft werden (insbesondere Gemeindegrenze, Randbereich und eventuell mehrere Kacheln). Das Höhenanalyseskript benötigt aktuell noch **gleich ausgerichtete, kleinere DOM/DGM-Ausschnitte**. Die Erzeugung dieser Ausschnitte ist ein eigener nächster Verarbeitungsschritt; der Downloader behauptet keine fertigen `dom_malta.tif`/`dgm_malta.tif` zu erzeugen. BEV-Veröffentlichungsdatum ist außerdem **nicht identisch** mit dem tatsächlichen ALS-Befliegungsdatum.
