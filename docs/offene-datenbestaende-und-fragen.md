@@ -230,3 +230,28 @@ Für den vorliegenden Stand werden **41 offene BEV-Punktfälle** erwartet: **29 
 **Bedienung:** Fälle mit Status-Checkboxen filtern, über die Subcode-Auswahlliste oder „Nächster sichtbarer Prüffall“ auf einen BEV-Gebäudepunkt zentrieren; OSM-Gebäude und Straßen einzeln ein-/ausblenden; zoomen und verschieben. Auf Basis der vorhandenen Kandidaten-IDs werden mögliche OSM-Polygone hervorgehoben. **Rote `unmatched`-Punkte haben im 15-m-Radius keinen OSM-Treffer; das ist keine Aussage, dass es dort kein reales Gebäude gibt.** Der standardmäßig 15 m große Prüfradius stammt aus der vorherigen Zuordnung und ist kein gesetzlicher Abstand.
 
 **Weiteres Vorgehen:** Die 41 Fälle anhand von Punktlage, Gebäudepolygon, aktuellem OSM-Stand und ggf. zugelassenen amtlichen Luftbild-/Gebäudedaten prüfen. Erst danach eine **separate, nachvollziehbare Review-Entscheidungsliste** entwerfen (Bearbeiter, Datum, Nachweis, Korrekturtyp, optional OSM-ID). Keine manuelle Entscheidung in die Original-BEV-/OSM-Exporte schreiben. Die vollständige Offline-Karte inklusive BEV-Adress- und Gebäudedaten gehört **nicht in das öffentliche Repository**.
+
+### AP3 – 2-m-Toleranz für BEV-Gebäudepunkte (27.10.2026)
+
+Nach Sichtkontrolle eines BEV-Referenzpunktes direkt an der OSM-Gebäudekante wurde der geometrische Abgleich um **`boundary_tolerance`** erweitert. **2,0 m ist eine projektinterne Prüfschwelle, kein amtlicher/geodätischer Genauigkeitsnachweis und keine Rechtsnorm.**
+
+- `inside_unique`: Punkt streng innerhalb genau eines OSM-Gebäudegrundrisses, unverändert.
+- `boundary_tolerance`: Punkt außerhalb jedes OSM-Polygons, ein und nur ein Polygon in **höchstens 2,0 m Abstand**. Vorläufig geometrisch zugeordnet, aber **weiterhin fachlich zu prüfen**.
+- `near_review`: Punkt außerhalb und mindestens ein Kandidat in 15 m, jedoch **keine eindeutige** Zuordnung innerhalb 2 m (einschließlich konkurrierender Gebäude im 2-m-Bereich).
+- `unmatched`: kein Kandidat innerhalb 15 m.
+- `multiple_or_boundary`: Punkt berührt Polygonrand oder mehrere Polygone; bleibt **ohne automatische Zuordnung**, auch wenn die metrische Distanz 0 ist.
+
+**Neu:** Die Statuswerte werden im BEV-zu-OSM-CSV und Summary getrennt ausgewiesen. `gebaeude_adressen.csv` enthält `boundary_tolerance_count` und `match_method`, sodass die Höhenkarte eine tolerierte Zuordnung gegenüber dem strengen Innentreffer unterscheidbar kennzeichnet. In der BEV/OSM-Prüfkarte werden Toleranzpunkte **grün** angezeigt und bleiben über einen eigenen Filter anwählbar. Die Tabelle verändert weder BEV-Originaldaten noch OSM-Geometrien.
+
+Da die alten lokalen CSV-/JSON-Ergebnisse geschützt sind, **muss** der Abgleich für den neuen Stand einmalig mit `--overwrite` ausgeführt werden:
+
+```powershell
+git pull --ff-only origin main
+python scripts\join_bev_building_points_osm.py --gemeinde 20619 --boundary-tolerance-m 2 --overwrite
+python scripts\show_bev_osm_review_map.py --gemeinde 20619 --open
+python scripts\review_building_als_heights.py --gemeinde 20619 --open
+```
+
+Danach die **neuen**, lokal berechneten Fallzahlen ablesen und mit dem bisherigen Ausgangsstand **747 strikt innerhalb / 29 nahe / 12 ohne Treffer** vergleichen. Der neue `boundary_tolerance`-Bestand darf nicht vorausberechnet werden; die Anzahl steht erst nach erneutem lokalen Skriptlauf fest. Wenn die Prüfkarten in der Berichtszentrale erscheinen sollen: `python scripts\generate_report_index.py --gemeinde 20619 --open`.
+
+**Noch offen:** Ein fachlicher Reviewstatus (bestätigt/abgelehnt/ungeklärt, Bearbeiter, Datum, Bild-/Quellenbeleg) sollte getrennt von dieser rein geometrischen Kategorie gespeichert werden.
