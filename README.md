@@ -79,6 +79,8 @@ Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **
 - `generate_report_index.py` – Lokale Startseiten `reports/index.html` und `reports/<GKZ>/index.html` erzeugen.
 - `import_geodata.py` – Amtliche Gemeindegrenze und Widmung importieren.
 - `inspect_bev_address_package.py` – Lokales BEV-Adresspaket (ZIP, GPKG, CSV) vor dem eigentlichen Import strukturell prüfen.
+- `probe_bev_address_municipality.py` – Exakte Malta-Gemeindeschlüssel und Relationen zu BEV-Gebäudepunkten prüfen.
+- `export_bev_municipality_addresses.py` – Amtliche BEV-Adress- und Gebäudereferenzpunkte für eine Gemeinde getrennt lokal exportieren.
 - `import_odb_water_sources.py` – Privaten ODB-Export lokal importieren.
 - `import_osm.py` – Alternativer/älterer OSM-Gebäudeimport und Hilfsfunktionen.
 - `import_osm_buildings_pbf.py` – OSM-Gebäude aus lokalem PBF importieren.
