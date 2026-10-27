@@ -229,3 +229,20 @@ Lokale Ergebnisse:
 Die Farbklassen **unter 3 / 3–6 / 6–9 / 9–12 / 12–18 / ab 18 m** sind frei gewählte **Visualisierungsintervalle und ausdrücklich keine OIB-GK-Grenzen**. Prüfhinweise sind ebenfalls **nur heuristisch**: geschätzter Median unter 1 m, ab 25 m, große Differenz von Maximum zu Median ab 10 m oder Rasterabdeckung unter 85 %. Gebäude mit `too_few_pixels` werden gesondert gekennzeichnet. Alle Statistiken zur Höhenverteilung berücksichtigen nur Datensätze mit `quality=estimated`. Dachaufbauten, Bäume, unterschiedliche ALS-Aufnahmedaten und kleine Gebäude können Abweichungen verursachen.
 
 Die Karte benötigt **keine externe Karten-API** und enthält keine ODB-Wasserquellen. Trotzdem bleiben CSV, JSON und HTML unter dem lokal gehaltenen `reports/`-Ordner. **Objekthöhe ≠ OIB-Fluchtniveau; weder Geschosszahl noch GK oder Löschwasserbedarf werden daraus bestimmt.**
+
+## Fehlerbehebung: Gebäudehöhenkarte zeigt keine Details; Gemeindegrenze und Wege fehlen
+
+**Beobachtung vom 27.10.2026:** In `gebaeude_als_hoehenkarte.html` erschien der Hinweis „Gebäude auf der Karte anklicken“, aber beim Klicken keine Detailanzeige. Außerdem fehlten die aus der ODB-Karte bekannten Gemeindegrenze und OSM-Straßen/Wege.
+
+**Ursache der Klickstörung:** Der erste Kartenstand leitete jeden `pointerdown`-Vorgang an die Verschiebefunktion weiter und nutzte `setPointerCapture()` auch über einem Gebäude. Dadurch konnte der nachfolgende Klick statt beim Gebäude bei der SVG-Karte landen.
+
+**Korrektur:** Der Drag-Modus startet nur noch auf dem freien Kartenbereich. Gebäudepolygone erhalten wieder ihre eigenen Klickereignisse. Zudem werden die amtliche Gemeindegrenze aus `data/processed/<GKZ>/boundary.geojson` und optionale Straßen/Wege aus `data/processed/<GKZ>/osm/roads.geojson` als **getrennt ein-/ausblendbare SVG-Ebenen** eingebaut. Die Ebenen liegen hinter den Gebäuden und fangen keine Mausklicks ab. Die Straßen zeigen lediglich OSM-Verläufe, **keine berechnete Fahr-/Schlauchroute**.
+
+Nach Update die **HTML-Datei neu erzeugen** und den Browser-Tab ggf. mit `Strg+F5` aktualisieren:
+
+```powershell
+git pull --ff-only origin main
+python scripts\review_building_als_heights.py --gemeinde 20619 --open
+```
+
+Die Ausgabedatei bleibt `reports/20619/gk_inventory/gebaeude_als_hoehenkarte.html`. Der Befehl erstellt daneben die bereits bekannten CSV-/JSON-Dateien erneut; die BEV-Raster werden **nicht** noch einmal heruntergeladen. Wenn `roads.geojson` fehlt, zeigt die Karte 0 Straßen/Wege an, ohne die Gebäudekarte zu verhindern.
