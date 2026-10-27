@@ -52,6 +52,7 @@ Die Übersicht folgt der tatsächlichen Ordnerstruktur des Repositories. Innerha
 - [`lizenzen-und-datenquellen.md`](docs/lizenzen-und-datenquellen.md) – Quellenangaben und Lizenzbedingungen.
 - [`loeschwasserquellen-osm.md`](docs/loeschwasserquellen-osm.md) – Historische OSM-Wasserquellen-Bestandsaufnahme.
 - [`odb-wasserentnahmestellen.md`](docs/odb-wasserentnahmestellen.md) – Aktuelle lokale ODB-Wasserquellen-Datenbasis.
+- [`offene-datenbestaende-und-fragen.md`](docs/offene-datenbestaende-und-fragen.md) – Priorisierte Übersicht offener Datenbestände, Behördenfragen und nächster Arbeitsschritte (BEV-Adressen, Gebäudedaten, ODB, Regelwerke).
 - [`osm-import.md`](docs/osm-import.md) – OSM-Import und Datenherkunft.
 - [`projektcheck.md`](docs/projektcheck.md) – Prüfung von Umgebung und Datenbestand.
 - [`rechtsgrundlagen.md`](docs/rechtsgrundlagen.md) – Rechtsgrundlagen und offene fachliche Fragen.
