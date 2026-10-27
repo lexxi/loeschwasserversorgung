@@ -77,17 +77,17 @@ Die Anforderungsmatrix enthält nur öffentliche Methodik. Keine gemeindescharfe
 
 ## 7. Geplante Anfrage an Gemeinde Malta: tatsächliche und zulässige Gebäudeklassen
 
-**Status: Anfrageentwurf; noch nicht versandt.** Ziel ist zunächst die Klärung von **Verfügbarkeit, Datenformat, Rechtsstand, Berechtigung und Ansprechpartner**, nicht die ungeprüfte Übermittlung sämtlicher personenbezogener Bauaktinformationen.
+**Status: Anfrageentwurf; noch nicht versandt.** **Primäre Anfrage ist nach den vorhandenen Ausgangsmerkmalen für eine regelbasierte GK-Ermittlung**, nicht nach einer bereits gepflegten GK-Datenbank. Eine dokumentierte GK wäre nur ein optionaler Zusatz. Zunächst klären wir **Verfügbarkeit, Datenformat, Rechtsstand, Berechtigung und Ansprechpartner**; wir fordern keine personenbezogenen Bauaktinformationen an.
 
 **Fragen:**
 
-1. Liegen für bestehende Gebäude dokumentierte **tatsächliche Gebäudeklassen GK1–GK5** vor? Falls ja: für welche Objekte/Datenstände und mit welcher fachlichen bzw. rechtlichen Zuordnung?
-2. Sind die Angaben **strukturiert** verfügbar (z. B. Tabelle mit Objektkennung/Adresse, GK, Stand und Quelle) oder nur in einzelnen Bauakten?
-3. Sind bei älteren Gebäuden statt einer GK lediglich andere Daten vorhanden, insbesondere **Fluchtniveau, oberirdische Geschosse, Brutto-Grundfläche, Nutzung, Zahl der Nutzungseinheiten und Gebäudeart**?
+1. Welche **Gebäude-Ausgangsmerkmale** sind für bestehende Gebäude verfügbar: **Fluchtniveau, Zahl oberirdischer Geschosse, Brutto-Grundfläche der oberirdischen Geschosse, Zahl/Fläche der Nutzungseinheiten, tatsächliche Nutzung und Gebäudeanordnung**?
+2. Sind diese Merkmale **strukturiert** digital verfügbar (z. B. Tabelle mit Objektkennung/Adresse, Merkmal, Datenstand und Quelle), oder nur in einzelnen Bauakten?
+3. Falls bereits eine **dokumentierte tatsächliche GK1–GK5** existiert: Kann sie als zusätzlicher fachlicher Vergleichswert samt Rechts-/Ermittlungsstand genutzt werden? Wir gehen **nicht** davon aus, dass ein vollständiger GK-Datenbestand vorhanden ist.
 4. Bestehen auf Grundstücks-/Planungsebene Informationen zur **höchsten zulässigen Bebauung** und dazu ein digital zugänglicher rechtswirksamer Bebauungsplan? Diese ist getrennt von der tatsächlichen GK zu führen.
 5. Welche **Nutzungs- und Weitergaberechte** gelten für eine ausschließlich interne bzw. fachlich abgestimmte gemeindeweite GIS-Bestandsaufnahme? Wäre ein minimierter Datenauszug ohne Namen/Eigentümer möglich?
 6. Wer ist die **zuständige Ansprechstelle** für eine fachliche Validierung und für Fragen zu historischen Bauakten?
 
-**Mögliche Anlieferung, sofern ausdrücklich freigegeben:** Objektkennung, normalisierte Adresse, tatsächliche GK oder „nicht dokumentiert“, Datenstand, Quelltyp/Bauaktbezug, verifizierte GK-Merkmale und getrennt davon höchstzulässige planungsrechtliche Werte. Keine Eigentümerdaten anfordern. Aktuelle OSM-/BEV-Zuordnungen sind kein Nachweis amtlicher Gebäudeidentität.
+**Mögliche Anlieferung, sofern ausdrücklich freigegeben:** Objektkennung, normalisierte Adresse, verfügbare verifizierte Eingangsmerkmale (insbesondere Geschosse, Fluchtniveau, BGF, Nutzung/Einheiten), Datenstand, Quelltyp/Bauaktbezug, optional bereits dokumentierte GK und **getrennt davon** höchstzulässige planungsrechtliche Werte. Keine Eigentümerdaten anfordern. Aktuelle OSM-/BEV-Zuordnungen sind kein Nachweis amtlicher Gebäudeidentität.
 
 Die Anfrage kann gemeinsam mit der separaten **Liste der 25 offenen BEV-/OSM-Geometriefälle** an die Gemeinde gerichtet werden; Rückmeldungen bleiben zwei getrennte Datenstränge. Bis zu einer fachlich verifizierten Antwort bleibt die GK-Einstufung im Projekt **unbekannt** (`auto_assignment_enabled=false`).
