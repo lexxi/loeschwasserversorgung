@@ -68,17 +68,16 @@ def main():
               json.dumps([r[0] for r in con.execute(
                   "SELECT inspireId_GKZ FROM AD_AddressLocatorMatchingTable LIMIT 4")],
                   ensure_ascii=False))
-        # INSPIRE GKZ typically URI-like, but avoid assuming that its format is
-        # exactly '20619' until actual values are seen.
-        term="%"+args.gemeinde+"%"
+        # Exact INSPIRE municipality reference confirmed for Malta (20619).
+        term="AT.BEV.AD.GKZ."+args.gemeinde
         sql=("SELECT localId_ADRCD,inspireId_GKZ,addressIdentifierGeneral,"
              "locatorLevelValue,inspireId_SKZ,inspireId_ZO "
-             "FROM AD_AddressLocatorMatchingTable WHERE inspireId_GKZ LIKE ?")
+             "FROM AD_AddressLocatorMatchingTable WHERE inspireId_GKZ = ?")
         rows=[dict(r) for r in con.execute(sql+" LIMIT ?",(term,args.sample))]
-        print("[INFO] Candidate address records (GKZ substring, NOT yet validated exact GKZ):")
+        print("[INFO] Address records (exact INSPIRE municipality reference):")
         print(json.dumps(rows,ensure_ascii=False,indent=2))
         if not rows:
-            print("[WARN] No matching GKZ string. Inspect example values above before deciding filter format.")
+            print("[WARN] No matching GKZ. Verify municipality reference syntax and input snapshot.")
             return
         value_sample={r["inspireId_GKZ"] for r in rows}
         if len(value_sample)>1:
@@ -88,17 +87,27 @@ def main():
             "SUM(CASE WHEN localId_ADRCD IS NULL THEN 1 ELSE 0 END) "
             "FROM AD_AddressLocatorMatchingTable WHERE inspireId_GKZ LIKE ?",(term,)
         ).fetchone()
-        print("[INFO] Candidate matching-table rows:",total[0],
+        print("[INFO] Exact municipality matching-table rows:",total[0],
               "| distinct address codes:",total[1],"| null address codes:",total[2])
         print("[HINWEIS] These are matching-table rows, not necessarily unique house numbers or buildings.")
         if args.check_building_links:
+            sample_sql = (
+                "SELECT bg.localId_ADRCD,bg.localId_ADRCD_SUBCD,"
+                "bg.buildingIdentifier,bg.buildingNumber,bg.geometrySpecification "
+                "FROM AD_BuildingGeometry bg WHERE bg.localId_ADRCD IN ("
+                "SELECT DISTINCT m.localId_ADRCD FROM AD_AddressLocatorMatchingTable m "
+                "WHERE m.inspireId_GKZ = ?) LIMIT ?"
+            )
+            examples=[dict(row) for row in con.execute(sample_sql,(term,args.sample))]
+            print("[INFO] BuildingGeometry matching-code examples:")
+            print(json.dumps(examples,ensure_ascii=False,indent=2))
             # Address-code relationship only: NOT a mapping to OSM footprint IDs.
             query=("SELECT COUNT(*),COUNT(DISTINCT bg.localId_ADRCD),"
                    "COUNT(DISTINCT bg.localId_ADRCD_SUBCD) "
                    "FROM AD_BuildingGeometry bg "
                    "WHERE bg.localId_ADRCD IN ("
                    "SELECT DISTINCT m.localId_ADRCD FROM AD_AddressLocatorMatchingTable m "
-                   "WHERE m.inspireId_GKZ LIKE ?)")
+                   "WHERE m.inspireId_GKZ = ?)")
             r=con.execute(query,(term,)).fetchone()
             print("[INFO] BuildingGeometry rows associated with candidate address codes:",r[0],
                   "| distinct ADRCD:",r[1],"| distinct ADRCD_SUBCD:",r[2])
