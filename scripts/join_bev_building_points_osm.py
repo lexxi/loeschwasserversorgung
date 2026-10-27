@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """AP3: BEV building reference points vs OSM building footprints (offline).
 
-Only a unique BEV building POINT strictly inside one OSM polygon is assigned.
-Boundary/overlap and nearby matches are review candidates, never assignments.
+Strictly inside points are separate from uniquely nearest, <=2 m boundary-tolerance
+candidates. Competing polygons within tolerance prevent assignment. Review remains
+required for tolerance matches; nearby points >2 m are never assigned.
 Keeps address code + building subcode and aggregates multiple BEV entries per OSM
 building without treating a building point as an OSM footprint identity proof.
 """
@@ -40,6 +41,8 @@ def main():
     p.add_argument("--gemeinde",default="20619")
     p.add_argument("--near-m",type=float,default=15.0,
                    help="Review search radius in meters for points outside OSM buildings (default 15)")
+    p.add_argument("--boundary-tolerance-m",type=float,default=2.0,
+                   help="Unique-neighbor tolerance in meters (default 2); review-grade only")
     p.add_argument("--overwrite",action="store_true",
                    help="Explicitly replace existing local address-link reports")
     args=p.parse_args()
@@ -47,6 +50,8 @@ def main():
         p.error("Expected five-digit GKZ")
     if not 0<=args.near_m<=100:
         p.error("--near-m must be 0..100")
+    if not 0<=args.boundary_tolerance_m<=args.near_m:
+        p.error("--boundary-tolerance-m must be 0..--near-m")
     base=ROOT/"data"/"processed"/args.gemeinde
     bev_path=base/"bev_addresses"/"bev_gebaeudepunkte.geojson"
     osm_path=base/"osm"/"buildings.geojson"
@@ -108,8 +113,13 @@ def main():
             indices=idx.query(point.buffer(args.near_m),predicate="intersects") if args.near_m else []
             near=sorted((float(osm.geometry.iloc[int(j)].distance(point)),int(j)) for j in set(indices))
             near=[(d,j) for d,j in near if d<=args.near_m]
-            chosen=None
-            status="near_review" if near else "unmatched"
+            tolerance=[(d,j) for d,j in near if d<=args.boundary_tolerance_m]
+            if len(tolerance)==1 and args.boundary_tolerance_m>0:
+                chosen=tolerance[0][1]
+                status="boundary_tolerance"
+            else:
+                chosen=None
+                status="near_review" if near else "unmatched"
             candidates=[j for d,j in near]
             distance=near[0][0] if near else None
         oid=osm_ids[chosen] if chosen is not None else ""
@@ -147,7 +157,12 @@ def main():
             "official_addresses":" | ".join(named[c] for c in sorted(named)),
             "address_ids":" | ".join(address_codes),
             "building_subcodes":" | ".join(sorted(r["building_subcode"] for r in matches)),
-            "match_method":"bev_building_point_inside_unique_osm_polygon" if matches else "",
+            "match_method":(
+                "bev_building_point_inside_unique_osm_polygon" if matches and
+                all(r["status"]=="inside_unique" for r in matches)
+                else "includes_boundary_tolerance_review" if matches else ""
+            ),
+            "boundary_tolerance_count":sum(r["status"]=="boundary_tolerance" for r in matches),
         })
     summary={
         "generated_utc":datetime.now(timezone.utc).isoformat(),
@@ -162,11 +177,17 @@ def main():
         "buildings_with_multiple_address_codes":sum(r["address_count"]>1 for r in building_rows),
         "assigned_distinct_address_codes":len({r["address_id"] for r in results if r["osm_id"]}),
         "near_review_radius_m":args.near_m,
-        "method":"BEV building reference Point inside exactly one OSM footprint: geometrically unambiguous only",
+        "boundary_tolerance_m":args.boundary_tolerance_m,
+        "boundary_tolerance_points":counts["boundary_tolerance"],
+        "strict_inside_points":counts["inside_unique"],
+        "strict_inside_osm_buildings":len({r["osm_id"] for r in results if r["status"]=="inside_unique"}),
+        "method":"Exact polygon interior or unique polygon within explicit 2m review tolerance; separate evidence quality",
         "caveats":[
             "No official BEV-to-OSM identity mapping; geometry-only candidate association.",
             "BEV address access point is NOT the geometry used for this join.",
-            "Nearby/overlapping/boundary points never assigned.",
+            "Boundary tolerance is only a provisional geometric candidate, not a confirmed BEV-to-OSM identity.",
+            "More than one building within tolerance is always a review case.",
+            "Outside-tolerance nearby/overlapping/boundary points never assigned.",
             "Buildings without a BEV address point are not necessarily unused.",
             "No automatic OIB building class or fire-water needs derived."
         ],
@@ -177,7 +198,9 @@ def main():
     outputs[2].write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(f"[OK] BEV-Gebaeudepunkte: {len(bev)} | OSM-Gebaeude: {len(osm)}")
     print("[INFO] Geometrische Zuordnung:",json.dumps(dict(counts),ensure_ascii=False))
-    print("[INFO] OSM-Gebaeude mit BEV-Innen-Treffer:",summary["assigned_osm_buildings"])
+    print("[INFO] OSM-Gebaeude mit BEV-Zuordnung (inkl. Toleranz):",summary["assigned_osm_buildings"])
+    print("[INFO] OSM-Gebaeude mit strengem Innentreffer:",summary["strict_inside_osm_buildings"])
+    print("[INFO] 2-m-Toleranz: geometrische Pruefkandidaten, keine gesicherten Identitaeten")
     print("[INFO] Eindeutige BEV-Adresscodes in Zuordnungen:",summary["assigned_distinct_address_codes"])
     for path in outputs:
         print(f"[OK] {path}")
