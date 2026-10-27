@@ -4,6 +4,28 @@
 
 Dieses Verzeichnis erklärt für **jedes Python-Skript** in [`scripts/`](../scripts/) seine Aufgabe, den Bedarf im Projekt, wesentliche Eingaben und den Speicherort der Ausgaben. Es trennt aktuelle Auswertungen von historischen Hilfswerkzeugen. `<GKZ>` steht für die fünfstellige Gemeindekennzahl. Programme mit `--out`/`--output` können alternative Zielpfade nutzen.
 
+## Startseite / Navigation für alle Unterseiten
+
+Der lokale Navigator [`scripts/generate_report_index.py`](../scripts/generate_report_index.py) erzeugt eine **zentrale `index.html`** und eine eigene Gemeindeseite. Er scannt ausschließlich die bereits vorhandenen Ausgabedateien in `reports/` und zeigt nur Links auf tatsächlich vorhandene Karten, Berichte und weitere HTML-Seiten. Er liest **keine** ODB-Originaldateien und führt keine Netzwerkanfragen aus.
+
+```powershell
+git pull --ff-only origin main
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Anschließend sind folgende Dateien vorhanden:
+
+- `reports/index.html` – Übersicht über alle lokal vorhandenen Gemeinden, für die bereits ein Index erstellt wurde.
+- `reports/20619/index.html` – Navigation zu Malta-Karten und Berichten, inklusive `gk_inventory/gebaeude_als_hoehenkarte.html`, `gebaeude_odb_abstandskarte.html`, `odb_wasserentnahmestellen.html` sowie CSV-/JSON-Auswertungen, **soweit die jeweiligen Dateien existieren**.
+
+Alternativ ohne `--gemeinde` sämtliche Gemeindeverzeichnisse unter `reports/` aktualisieren:
+
+```powershell
+python scripts\generate_report_index.py --open
+```
+
+**Wichtig:** Neue oder gelöschte Berichte erscheinen erst nach erneutem Generatorlauf. Der Generator erstellt nur Navigation, berechnet keine Analysen. Das `reports/`-Verzeichnis ist lokal und darf wegen der enthaltenen ODB-Daten **nicht als Ganzes öffentlich veröffentlicht werden**. HTML, CSS und Links funktionieren offline über `file://`.
+
 ## Verzeichnisse und Datenschutz
 
 | Verzeichnis | Verwendung | Veröffentlichung |
@@ -26,6 +48,8 @@ Dieses Verzeichnis erklärt für **jedes Python-Skript** in [`scripts/`](../scri
 | [`import_osm_roads_pbf.py`](../scripts/import_osm_roads_pbf.py) | Importiert OSM-Straßen und -Wege als **Orientierungshintergrund**, noch kein Routing oder Schlauchweg. | Geofabrik-PBF und Gemeindegrenze | `data/processed/<GKZ>/osm/roads.geojson`, `roads_manifest.json` |
 | [`import_odb_water_sources.py`](../scripts/import_odb_water_sources.py) | Bereitet den **lokalen autorisierten ODB-Export** auf und berücksichtigt Quellentyp und Status. Einzige Wasserquellenbasis der aktiven Analyse. | Privater Export, z. B. `data/raw/odb_wasserentnahmestellen.geojson`, Gemeindegrenze | `data/processed/<GKZ>/odb_water_sources/odb_water_sources.geojson`, `odb_water_sources.csv`, `odb_water_sources_manifest.json` |
 | [`import_osm.py`](../scripts/import_osm.py) | Alternativer/älterer OSM-Gebäudeimport aus lokaler GeoJSON oder OSMnx/Overpass. Enthält außerdem von den PBF-Importern genutzte Hilfsfunktionen/Feldliste. | `--input` oder `--download`, Gemeindegrenze | Im gemeindebezogenen Modus `data/processed/<GKZ>/osm/buildings.geojson`, `osm_manifest.json`; älterer Modus unter `data/processed/current/osm/` |
+
+| [`generate_report_index.py`](../scripts/generate_report_index.py) | Erzeugt eine zentrale lokale Startseite für vorhandene HTML-Karten, CSV-/JSON-Berichte und zusätzliche Unterseiten; überspringt fehlende Dateien. | `reports/<GKZ>/` mit bereits generierten Ergebnissen | `reports/index.html`, `reports/<GKZ>/index.html` |
 
 ## B. ODB-Bestandsaufnahme, Gebäudeabstände und Offline-Karten – aktuell
 
