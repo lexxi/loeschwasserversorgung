@@ -161,7 +161,7 @@ button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 1
 #map{display:block;width:100%;height:min(74vh,820px);min-height:420px;touch-action:none;border-radius:8px;background:#f9fbfd}
 .building{stroke:#33485a;stroke-width:.32;cursor:pointer;vector-effect:non-scaling-stroke}
 .building:hover{stroke:#081a2a;stroke-width:2;stroke-opacity:1}
-.source-marker{cursor:pointer}.source-marker:hover circle{stroke-width:3.5}
+.source-marker{cursor:pointer}.source-marker circle{vector-effect:non-scaling-stroke}.source-marker:hover circle{stroke-width:3}
 #detail{padding:10px;background:#edf3f9;border-radius:8px;min-height:25px;font-size:.91rem;overflow-wrap:anywhere}
 .note{font-size:.79rem;color:#627286}.credit{font-size:.78rem;color:#435c77}
 @media(max-width:850px){main{grid-template-columns:1fr}#map{height:62vh}}
@@ -193,7 +193,17 @@ Wasserentnahmestellen: Kärntner Objektdatenbank – lokale, berechtigte Verwend
 const svg=document.getElementById('map'),bs=[...document.querySelectorAll('.building')],ms=[...document.querySelectorAll('.source-marker')];
 const search=document.getElementById('search'),counter=document.getElementById('visible'),detail=document.getElementById('detail');
 const full={x:0,y:0,w:1150,h:800};let v={...full},drag=null;
-function setV(){svg.setAttribute('viewBox',[v.x,v.y,v.w,v.h].join(' '))}
+function resizeMarkers(){
+ // SVG circle radii are in map coordinates. Convert a fixed screen-pixel size
+ // into viewBox units, so zooming enlarges buildings but not ODB markers.
+ const rect=svg.getBoundingClientRect();
+ if(!rect.width)return;
+ const r=5.5*v.w/rect.width;
+ for(const circle of svg.querySelectorAll('.source-marker circle')){
+   circle.setAttribute('r',String(r));
+ }
+}
+function setV(){svg.setAttribute('viewBox',[v.x,v.y,v.w,v.h].join(' '));resizeMarkers()}
 function update(){const bands=new Set([...document.querySelectorAll('.band-toggle:checked')].map(i=>i.value));const q=search.value.trim().toLocaleLowerCase();let n=0;
  for(const b of bs){const ok=bands.has(b.dataset.band)&&(b.dataset.id.toLocaleLowerCase().includes(q)||b.dataset.type.toLocaleLowerCase().includes(q));b.style.display=ok?'':'none';if(ok)n++}
  counter.textContent=n;document.getElementById('sources').style.display=document.getElementById('show-sources').checked?'':'none';
@@ -208,7 +218,7 @@ svg.addEventListener('pointermove',ev=>{if(!drag)return;const b=svg.getBoundingC
 svg.addEventListener('pointerup',()=>drag=null);svg.addEventListener('pointercancel',()=>drag=null);
 bs.forEach(b=>b.addEventListener('click',()=>{detail.textContent='OSM-Gebäude: '+b.dataset.id+' | Typ: '+b.dataset.type+' | Abstand: '+b.dataset.distance+' | Nächste verwendbare ODB-Quelle: '+(b.dataset.source||'keine')+' ('+(b.dataset.sourceType||'–')+')'}));
 ms.forEach(m=>m.addEventListener('click',()=>{detail.textContent='ODB: '+m.dataset.id+' | '+(m.dataset.name||'ohne Titel')+' | '+m.dataset.type+' | Status: '+({'1':'verwendbar','2':'eingeschränkt verwendbar','3':'nicht verwendbar'}[m.dataset.status]||'unbekannt')}));
-update();
+update();setV();window.addEventListener('resize',resizeMarkers);
 })();
 </script></body></html>"""
     html = (template.replace("__MID__", escape(mid))
