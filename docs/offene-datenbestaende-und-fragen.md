@@ -66,3 +66,42 @@ python scripts\inspect_bev_address_package.py --input "C:\Pfad\BEV-Adressdaten.z
 ```
 
 Für ein entpacktes GeoPackage entsprechend `--input "C:\Pfad\datei.gpkg"`. Erst nach tatsächlicher Schema-Prüfung werden GKZ-Filter, Schlüsselverknüpfungen und gegebenenfalls ein Gebäudegeometrie-Abgleich entwickelt. Originalpakete lokal unter `data/raw/bev/addresses/` sichern.
+
+## BEV-INSPIRE-GPKG eingetroffen – Schema- und Datenstandsprüfung (27.10.2026)
+
+**D01/D02: Datenpaket vorhanden; kommunale Filter- und Schlüsselprüfung noch offen.** Lokal bereitgestellt:
+
+- `data/raw/bev/addresses/AT-INSPIRE_AD_Address_20261001.gpkg`
+- Größe: **1.657.053.184 Bytes** (ca. 1,54 GiB)
+- SHA-256: `34c21e933febacd4eed80b9a88d542212e419bf63c94f22455d79d6b62319382`
+- Referenz-CRS der Geometrie-Layer: **EPSG:3035**.
+
+Die Inspektion mit `scripts/inspect_bev_address_package.py` zeigt folgende tatsächlich vorhandene Layer:
+`AD_AddressAreaName`, `AD_AddressGeometry`, `AD_AddressLocatorMatchingTable`, `AD_AreaName`, `AD_BuildingGeometry`, `AD_Municipality`, `AD_PostalDescriptor`, `AD_ThoroughfareName`.
+
+**Für die kommunale Verknüpfung relevant:**
+
+| BEV-Layer | Im geprüften Schema vorhandene Felder | Methodische Bedeutung |
+| --- | --- | --- |
+| `AD_AddressLocatorMatchingTable` | `localId_ADRCD`, `inspireId_GKZ`, `addressIdentifierGeneral`, `locatorLevelValue`, `inspireId_SKZ`, `inspireId_ZO`, `inspireId_PLZ` | Kandidat zur Gemeinde- und Schlüsselzuordnung; **konkrete Werte noch prüfen** |
+| `AD_AddressGeometry` | `localId_ADRCD`, `EPSG`, `RW`, `HW`, `WKT_EPSG3035` | Adressebene; Semantik und Lage der Koordinaten prüfen |
+| `AD_BuildingGeometry` | `localId_ADRCD`, `localId_ADRCD_SUBCD`, `buildingIdentifier`, `buildingNumber`, `geometrySpecification` | Gebäudeebene und Subcodes; Relation zum Gebäudegrundriss gesondert prüfen |
+| `AD_Municipality` | `localId_GKZ`, `inspireId_GKZ`, `text` | Gemeinde-Referenz |
+| `AD_ThoroughfareName`, `AD_AddressAreaName`, `AD_PostalDescriptor` | Namen und Postleitzahlen | Ergänzung der maschinenlesbaren Adressbeschreibung |
+
+**Wichtig:** Aus der Existenz der Spalten lässt sich noch **nicht** ableiten, wie viele **eindeutige Adressen oder Gebäude** für Malta vorhanden sind. Die frühere Zahl 758 bleibt ein separater, bisher nicht gegengeprüfter Bestand.
+
+Die nächste Stufe ist `scripts/probe_bev_address_municipality.py`. Sie untersucht die realen GKZ-Werte, passenden Adresscodes und optional die über `localId_ADRCD` verknüpften Gebäude-Datensätze direkt in der SQLite-/GeoPackage-Datenbank, **ohne 1,66 GB in GeoPandas einzulesen oder Ergebnisse zu ändern**:
+
+```powershell
+git pull --ff-only origin main
+python scripts\probe_bev_address_municipality.py --gemeinde 20619
+```
+
+Die Ausgabe umfasst Beispielwerte von `inspireId_GKZ`, Kandidaten für GKZ 20619, Anzahl zugehöriger Matching-Zeilen und eindeutiger Adresscodes. Der anfängliche Filter nutzt bewusst nur eine **GKZ-Teilzeichenfolge** und muss anhand der tatsächlich gemeldeten Referenzwerte auf einen exakten Bezeichner präzisiert werden. Für einen gesonderten, potentiell teureren Schlüsselabgleich:
+
+```powershell
+python scripts\probe_bev_address_municipality.py --gemeinde 20619 --check-building-links
+```
+
+**Nächste offene Fragen:** Ist `inspireId_GKZ` für Malta eindeutig? Welcher Feldwert trägt die tatsächlich sichtbare Hausnummer? Gibt es pro `localId_ADRCD` mehrere Matching-Einträge und Gebäude-Subcodes? Welche Geometrie ist Zugang und welche Baukörper? Erst nach diesen Befunden wird ein lokaler Gemeindeexport mit vollständiger Adressbeschreibung und der Verbindung zu OSM-Grundrissen erstellt.
