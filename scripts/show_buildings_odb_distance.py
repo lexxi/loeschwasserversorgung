@@ -13,6 +13,7 @@ import webbrowser
 import geopandas as gpd
 from pyproj import Transformer
 from shapely.geometry import Point, shape
+from shapely.ops import nearest_points
 
 ROOT = Path(__file__).resolve().parent.parent
 BANDS = [
@@ -90,6 +91,26 @@ def main():
     def project(x, y):
         return ((x-x0)/scale, (y1-y)/scale)
 
+    # Resolve source coordinates before rendering buildings. Use the actual
+    # shortest building-footprint-to-source segment, not a centroid line.
+    data = json.loads(odb_file.read_text(encoding="utf-8-sig"))
+    if data.get("type") != "FeatureCollection":
+        raise ValueError("ODB-Datensatz ist keine FeatureCollection")
+    transformer = Transformer.from_crs(4326, 31287, always_xy=True)
+    source_points = {}
+    for feature in data.get("features", []):
+        props = feature.get("properties") or {}
+        oid = str(props.get("odb_id") or "")
+        point = shape(feature["geometry"])
+        if not isinstance(point, Point) or point.is_empty:
+            raise ValueError(f"Ungueltige ODB-Punktgeometrie: {oid}")
+        if not oid or oid in source_points:
+            raise ValueError(f"Fehlende oder doppelte ODB-ID: {oid!r}")
+        source_points[oid] = (
+            Point(*transformer.transform(point.x, point.y)),
+            str(props.get("status_raw") or ""),
+        )
+
     summary = Counter()
     drawings = []
     for _, building in buildings.iterrows():
@@ -105,21 +126,29 @@ def main():
         value_label = f"{float(value):,.1f} m".replace(",", "X").replace(".", ",").replace("X", ".") if value else "kein Wert"
         typ = str(building["building"] or "")
         label = f"{osm_id} | {typ} | {value_label}"
+        source_id = entry["nearest_usable_odb_id"]
+        segment_attrs = ""
+        if source_id:
+            if source_id not in source_points or source_points[source_id][1] != "1":
+                raise ValueError(f"Verwendbare ODB-Quelle in Abstandstabelle nicht gefunden: {source_id}")
+            source_point = source_points[source_id][0]
+            foot_point, end_point = nearest_points(geom, source_point)
+            start_x, start_y = project(foot_point.x, foot_point.y)
+            end_x, end_y = project(end_point.x, end_point.y)
+            segment_attrs = (f' data-line-x1="{start_x:.4f}" data-line-y1="{start_y:.4f}"'
+                             f' data-line-x2="{end_x:.4f}" data-line-y2="{end_y:.4f}"')
         drawings.append(
             f'<path class="building" d="{polygon_path(geom, project)}" fill="{COLORS[key]}" '
             f'fill-rule="evenodd" data-band="{escape(key, quote=True)}" '
             f'data-id="{escape(osm_id, quote=True)}" data-type="{escape(typ, quote=True)}" '
             f'data-distance="{escape(value_label, quote=True)}" '
             f'data-source="{escape(entry["nearest_usable_odb_id"], quote=True)}" '
-            f'data-source-type="{escape(entry["nearest_usable_odb_type"], quote=True)}">'
+            f'data-source-type="{escape(entry["nearest_usable_odb_type"], quote=True)}"'
+            f'{segment_attrs}>'
             f'<title>{escape(label)}</title></path>'
         )
         summary[key] += 1
 
-    data = json.loads(odb_file.read_text(encoding="utf-8-sig"))
-    if data.get("type") != "FeatureCollection":
-        raise ValueError("ODB-Datensatz ist keine FeatureCollection")
-    transformer = Transformer.from_crs(4326, 31287, always_xy=True)
     markers = []
     for idx, feature in enumerate(data.get("features", []), 1):
         geom = shape(feature["geometry"])
@@ -162,6 +191,9 @@ button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 1
 .building{stroke:#33485a;stroke-width:.32;cursor:pointer;vector-effect:non-scaling-stroke}
 .building:hover{stroke:#081a2a;stroke-width:2;stroke-opacity:1}
 .source-marker{cursor:pointer}.source-marker circle{vector-effect:non-scaling-stroke}.source-marker:hover circle{stroke-width:3}
+.source-marker.selected circle{stroke:#ed3434;stroke-width:3.5}
+#selected-link{pointer-events:none;stroke:#a51d36;stroke-width:2.6;stroke-dasharray:8 5;vector-effect:non-scaling-stroke}
+.building.selected{stroke:#071e36;stroke-width:2.5}
 #detail{padding:10px;background:#edf3f9;border-radius:8px;min-height:25px;font-size:.91rem;overflow-wrap:anywhere}
 .note{font-size:.79rem;color:#627286}.credit{font-size:.78rem;color:#435c77}
 @media(max-width:850px){main{grid-template-columns:1fr}#map{height:62vh}}
@@ -177,11 +209,11 @@ button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 1
 <p class="note">Die Klassen beschreiben geometrische Luftlinienabstände; sie sind keine normativen Versorgungsgrenzen. Keine Aussage über Entnahmeleistung, Hydraulik, Schlauchwege oder Erreichbarkeit.</p>
 </aside><section class="map-panel">
 <div class="controls"><button id="plus">+</button><button id="minus">−</button><button id="reset">Gesamtansicht</button>
-<span class="note">Mausrad: Zoom · Ziehen: verschieben · Gebäude anklicken: Details</span></div>
+<span class="note">Mausrad: Zoom · Ziehen: verschieben · Gebäude anklicken: kürzeste Luftlinie zur ODB-Quelle</span></div>
 <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 800" role="img" aria-label="Gebäude nach Luftlinienabstand und ODB-Wasserentnahmestellen">
 <rect width="1150" height="800" fill="#f7fafc"/>
 <path d="__OUTLINE__" fill="#f0f5f1" stroke="#48775f" stroke-width="1.7" fill-rule="evenodd"/>
-<g id="buildings">__BUILDINGS__</g><g id="sources">__MARKERS__</g></svg>
+<g id="buildings">__BUILDINGS__</g><line id="selected-link" style="display:none"/><g id="sources">__MARKERS__</g></svg>
 <div id="detail" aria-live="polite">Gebäude oder ODB-Punkt anklicken, um Details anzuzeigen.</div>
 <p class="credit">Gebäudegrundflächen: © OpenStreetMap-Mitwirkende · ODbL 1.0 ·
 <a href="https://www.openstreetmap.org/copyright">openstreetmap.org/copyright</a>.<br>
@@ -216,8 +248,33 @@ svg.addEventListener('wheel',ev=>{ev.preventDefault();const p=point(ev);if(p)zoo
 svg.addEventListener('pointerdown',ev=>{if(ev.target.closest('.building,.source-marker'))return;drag={x:ev.clientX,y:ev.clientY,v:{...v}};svg.setPointerCapture(ev.pointerId)});
 svg.addEventListener('pointermove',ev=>{if(!drag)return;const b=svg.getBoundingClientRect();v.x=drag.v.x-(ev.clientX-drag.x)*drag.v.w/b.width;v.y=drag.v.y-(ev.clientY-drag.y)*drag.v.h/b.height;setV()});
 svg.addEventListener('pointerup',()=>drag=null);svg.addEventListener('pointercancel',()=>drag=null);
-bs.forEach(b=>b.addEventListener('click',()=>{detail.textContent='OSM-Gebäude: '+b.dataset.id+' | Typ: '+b.dataset.type+' | Abstand: '+b.dataset.distance+' | Nächste verwendbare ODB-Quelle: '+(b.dataset.source||'keine')+' ('+(b.dataset.sourceType||'–')+')'}));
-ms.forEach(m=>m.addEventListener('click',()=>{detail.textContent='ODB: '+m.dataset.id+' | '+(m.dataset.name||'ohne Titel')+' | '+m.dataset.type+' | Status: '+({'1':'verwendbar','2':'eingeschränkt verwendbar','3':'nicht verwendbar'}[m.dataset.status]||'unbekannt')}));
+const selectedLink=document.getElementById('selected-link');
+function clearSelection(){
+ bs.forEach(b=>b.classList.remove('selected'));
+ ms.forEach(m=>m.classList.remove('selected'));
+ selectedLink.style.display='none';
+}
+bs.forEach(b=>b.addEventListener('click',()=>{
+ clearSelection();b.classList.add('selected');
+ const source=ms.find(m=>m.dataset.id===b.dataset.source && m.dataset.status==='1');
+ if(source && b.dataset.lineX1){
+   source.classList.add('selected');
+   selectedLink.setAttribute('x1',b.dataset.lineX1);
+   selectedLink.setAttribute('y1',b.dataset.lineY1);
+   selectedLink.setAttribute('x2',b.dataset.lineX2);
+   selectedLink.setAttribute('y2',b.dataset.lineY2);
+   selectedLink.style.display='';
+ }
+ detail.textContent='OSM-Gebäude: '+b.dataset.id+' | Typ: '+b.dataset.type+
+  ' | Kürzeste Luftlinie ab Gebäudegrundfläche: '+b.dataset.distance+
+  ' | Nächste verwendbare ODB-Quelle: '+(b.dataset.source||'keine')+
+  ' ('+(b.dataset.sourceType||'–')+')'+(source?' | Quelle rot markiert':'');
+}));
+ms.forEach(m=>m.addEventListener('click',()=>{
+ clearSelection();m.classList.add('selected');
+ detail.textContent='ODB: '+m.dataset.id+' | '+(m.dataset.name||'ohne Titel')+' | '+m.dataset.type+
+  ' | Status: '+({'1':'verwendbar','2':'eingeschränkt verwendbar','3':'nicht verwendbar'}[m.dataset.status]||'unbekannt');
+}));
 update();setV();window.addEventListener('resize',resizeMarkers);
 })();
 </script></body></html>"""
