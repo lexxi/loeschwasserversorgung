@@ -41,7 +41,11 @@
       "download_url": "https://www.oib.or.at/sites/default/files/erlaeuterungen_oib-rl_2_ausgabe_mai_2023.pdf",
       "filename": "oib_richtlinie_2_erlaeuterungen_2023.pdf",
       "acquisition": "auto_pdf",
-      "usage_note": "Auslegungshilfe; kein Ersatz fuer Originalrichtlinie."
+      "usage_note": "Auslegungshilfe; kein Ersatz fuer Originalrichtlinie.",
+      "download_urls": [
+        "https://www.tirol.gv.at/fileadmin/themen/bauen-wohnen/baupolizei/OIB-2023/erlaeuterungen_oib-rl_2_ausgabe_mai_2023.pdf",
+        "https://www.oib.or.at/sites/default/files/erlaeuterungen_oib-rl_2_ausgabe_mai_2023.pdf"
+      ]
     },
     {
       "id": "trvb_137_2021",
