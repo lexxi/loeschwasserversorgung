@@ -166,3 +166,21 @@ Erwartet werden **fünf GK-Klassen, acht Varianten und sechs Grundschutz-Zeilen*
 **Aktuelle Importlücke:** `scripts/import_osm.py` übernimmt bereits `building:levels`, aber derzeit nicht standardmäßig `height`, `roof:height`, `building:flats`, `building:units` und weitere für die Bewertung mögliche OSM-Tags. Vor der Dateninventur Importfelder gezielt erweitern, PBF erneut importieren und die bestehende Anzahl/IDs der 1.686 Gebäude auf Konsistenz prüfen. Keine pauschale GK-Annahme aus `building=house` oder `building=yes`.
 
 **Quellen:** [GWR-Gesetz, Anlage 1 – vorgesehene Gebäudemerkmale](https://ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=Bundesnormen&Gesetzesnummer=20003223); [Statistik Austria – GWR-Bestandsdaten](https://www.statistik.at/datenbanken/adress-gebaeude-und-wohnungsregister/adress-gebaeude-und-wohnungsregister/daten-des-gebaeude-und-wohnungsregisters/bestandsdaten); [Kärnten – digitales Geländemodell (DGM), data.gv.at](https://www.data.gv.at/datasets/b5de6975-417b-4320-afdb-eb2a9e2a1dbf); [BEV – digitales Oberflächenmodell](https://www.bev.gv.at/Services/Produkte/Digitales-Oberflaechenmodell/ALS-Oberflaechenmodell.html).
+
+## AP 2 – Merkmalsinventur V1 (27.10.2026)
+
+Der Offline-PBF-Importer bewahrt jetzt zusätzlich `height`, `min_height`, `roof:height`, `roof:levels`, `building:flats`, `building:units`, `building:part`, `building:levels:underground` und `start_date` auf. Die bisher unterstützten OSM-Felder wie `building`, `building:use` und `building:levels` bleiben enthalten. Die Veränderung betrifft die erfassten Attribute, **nicht die Gebäudeselektion**; dennoch sind Gebäudemenge und OSM-IDs nach dem erneuten Import zu kontrollieren.
+
+```powershell
+git pull --ff-only origin main
+python scripts\import_osm_buildings_pbf.py --gemeinde 20619 --pbf data\raw\austria-latest.osm.pbf
+python scripts\inventory_gk_building_attributes.py --gemeinde 20619 --expected-count 1686
+```
+
+Die Inventur erzeugt lokal:
+- `reports/20619/gk_inventory/gebaeude_gk_merkmale.csv` – **sämtliche** OSM-Gebäude, Grundrissfläche (EPSG:31287), vorhandene OSM-Indikatoren und gesonderte Liste fehlender **verifizierter** GK-Nachweise;
+- `reports/20619/gk_inventory/summary.json` – Häufigkeiten der vorhandenen Tags, Verteilung der OSM-`building`-Typen und fachliche Einschränkungen.
+
+**Strenge Unterscheidung:** Die CSV-Spalten `gk_actual=unknown` und `gk_status=unassessed` sind absichtlich bei allen Gebäuden gesetzt; aus Gebäudetyp, Grundfläche, `building:levels` oder `height` wird **noch keine** GK geschätzt. Die angeblich fehlenden Nachweise in `missing_required_gk_evidence` bezeichnen Kriterien, die *noch nicht als verifizierte Fachmerkmale* vorliegen – auch wenn es ein OSM-Indiz mit ähnlichem Namen gibt. Die erzeugten Daten liegen unter `reports/` und sind öffentlich nicht eingecheckt.
+
+Die Inventur ist Grundlage, um die Verfügbarkeit zu quantifizieren und zusätzliche Quellen **gezielt statt pauschal** zu suchen. Einzelne GK-Varianten benötigen unterschiedliche Nachweise; das wird erst beim späteren Prüfalgorithmus differenziert. Die bloße Existenz eines OSM-Tagwerts beweist keine Richtigkeit, baurechtliche Nutzung, gesamte BGF oder Fluchtniveau.
