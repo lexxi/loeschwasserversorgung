@@ -104,3 +104,17 @@ Der Offline-Importer legt `data/processed/20619/osm/buildings.geojson` sowie `os
 ![Datenfluss Löschwasserversorgung](datenfluss-loeschwasserversorgung.svg)
 
 [SVG-Grafik öffnen](datenfluss-loeschwasserversorgung.svg). Das Diagramm dokumentiert den aktiven Workflow ohne OSM-Wasserquellen.
+
+## Interaktive Gebäudekarte nach ODB-Luftlinienabständen
+
+Nach dem Import der OSM-Gebäude, dem ODB-Import und der Berechnung der Gebäudeabstände:
+
+```powershell
+git pull --ff-only origin main
+python scripts\analyze_buildings_odb_distance.py --gemeinde 20619
+python scripts\show_buildings_odb_distance.py --gemeinde 20619 --open
+```
+
+Die Karte wird **ausschließlich lokal** unter `reports/20619/gebaeude_odb_abstandskarte.html` erzeugt. Sie lädt weder Kartentiles noch externe Bibliotheken und benötigt kein Internet. Alle importierten Gebäude werden unabhängig von der Widmung als Grundflächen dargestellt. Die Farben kodieren den bereits berechneten Abstand zur nächsten **ODB-Quelle mit Status 1**. ODB-Quellen mit anderem Status erscheinen zwar als eigenständige Marker, beeinflussen aber nicht die Gebäude-Abstandsklasse.
+
+Interaktionen: Filter nach den fünf Abstandsklassen, Suche nach OSM-ID oder Gebäudetyp, ein-/ausblendbare ODB-Punkte, Zoom, Verschieben und Details per Klick. **Die vier archivierten OSM-Wasserquellen werden nicht geladen.** Die Karte enthält ODB-Objektinformationen und Gebäudegeometrien und darf **nicht** ohne geeignete Datenfreigabe veröffentlicht oder ins öffentliche GitHub eingecheckt werden. Quellenangaben für OSM und Statistik Austria sind in der Offline-Karte enthalten. Die Abstandsklassen sind keine normativen Anforderungen und keine Aussage zur tatsächlichen Löschwasserversorgung.
