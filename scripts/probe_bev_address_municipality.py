@@ -85,7 +85,7 @@ def main():
         total=con.execute(
             "SELECT COUNT(*), COUNT(DISTINCT localId_ADRCD),"
             "SUM(CASE WHEN localId_ADRCD IS NULL THEN 1 ELSE 0 END) "
-            "FROM AD_AddressLocatorMatchingTable WHERE inspireId_GKZ LIKE ?",(term,)
+            "FROM AD_AddressLocatorMatchingTable WHERE inspireId_GKZ = ?",(term,)
         ).fetchone()
         print("[INFO] Exact municipality matching-table rows:",total[0],
               "| distinct address codes:",total[1],"| null address codes:",total[2])
