@@ -180,3 +180,37 @@ python scripts\review_building_als_heights.py --gemeinde 20619 --open
 Der Zuordner erzeugt `reports/20619/addresses/bev_gebaeudepunkte_osm_zuordnung.csv` (jede BEV-Subcode-Geometrie inklusive Kandidaten), `gebaeude_adressen.csv` (alle OSM-Gebäude mit BEV-Adressinformationen) und `bev_osm_zuordnung_summary.json` (Statuszahlen und Provenienz). **Achtung:** Bestehende Zuordnungsdateien werden zum Schutz vor versehentlicher Überschreibung nur mit dem expliziten Schalter `--overwrite` ersetzt.
 
 Erst nachdem die lokale Ausgabe der Zuordnung vorliegt, können wir belastbar sagen, wie viele OSM-Gebäude einen geometrisch eindeutigen BEV-Gebäudepunkt enthalten. Eine solche Zuordnung ist **kein amtlich bestätigter OSM-Identitätsnachweis**; bei mehreren Adressen je Gebäude werden Adresscode und Gebäude-Subcode getrennt erhalten. Fehlende Adressen bedeuten nicht, dass ein Gebäude ungenutzt ist.
+
+### AP3 – BEV-Gebäudepunkte erfolgreich mit OSM abgeglichen (27.10.2026)
+
+**Lokal bestätigtes Ergebnis** mit `scripts/join_bev_building_points_osm.py --gemeinde 20619` und anschließend erfolgreichem `scripts/review_building_als_heights.py --gemeinde 20619 --open`:
+
+| Metrik | Ergebnis | Bedeutung |
+| --- | ---: | --- |
+| BEV-Gebäudereferenzpunkte | **788** | Zu analysierende amtliche Gebäudepunkte |
+| `inside_unique` | **747** | Punkt strikt innerhalb genau eines OSM-Gebäudepolygons, nur geometrisch zugeordnet |
+| `near_review` | **29** | Punkt außerhalb eines Polygons, mindestens ein Kandidat innerhalb von 15 m |
+| `unmatched` | **12** | Kein OSM-Polygon innerhalb des 15-m-Prüfradius |
+| `multiple_or_boundary` | **0** | In dieser Auswertung keine Treffer an Polygonrändern/Überlappungen |
+| OSM-Gebäude mit mindestens einem BEV-Innen-Treffer | **737** | **737 von 1.686** OSM-Gebäuden, keine gesicherte amtliche Gebäudeidentifikation |
+| Unterschiedliche zugeordnete BEV-Adresscodes | **740** | Bezieht sich nur auf die geometrischen Innen-Treffer, **nicht** auf alle 824 BEV-Adressen |
+| OSM-Gebäude ohne BEV-Innen-Treffer | **949** | Kein Adresstreffer ist **kein** Nutzungs- oder Wohnstatusnachweis |
+
+**Rechenhinweis:** Die Anzahl BEV-Punkte ist nicht die Anzahl betroffener Gebäude: 747 Innen-Treffer verteilen sich auf 737 OSM-Gebäude. 740 verschiedene BEV-Adresscodes kommen in den Innen-Treffern vor. Diese Mengen beschreiben unterschiedliche Identitäten; die Differenzen dürfen nicht als Fehler oder bewiesene Mehrfachhausnummern interpretiert werden.
+
+**Kartenintegration erfolgreich:** `reports/20619/gk_inventory/gebaeude_als_hoehenkarte.html` sowie `gebaeude_gk_merkmale_mit_als.csv` wurden neu erstellt; der Generator meldete die eingebundene `reports/20619/addresses/gebaeude_adressen.csv`. Die Kartendarstellung selbst ist damit noch nicht fachlich visuell geprüft.
+
+**Priorisierte Prüfliste:**
+1. **29 `near_review`:** Lageabweichung BEV-Gebäudepunkt ↔ OSM-Polygon, Gebäudegrundriss, Subcode und mögliche Nebengebäude kontrollieren; keine automatische Zuweisung.
+2. **12 `unmatched`:** Fehlende/geänderte OSM-Grundrisse, Lage des BEV-Punktes und Sonderfälle (z. B. Almhütten) prüfen.
+3. **949 OSM-Gebäude ohne Innen-Treffer:** Nach Nutzungsindikatoren, Gebäudegröße, Lage und OSM-Tags untersuchen; nicht automatisch als adresslos oder ungenutzt klassifizieren.
+4. **Mehrfachzuordnungen:** Bei zehn zusätzlichen BEV-Punkt-zu-OSM-Gebäude-Treffern gegenüber der Zahl betroffener OSM-Gebäude und sieben Adresscode-Differenzeinheiten insbesondere Gebäudeteil-/Mehrfachadressen-Konstellationen untersuchen. Keine 1:1-Beziehung erzwingen.
+5. **BEV ↔ OSM:** Ein eindeutiger Punkt-in-Polygon-Treffer ist ein plausibler geometrischer Kandidat, aber **keine** amtlich bestätigte Identitätsrelation.
+6. **Darstellung:** In der Höhenkarte prüfen, ob amtliche Adresse, Anzahl und `address_status` korrekt sowie von OSM-Adressen unterscheidbar erscheinen.
+
+**Verfügbare lokale Prüfdateien:**
+- `reports/20619/addresses/bev_gebaeudepunkte_osm_zuordnung.csv`
+- `reports/20619/addresses/gebaeude_adressen.csv`
+- `reports/20619/addresses/bev_osm_zuordnung_summary.json`
+
+Damit ist die **erste Geometriezuordnung umgesetzt**, die fachliche Verifizierung und Behandlung der Prüffälle bleiben ausdrücklich offen.
