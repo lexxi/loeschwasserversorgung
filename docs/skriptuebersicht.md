@@ -313,3 +313,26 @@ python scripts\generate_report_index.py --gemeinde 20619 --open
 `reports/index.html` und `reports/20619/index.html` enthalten dann pro Quelle **„Offline öffnen“**, wenn die passende Datei tatsächlich existiert, und zusätzlich **„Online öffnen“** für die amtliche/Originalseite. Fehlt die Kopie, erscheint „Offline noch nicht vorhanden“ statt eines defekten Links. Ohne Internet funktionieren die archivierten PDF-Links; die Online-Links setzen erwartungsgemäß Internet voraus.
 
 **Grenzen:** Dieses Register erfasst die derzeit explizit für die GK-/Löschwasser-Regeldefinition verwendeten Fach- und Rechtsquellen. Größere GIS-Quelldaten (z. B. BEV-ALS-Raster, OSM-PBF und ODB) bleiben unabhängig davon unter `data/raw/` und `data/processed/`; sie sind keine PDF-Referenzen. Für neue inhaltlich verwendete Rechtsdokumente ist der Quellenkatalog zu ergänzen. Die technische Offline-Verfügbarkeit ersetzt weder den Geltungsstandsvergleich noch die fachliche Freigabe.
+
+### Fehlerbehebung 27.10.2026: OIB-Download mit HTTP 404
+
+Beim ersten `python scripts\archive_reference_documents.py --download` lieferte die bisherige OIB-URL `https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf` den Fehler **HTTP 404**. Der ältere Direktlink ist deshalb **keine verlässliche Downloadadresse** mehr.
+
+**Lösung:** Im Quellenkatalog sind für die OIB-Begriffsbestimmungen und die OIB-Richtlinie 2 (jeweils **Ausgabe Mai 2023**) zusätzliche PDF-Kopien vom **Land Tirol** hinterlegt. Die Dokumentversion bleibt unverändert. Der Downloader versucht die URLs der Reihe nach, validiert die PDF-Signatur und protokolliert den tatsächlich verwendeten Download-Link im SHA-256-Archivmanifest. Ein weiterhin fehlendes Dokument wird als **[WARN]/[FEHLER]** gelistet, die übrigen Quellen werden trotzdem verarbeitet.
+
+Geprüfte Herkunft: [Land Tirol – OIB-Richtlinien 1–6 Ausgabe Mai 2023](https://www.tirol.gv.at/bauen-wohnen/zentrale-baudienste/baupolizei/oib-richtlinien-1-6-ausgabe-mai-2023/). Für die Erläuterungen zur Richtlinie 2 wurde noch kein zusätzlicher funktionierender Direktlink unabhängig bestätigt; bei weiterem 404 kann diese PDF von der verlinkten offiziellen Downloadseite geladen und lokal importiert werden:
+
+```powershell
+git pull --ff-only origin main
+python scripts\archive_reference_documents.py --download
+python scripts\archive_reference_documents.py --status
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Falls die Erläuterungen auf der OIB-/Tirol-Webseite manuell heruntergeladen wurden:
+
+```powershell
+python scripts\archive_reference_documents.py --import-file "C:\Pfad\zu\Erlaeuterungen.pdf" --id oib_fire_explanations_2023
+```
+
+Die Originaldatei nur aus verlässlicher amtlicher Quelle beziehen; **keine stillen Fassungswechsel** (z. B. 2023 auf 2025). Die Indexseite bietet Offline-Links ausschließlich auf tatsächlich vorhandene archivierte Dokumente.
