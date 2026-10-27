@@ -11,6 +11,7 @@ from collections import Counter
 from html import escape
 import json
 from pathlib import Path
+import webbrowser
 
 import geopandas as gpd
 from pyproj import Transformer
@@ -48,9 +49,35 @@ def polygon_path(geom, project):
     return " ".join(result)
 
 
+def road_path(geom, project):
+    if geom is None or geom.is_empty:
+        return ""
+    if geom.geom_type == "LineString":
+        lines = [geom]
+    elif geom.geom_type == "MultiLineString":
+        lines = geom.geoms
+    else:
+        return ""
+    return " ".join(
+        "M " + " L ".join(f"{project(x, y)[0]:.2f},{project(x, y)[1]:.2f}" for x, y in line.coords)
+        for line in lines if len(line.coords) >= 2
+    )
+
+
+def road_class(kind):
+    if kind in ("motorway", "trunk", "primary", "secondary", "tertiary",
+                "motorway_link", "trunk_link", "primary_link", "secondary_link",
+                "tertiary_link"):
+        return "major"
+    if kind in ("residential", "unclassified", "living_street", "service", "road"):
+        return "local"
+    return "path"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gemeinde", required=True, help="GKZ, z.B. 20619")
+    parser.add_argument("--open", action="store_true", help="HTML im Browser oeffnen")
     args = parser.parse_args()
     mid = args.gemeinde
     if len(mid) != 5 or not mid.isdigit():
@@ -59,6 +86,7 @@ def main():
     base = ROOT / "data" / "processed" / mid
     odb_path = base / "odb_water_sources" / "odb_water_sources.geojson"
     boundary_path = base / "boundary.geojson"
+    roads_path = base / "osm" / "roads.geojson"
     for path in (odb_path, boundary_path):
         if not path.is_file():
             parser.error(f"Datei fehlt: {path}")
@@ -89,6 +117,21 @@ def main():
 
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:31287", always_xy=True)
     outline = polygon_path(merged, project)
+    road_drawings = []
+    if roads_path.is_file():
+        roads = gpd.read_file(roads_path)
+        if roads.crs is None:
+            raise ValueError("OSM-Strassen ohne Koordinatensystem")
+        for _, road in roads.to_crs(31287).iterrows():
+            road_svg = road_path(road.geometry, project)
+            if not road_svg:
+                continue
+            kind = str(road.get("highway") or "")
+            name = str(road.get("name") or kind)
+            road_drawings.append(
+                f'<path class="road {road_class(kind)}" d="{escape(road_svg, quote=True)}">'
+                f'<title>{escape(name)}</title></path>'
+            )
     markers = []
     type_counts, status_counts = Counter(), Counter()
     for pos, f in enumerate(data.get("features", []), 1):
@@ -112,8 +155,8 @@ def main():
             f'data-status="{escape(status, quote=True)}" data-id="{escape(ident, quote=True)}" '
             f'data-name="{escape(name, quote=True)}">'
             f'<title>{tip}</title>'
-            f'<circle cx="{x:.2f}" cy="{y:.2f}" r="7" fill="{type_color}" '
-            f'stroke="{status_color}" stroke-width="3.3"/>'
+            f'<circle cx="{x:.2f}" cy="{y:.2f}" r="5.5" fill="{type_color}" '
+            f'stroke="{status_color}" stroke-width="2"/>'
             f'</g>'
         )
 
@@ -147,15 +190,23 @@ input[type=search]{width:100%;box-sizing:border-box;padding:9px;border:1px solid
 .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
 button{border:1px solid #c8d1de;border-radius:7px;background:#fff;padding:6px 12px;cursor:pointer}
 #map{width:100%;height:min(74vh,750px);min-height:390px;background:#f7fafc;border:1px solid #edf1f5;border-radius:8px;touch-action:none}
-.marker{cursor:crosshair}.marker:hover circle{stroke-width:5;r:10}
+.road{fill:none;pointer-events:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.road.major{stroke:#d4a370;stroke-width:2.4}
+.road.local{stroke:#b7bfc8;stroke-width:1.65}
+.road.path{stroke:#9bab9a;stroke-width:1;stroke-dasharray:3 3}
+.marker{cursor:crosshair}.marker circle{vector-effect:non-scaling-stroke}
+.marker:hover circle{stroke-width:3}
+.marker.selected circle{stroke:#ed3434;stroke-width:3.5}
 small{color:#596b7e}
 @media(max-width:770px){main{grid-template-columns:1fr}#map{height:55vh}}
 </style></head><body>
 <h1>Wasserentnahmestellen - Gemeinde __GKZ__</h1>
-<p>Kärntner Objektdatenbank (ODB) · __COUNT__ Objekte · amtliche Gemeindegrenze · ausschließlich lokale Daten, keine OSM-Objekte</p>
+<p>Kärntner Objektdatenbank (ODB) · __COUNT__ Objekte · amtliche Gemeindegrenze · ausschließlich lokale ODB-Quellen; OSM-Straßen und Wege nur als Hintergrund</p>
 <main><aside>
 <h2>Kategorien</h2>__TOGGLES__
 <h2>Status</h2>__STATUSES__
+<h2>Kartenebenen</h2>
+<label><input type="checkbox" id="show-roads" checked> OSM-Straßen und Wege (__ROADCOUNT__)</label>
 <h2>Objektsuche</h2><input type="search" id="search" placeholder="Titel oder ODB-ID filtern">
 <p><strong id="visible">__COUNT__</strong> sichtbare Entnahmestellen</p>
 <small>Farbe innen = Quellentyp; Umrandung = Status. Punkt mit der Maus berühren oder anklicken für Titel und Details. Status ist kein Nachweis der Entnahmeleistung.</small>
@@ -166,14 +217,22 @@ small{color:#596b7e}
 <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" role="img" aria-label="Gemeindegrenze und ODB-Wasserentnahmestellen">
 <rect width="1100" height="800" fill="#f7fafc"/>
 <path d="__OUTLINE__" fill="#e6efe8" fill-rule="evenodd" stroke="#416a52" stroke-width="1.8"/>
-__MARKERS__
+<g id="roads">__ROADS__</g>
+<g id="markers">__MARKERS__</g>
 </svg><p id="detail">ODB-Punkt anklicken für ID, Typ und Status.</p></div></main>
 <script>
 (() => {
  const svg=document.getElementById('map'), markers=[...document.querySelectorAll('.marker')];
  const search=document.getElementById('search'), visible=document.getElementById('visible');
  const full={x:0,y:0,w:1100,h:800}; let view={...full},drag=null;
- const setView=()=>svg.setAttribute('viewBox', [view.x,view.y,view.w,view.h].join(' '));
+ function resizeMarkers(){
+   // Match the ODB distance map: marker diameter remains stable in screen pixels.
+   const box=svg.getBoundingClientRect();
+   if(!box.width)return;
+   const radius=5.5*view.w/box.width;
+   for(const circle of svg.querySelectorAll('.marker circle'))circle.setAttribute('r',String(radius));
+ }
+ const setView=()=>{svg.setAttribute('viewBox',[view.x,view.y,view.w,view.h].join(' '));resizeMarkers()};
  const selected=cls=>new Set([...document.querySelectorAll(cls)].filter(c=>c.checked).map(c=>c.value));
  function update(){
    const types=selected('.filter-type'),statuses=selected('.filter-status'),term=search.value.trim().toLowerCase();
@@ -183,6 +242,8 @@ __MARKERS__
      m.style.display=ok?'':'none';if(ok)shown++;
    }
    visible.textContent=shown;
+   document.getElementById('roads').style.display=
+     document.getElementById('show-roads').checked?'':'none';
  }
  function zoom(factor,mouseX=view.x+view.w/2,mouseY=view.y+view.h/2){
    const w=Math.max(30,Math.min(full.w*10,view.w*factor)), h=w*full.h/full.w;
@@ -201,7 +262,10 @@ __MARKERS__
  svg.addEventListener('pointerdown',ev=>{if(ev.target.closest('.marker'))return;drag={x:ev.clientX,y:ev.clientY,v:{...view}};svg.setPointerCapture(ev.pointerId)});
  svg.addEventListener('pointermove',ev=>{if(!drag)return;const b=svg.getBoundingClientRect();view.x=drag.v.x-(ev.clientX-drag.x)*drag.v.w/b.width;view.y=drag.v.y-(ev.clientY-drag.y)*drag.v.h/b.height;setView()});
  svg.addEventListener('pointerup',()=>drag=null);svg.addEventListener('pointercancel',()=>drag=null);
+ let active=null;
  function describe(m){
+   if(active)active.classList.remove('selected');
+   active=m;m.classList.add('selected');
    const label=({'1':'verwendbar','2':'eingeschränkt verwendbar','3':'nicht verwendbar'})[m.dataset.status]||'unbekannt';
    document.getElementById('detail').textContent=(m.dataset.name||'Ohne Titel')+' | ODB-ID: '+m.dataset.id+' | '+m.dataset.type+' | '+label;
  }
@@ -210,17 +274,23 @@ __MARKERS__
    m.addEventListener('focus',()=>describe(m));
    m.addEventListener('click',()=>describe(m));
  }
- update();
+ update();setView();window.addEventListener('resize',resizeMarkers);
 })();
 </script></body></html>"""
     document = (document.replace("__GKZ__", escape(mid)).replace("__COUNT__", str(len(markers)))
                 .replace("__TOGGLES__", toggles).replace("__STATUSES__", status_toggles)
-                .replace("__OUTLINE__", outline).replace("__MARKERS__", "\n".join(markers)))
+                .replace("__OUTLINE__", outline).replace("__MARKERS__", "\n".join(markers))
+                .replace("__ROADCOUNT__", str(len(road_drawings)))
+                .replace("__ROADS__", "\n".join(road_drawings)))
     output.write_text(document, encoding="utf-8")
     print(f"[OK] ODB-Objekte: {len(markers)}")
     print("Typen:", dict(sorted(type_counts.items())))
     print("Status:", dict(sorted(status_counts.items())))
+    print(f"[INFO] OSM-Strassen/Wege: {len(road_drawings)} (Hintergrund {'aktiv' if roads_path.is_file() else 'fehlt'})")
     print(f"[OK] Offline-Karte: {output}")
+    print("[HINWEIS] Lokale ODB-Daten nicht oeffentlich weitergeben.")
+    if args.open:
+        webbrowser.open(output.resolve().as_uri())
 
 
 if __name__ == "__main__":
