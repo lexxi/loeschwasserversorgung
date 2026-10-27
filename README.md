@@ -282,9 +282,9 @@ Der eigene Quellcode und die selbst erstellte Projektdokumentation stehen unter 
 
 ## Datenfluss
 
-![Illustrierter Datenfluss Löschwasserversorgung](docs/datenfluss_löschwasserversorgung_in_kärnten.png)
+![Aktueller illustrierter Datenfluss Löschwasserversorgung](docs/datenfluss_loeschwasserversorgung.png)
 
-Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kärnten.png) ist wegen ihrer anschaulichen Gestaltung wieder die Hauptgrafik. **Inhaltlicher Hinweis:** Sie zeigt den älteren Projektstand ohne die vollständige neue BEV-Adresszuordnung, ALS-Auswertung und Gemeinde-Rückfrageliste. Die [ergänzte technische SVG-Übersicht](docs/datenfluss-loeschwasserversorgung.svg) enthält diese neueren Verarbeitungsschritte. Beide Abbildungen sind deshalb derzeit nicht vollständig deckungsgleich.
+Die [aktuelle illustrierte PNG-Übersicht](docs/datenfluss_loeschwasserversorgung.png) berücksichtigt auch BEV-Adressdaten, den BEV-/OSM-Abgleich, ALS-Höhen, Gemeinde-Rückfragen und Glossar. Die [ältere PNG-Grafik](docs/datenfluss_löschwasserversorgung_in_kärnten.png) bleibt als historischer Stand erhalten. Daneben gibt es eine [technische SVG-Übersicht](docs/datenfluss-loeschwasserversorgung.svg).
 
 ## Gebäudeklassen und Löschwasseranforderungen
 
