@@ -215,3 +215,7 @@ Der eigene Quellcode und die selbst erstellte Projektdokumentation stehen unter 
 ![Datenfluss Löschwasserversorgung](docs/datenfluss_löschwasserversorgung_in_kärnten.png)
 
 Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kärnten.png) zeigt Datenquellen, Importskripte, Zwischenstände und Berichte ohne die archivierten OSM-Wasserquellen. Eine [zusätzliche bearbeitbare SVG-Version](docs/datenfluss-loeschwasserversorgung.svg) ist ebenfalls verfügbar.
+
+## Gebäudeklassen und Löschwasseranforderungen
+
+Die weitere Fachentwicklung ist in **zwei getrennte Arbeitspakete** gegliedert: **(1) Gebäudeklassen GK1–GK5 und Löschwasseranforderungen quellenbasiert definieren; (2) alle erfassten Gebäude anhand nachprüfbarer Daten zuordnen – mit ausdrücklicher Kennzeichnung unbekannter GK**. Tatsächliche Gebäude-GK und höchste planungsrechtlich zulässige GK werden für Objekt- bzw. Grundschutz separat behandelt. Die derzeitige OSM-Nutzungsklassifikation ist **keine** rechtlich gesicherte Gebäudeklasse. Details, technische Richtwerte, Rechtsgrundlagen und Links zu den Originaldokumenten: [Gebäudeklassen und Löschwasserbedarf](docs/gebaeudeklassen-und-loeschwasserbedarf.md).
