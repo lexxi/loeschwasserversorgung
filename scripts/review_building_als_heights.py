@@ -230,6 +230,8 @@ def main():
             "official_address": safe_text(official_by_id.get(osm_id, {}).get("official_addresses")),
             "official_address_count": safe_text(official_by_id.get(osm_id, {}).get("address_count")),
             "official_address_status": safe_text(official_by_id.get(osm_id, {}).get("address_status")) or "not_imported",
+            "official_match_method": safe_text(official_by_id.get(osm_id, {}).get("match_method")),
+            "official_boundary_tolerance_count": safe_text(official_by_id.get(osm_id, {}).get("boundary_tolerance_count")) or "0",
             "height_median_m": median_m if median_m is not None else "",
             "height_p90_m": p90 if p90 is not None else "",
             "height_max_m": max_m if max_m is not None else "",
@@ -288,6 +290,8 @@ def main():
             "official_address":r.get("official_address",""),
             "official_count":r.get("official_address_count",""),
             "official_status":r.get("official_address_status",""),
+            "official_match_method":r.get("official_match_method",""),
+            "official_boundary_tolerance_count":r.get("official_boundary_tolerance_count",""),
             "levels":r.get("building:levels",""),
             "osm_height":r.get("height",""),"use":r.get("building:use",""),
             "tourism":r.get("tourism",""),"amenity":r.get("amenity",""),
@@ -356,6 +360,8 @@ document.getElementById('detail').textContent=
 '\\nAmtliche Adresse(n): '+fmt(x.official_address)+
 '\\nAdresszuordnung: '+fmt(x.official_status)+
 '\\nAnzahl: '+fmt(x.official_count)+
+'\\nZuordnungsmethode: '+fmt(x.official_match_method)+
+'\\nBEV-Punkte mit 2-m-Toleranz: '+fmt(x.official_boundary_tolerance_count)+
 '\\nGebäudetyp: '+fmt(x.building)+'\\nGrundriss: '+x.area+' m²'+
 '\\nHöhe Median: '+fmt(x.median)+' m\\nP90: '+fmt(x.p90)+' m\\nMaximum: '+fmt(x.max)+' m'+
 '\\nQualität: '+x.quality+'\\nPrüfhinweise: '+fmt(x.flags)+
