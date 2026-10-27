@@ -20,7 +20,6 @@ import sqlite3
 from pyproj import Transformer
 from shapely import wkb
 from shapely.geometry import Point, mapping
-from shapely.ops import transform
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT = ROOT / "data/raw/bev/addresses/AT-INSPIRE_AD_Address_20261001.gpkg"
@@ -148,7 +147,7 @@ def main():
             for i,row in enumerate(items,1):
                 point=point_from_gpkg(row["geom"])
                 if point is not None:
-                    projected=transform(src_to_wgs.transform,point)
+                    projected=Point(*src_to_wgs.transform(point.x,point.y))
                     address_features.append({"type":"Feature","properties":{**properties,"geometry_row":i},
                                              "geometry":mapping(projected)})
         building_features=[]
@@ -161,7 +160,7 @@ def main():
             building_ids.append(subcode)
             if point is None:
                 continue
-            projected=transform(src_to_wgs.transform,point)
+            projected=Point(*src_to_wgs.transform(point.x,point.y))
             props={
                 "address_id":code,"building_subcode":subcode,
                 "housenumber":str(m["addressIdentifierGeneral"]),
