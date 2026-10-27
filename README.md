@@ -229,3 +229,5 @@ Für alle Python-Skripte sind **Zweck, benötigte Eingaben, erzeugte Dateien, Ab
 Für eine **gemeindeweite** BEV-ALS-Höheninventur ohne Vollkachel-Download: [`scripts/process_bev_als_municipality.py`](scripts/process_bev_als_municipality.py) (zuerst nur planen, danach `--download --max-tiles 3`, anschließend gesamte Auswahl und `--analyze`). Bedienung und Speicherorte: [Skriptübersicht](docs/skriptuebersicht.md).
 
 **Höhenwerte prüfen und auf Offline-Karte ansehen:** Nach der gemeindeweiten ALS-Auswertung `python scripts/review_building_als_heights.py --gemeinde 20619 --open` ausführen. Erstellt die gemeinsame Gebäudemerkmals-CSV, einen Qualitätsbericht und eine klickbare Gebäudehöhenkarte unter `reports/20619/gk_inventory/`. Näheres in der [Skriptübersicht](docs/skriptuebersicht.md).
+
+**Lokale Startseite für Karten und Berichte:** `python scripts/generate_report_index.py --gemeinde 20619 --open` erstellt `reports/index.html` und `reports/20619/index.html` mit Links auf alle bereits vorhandenen Unterseiten. Der Index bleibt lokal; ODB-Berichte nicht öffentlich veröffentlichen. [Details](docs/skriptuebersicht.md).
