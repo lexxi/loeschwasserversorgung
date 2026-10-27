@@ -219,3 +219,5 @@ Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kär
 ## Gebäudeklassen und Löschwasseranforderungen
 
 Die weitere Fachentwicklung ist in **zwei getrennte Arbeitspakete** gegliedert: **(1) Gebäudeklassen GK1–GK5 und Löschwasseranforderungen quellenbasiert definieren; (2) alle erfassten Gebäude anhand nachprüfbarer Daten zuordnen – mit ausdrücklicher Kennzeichnung unbekannter GK**. Tatsächliche Gebäude-GK und höchste planungsrechtlich zulässige GK werden für Objekt- bzw. Grundschutz separat behandelt. Die derzeitige OSM-Nutzungsklassifikation ist **keine** rechtlich gesicherte Gebäudeklasse. Details, technische Richtwerte, Rechtsgrundlagen und Links zu den Originaldokumenten: [Gebäudeklassen und Löschwasserbedarf](docs/gebaeudeklassen-und-loeschwasserbedarf.md).
+
+**Technischer Stand AP 1:** [Versioniertes Regelwerk `config/firewater_rulebook.json`](config/firewater_rulebook.json) und [formaler Validator](scripts/validate_firewater_rulebook.py) sind vorhanden (`python scripts\validate_firewater_rulebook.py`). **Entwurf, keine automatische Gebäudeklassen- oder Bedarfszuordnung.**
