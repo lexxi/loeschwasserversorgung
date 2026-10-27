@@ -73,6 +73,7 @@ def main():
     e = math.floor(x / GRID) * GRID
     n = math.floor(y / GRID) * GRID
     # Keep the pilot inside one source tile. The complete municipality can cross tiles.
+    # Align to 1m source grid whose origin is the integer BEV 50km tile corner.
     x0, x1 = math.floor(x-args.radius_m), math.ceil(x+args.radius_m)
     y0, y1 = math.floor(y-args.radius_m), math.ceil(y+args.radius_m)
     if not (e <= x0 < x1 <= e+GRID and n <= y0 < y1 <= n+GRID):
@@ -106,7 +107,8 @@ def main():
                 with rasterio.open("/vsicurl/" + url) as src:
                     if src.crs is None or src.crs.to_epsg() != 3035:
                         raise ValueError(f"{kind}: erwartetes CRS EPSG:3035 fehlt")
-                    if src.res != (1.0, 1.0) or src.transform.b != 0 or src.transform.d != 0:
+                    if (not np.allclose(src.res, (1.0, 1.0), atol=1e-8)
+                            or src.transform.b != 0 or src.transform.d != 0):
                         raise ValueError(f"{kind}: Raster hat nicht 1m Aufloesung oder ist gedreht")
                     win = rasterio.windows.from_bounds(x0, y0, x1, y1, transform=src.transform)
                     # Must lie exactly on the same source grid; don't resample silently.
