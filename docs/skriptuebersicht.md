@@ -51,6 +51,8 @@ python scripts\generate_report_index.py --open
 | [`archive_reference_documents.py`](../scripts/archive_reference_documents.py) | Archiviert fixe OIB-PDF-Fassungen einmalig und übernimmt weitere berechtigt vorhandene PDFs lokal mit SHA-256; verändert keine Regelwerte. | `config/reference_documents.json`, ggf. berechtigte lokale PDF-Datei | `reports/references/<datei>.pdf`, `reports/references/archive_manifest.json` |
 | [`generate_report_index.py`](../scripts/generate_report_index.py) | Erzeugt eine zentrale lokale Startseite für vorhandene HTML-Karten, CSV-/JSON-Berichte und zusätzliche Unterseiten; überspringt fehlende Dateien. | `reports/<GKZ>/` mit bereits generierten Ergebnissen | `reports/index.html`, `reports/<GKZ>/index.html` |
 
+| [`join_buildings_addresses.py`](../scripts/join_buildings_addresses.py) | Konservative räumliche Zuordnung lokaler amtlicher Adresspunkte zu OSM-Gebäudegrundrissen; nur eindeutige Innen-Treffer, Mehrfach-/Rand-/Nahfälle separat zur Prüfung. | Lokale Punkt-GeoJSON/GPKG-Datei (mit eindeutigem EPSG-CRS), `osm/buildings.geojson` | `reports/<GKZ>/addresses/adresspunkte_zuordnung.csv`, `gebaeude_adressen.csv`, `adresszuordnung_summary.json` |
+
 ## B. ODB-Bestandsaufnahme, Gebäudeabstände und Offline-Karten – aktuell
 
 | Skript | Was und warum? | Eingaben | Erzeugte Daten |
@@ -369,3 +371,33 @@ python scripts\show_odb_water_sources.py --gemeinde 20619 --open
 ```
 
 Anschließend ist bei Bedarf die Berichtszentrale mit `python scripts\generate_report_index.py --gemeinde 20619 --open` erneut zu erzeugen. Die Änderung wurde eingecheckt, aber mit lokalen ODB-Daten noch nicht getestet.
+
+## AP3 – Amtliche Hausnummern mit OSM-Gebäuden verknüpfen
+
+**Status:** Zuordnungsskript implementiert; die **konkrete amtliche Eingabedatei, ihre Quelle und Feldnamen** müssen auf dem lokalen Rechner festgestellt werden. Eine frühere Zahl von 758 Hausnummern ist **keine Garantie**, dass bereits ein passendes Punkt-GeoJSON im aktuellen Projektverzeichnis vorhanden ist. OSM-`addr:housenumber` ist keine unabhängige amtliche Quelle.
+
+`scripts/join_buildings_addresses.py` verarbeitet eine **ausdrücklich angegebene lokale** GeoJSON- oder GPKG-Datei mit punktförmigen Adressdaten. Es fragt weder einen Onlinedienst ab noch errät es das Koordinatensystem. Für vorhandene Quell-GeoJSON/GPKG:
+
+```powershell
+git pull --ff-only origin main
+python scripts\join_buildings_addresses.py --gemeinde 20619 --addresses "C:\Pfad\amtliche_adressen.geojson" --inspect
+```
+
+Die Ausgabe zeigt **Quellspalten, Geometrietypen, CRS und Datensatzanzahl**, ohne Ergebnisse zu verändern. Wenn die Spalten z. B. `STRASSE`, `HAUSNR` heißen, kann die eigentliche Zuordnung so gestartet werden (Feldnamen sind an die **tatsächliche** Ausgabe anzupassen):
+
+```powershell
+python scripts\join_buildings_addresses.py --gemeinde 20619 --addresses "C:\Pfad\amtliche_adressen.geojson" --street-field STRASSE --number-field HAUSNR
+python scripts\review_building_als_heights.py --gemeinde 20619 --open
+```
+
+**Methodik:** Nur wenn ein amtlicher Adresspunkt **streng innerhalb genau eines** OSM-Gebäudepolygons liegt, entsteht `inside_unique`. Punkte exakt auf Grenzen, in überlappenden Gebäudepolygonen oder mit mehreren Kandidaten sind `multiple_or_boundary`. Punkte außerhalb mit einem Gebäude bis standardmäßig **15 m** erhalten `near_review` (lediglich Kandidaten, **keine automatische Zuordnung**), andere `unmatched`. Ein OSM-Gebäude kann mehrere sicher innenliegende Adresspunkte enthalten; diese werden als `multiple_addresses` erhalten und nicht willkürlich reduziert. Innerhalb-Treffer sind geometrisch, nicht amtlich bestätigte Gebäude-Adress-Verknüpfungen.
+
+Drei lokale Ergebnisse:
+
+- `reports/<GKZ>/addresses/adresspunkte_zuordnung.csv`: jeder Adresspunkt, Quell-ID oder Zeilenreferenz, Straße/Nummer/Ort, Status, eindeutige OSM-ID oder Kandidaten.
+- `reports/<GKZ>/addresses/gebaeude_adressen.csv`: **alle** Gebäude-OSM-IDs, Anzahl eindeutiger amtlicher Innen-Treffer, Adresslisten und Qualitätsstatus.
+- `reports/<GKZ>/addresses/adresszuordnung_summary.json`: Gesamtzahlen und Statusverteilung.
+
+Wenn `gebaeude_adressen.csv` vorliegt und die OSM-IDs exakt zum aktuellen Import passen, zeigt `review_building_als_heights.py` bei jedem Gebäude zusätzlich **amtliche Adresse(n), Anzahl und Zuordnungsstatus**. Vorhandene OSM-Adressen bleiben separat; es erfolgt kein Überschreiben der OSM-Quelldaten. Bei verändertem Gebäudebestand wird die Zuordnung bewusst nicht stillschweigend übernommen.
+
+**Datenschutz/Interpretation:** Amtliche Rohadressen und die erzeugten verknüpften CSV-/HTML-Seiten bleiben ausschließlich lokal und gehören nicht ins öffentliche Repository. Fehlende Adressen bedeuten **nicht**, dass ein Gebäude unbewohnt oder ungenutzt ist. Keine Ableitung von OIB-GK oder Löschwasserbedarf.
