@@ -184,3 +184,25 @@ Die Inventur erzeugt lokal:
 **Strenge Unterscheidung:** Die CSV-Spalten `gk_actual=unknown` und `gk_status=unassessed` sind absichtlich bei allen Gebäuden gesetzt; aus Gebäudetyp, Grundfläche, `building:levels` oder `height` wird **noch keine** GK geschätzt. Die angeblich fehlenden Nachweise in `missing_required_gk_evidence` bezeichnen Kriterien, die *noch nicht als verifizierte Fachmerkmale* vorliegen – auch wenn es ein OSM-Indiz mit ähnlichem Namen gibt. Die erzeugten Daten liegen unter `reports/` und sind öffentlich nicht eingecheckt.
 
 Die Inventur ist Grundlage, um die Verfügbarkeit zu quantifizieren und zusätzliche Quellen **gezielt statt pauschal** zu suchen. Einzelne GK-Varianten benötigen unterschiedliche Nachweise; das wird erst beim späteren Prüfalgorithmus differenziert. Die bloße Existenz eines OSM-Tagwerts beweist keine Richtigkeit, baurechtliche Nutzung, gesamte BGF oder Fluchtniveau.
+
+## AP 2 – ALS-Höhenanalyse aus BEV-Rastern (erster lokaler Versuch)
+
+Die BEV-Datensätze [ALS-Oberflächenmodell DOM (1 m)](https://www.bev.gv.at/Services/Produkte/Digitales-Oberflaechenmodell/ALS-Oberflaechenmodell.html) und [ALS-Geländemodell DGM (1 m)](https://www.bev.gv.at/Services/Produkte/Digitales-Gelaendehoehenmodell/ALS-Hoehenraster.html) sind als GeoTIFF kostenlos verfügbar, typischerweise in EPSG:3035 und in **50-km-Kacheln**. Bitte zunächst **jeweils ein zusammengehöriges Rasterpaar derselben Kachel und desselben Datenstands** beschaffen (möglichst gleiche Befliegung/Veröffentlichung). Die vollständigen Kacheln können groß sein; für einen ersten Versuch sind kleinere, **identisch zugeschnittene und ausgerichtete GeoTIFFs** sinnvoll. Beim Zuschnitt mit QGIS oder GDAL unbedingt identische Pixelgröße, Rasterursprung, Ausdehnung und CRS verwenden; sonst stoppt der Analyzer.
+
+**Höhenbezug prüfen:** Standardmäßig verwenden neuere BEV-Kacheln das System **EVRF2000 Austria (EPSG:9274)**. Nach BEV-Angaben besitzen die Kacheln mit **Stichtag 15.09.2021** dagegen **Adria Triest (EPSG:5778)**. Für DOM und DGM darf nur ein konsistentes Paar abgezogen werden. CLI-Argumente zur Höhenreferenz und zum Datenstand sind **Angaben der Nutzenden aus den Metadaten**, keine automatisierte Prüfung des vertikalen Bezugs in der TIFF-Datei.
+
+```powershell
+git pull --ff-only origin main
+python -m pip install -r requirements.txt
+python scripts\analyze_buildings_als_height.py --gemeinde 20619 --dom data\raw\bev\dom_malta.tif --dgm data\raw\bev\dgm_malta.tif --dom-height-reference EVRF2000 --dgm-height-reference EVRF2000 --dom-snapshot 2025 --dgm-snapshot 2025
+```
+
+Die **Dateinamen sind Beispiele**. `--dom-snapshot`, `--dgm-snapshot` und `--*-height-reference` müssen den **wirklich bezogenen BEV-Kacheln** entsprechen; bei der abweichenden 2021-Serie `AdriaTriest` angeben. Nicht unterschiedliche Kacheln, BEV-Stichtage oder Höhenbezüge als identisch deklarieren. Vor dem Analyselauf Datenherkunft und Metadaten notieren. Zur Vorbereitung kann man auch zuerst nur den BEV-Download und die TIFF-Informationen kontrollieren.
+
+Das Skript nutzt `rasterio` und `numpy`, transformiert die OSM-Gebäudegrundrisse auf das Raster-CRS, prüft Rasterausrichtung und erzeugt unter `reports/20619/gk_inventory/`:
+- `gebaeude_als_hoehen.csv`: Median, 90. Perzentil und Maximum der DOM-minus-DGM-Pixelhöhen pro Gebäude, verfügbare Pixelanzahl, Abdeckungsgrad und Qualitätsflag;
+- `als_hoehen_summary.json`: Metadaten und Anzahl der auswertbaren Gebäude.
+
+Randpixel werden nach Möglichkeit durch einen 1-m-Innenpuffer ausgeschlossen. Bei zu wenig Pixeln, geringer Rasterabdeckung, fehlenden Rasterbereichen oder unplausibler Höhe liefert das Skript eine Warnklasse anstelle einer unkritischen Interpretation. Auch `estimated` bedeutet **nur algorithmisch geschätzte Objekthöhe**, keine geprüfte Gebäudehöhe. Dachaufsätze, Bäume, Datenalter und die Differenz aus DOM/DGM können die Werte verfälschen. **Fluchtniveau, Geschosszahl, GK1–GK5 und Löschwasserbedarf werden ausdrücklich nicht daraus bestimmt.** Alle Raster und Reports bleiben lokal.
+
+Vor einer größeren Auswertung zuerst einige bekannte Gebäude in QGIS/Orthofoto stichprobenartig mit den Höhenwerten vergleichen.
