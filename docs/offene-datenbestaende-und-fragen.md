@@ -150,3 +150,33 @@ python scripts\export_bev_municipality_addresses.py --gemeinde 20619
 **Bewusst noch nicht gemacht:** Ein BEV-Gebäudereferenzpunkt beweist ohne räumliche Prüfung **nicht**, welcher der **1.686 OSM-Gebäudegrundrisse** dazugehört. Der vorhandene Adresspunkt-PIP-Prototyp darf **nicht direkt** auf die BEV-Zugangs-/Adresspunkte als sichere Gebäudeidentifikation angewendet werden. Im nächsten Arbeitsschritt werden die amtlichen **Gebäudepunkte** räumlich mit OSM-Polygonen abgeglichen und eindeutige Treffer bzw. Grenz-/Abweichungsfälle ausgewiesen.
 
 **Datenschutz und Reproduzierbarkeit:** Alle Ausgabedateien in `data/processed/` bleiben lokal und außerhalb von Git. Ausgangs-GPKG mit SHA-256 `34c21e933febacd4eed80b9a88d542212e419bf63c94f22455d79d6b62319382`.
+
+### BEV-Gemeindeexport erfolgreich; geometrischer OSM-Abgleich implementiert (27.10.2026)
+
+Der lokale Export von `AT-INSPIRE_AD_Address_20261001.gpkg` war erfolgreich. Die dabei erschienenen `DeprecationWarning`-Meldungen betrafen ausschließlich `shapely.ops.transform`; die vier Ergebnisse wurden vollständig erzeugt. Der Generator ist auf direkte Punktkoordinaten-Transformation via `pyproj.Transformer` und `shapely.geometry.Point` umgestellt.
+
+**Bestätigte Exportkennzahlen für Malta:**
+
+- **824** amtliche Adresscodes, **824** Adresspunktgeometrien, **0** Adressen ohne Adressgeometrie.
+- **788** BEV-Gebäudepunkte mit **788** unterschiedlichen Gebäude-Subcodes.
+- **779** Adresscodes mit mindestens einem BEV-Gebäudepunkt; **45** ohne Gebäudepunkt.
+- **8** Adresscodes mit mehreren BEV-Gebäudepunkten (insgesamt **9** zusätzliche Punkte über eine 1:1-Relation hinaus).
+
+**Nächster Schritt, AP3:** Das neue [`scripts/join_bev_building_points_osm.py`](../scripts/join_bev_building_points_osm.py) vergleicht genau die **788 BEV-Gebäudereferenzpunkte** mit den **1.686 OSM-Gebäudegrundrissen** in EPSG:31287. Die BEV-Adress-/Zugangspunkte werden **nicht** zur automatischen Gebäudeidentifikation verwendet.
+
+| Status | Interpretation |
+| --- | --- |
+| `inside_unique` | BEV-Gebäudepunkt liegt **streng innerhalb genau eines** OSM-Polygons: geometrisch eindeutiger Zuordnungskandidat |
+| `multiple_or_boundary` | Punkt liegt auf einer Grenze oder in mehreren OSM-Polygonen: Prüffall |
+| `near_review` | Punkt liegt außerhalb, aber höchstens 15 m vom OSM-Grundriss entfernt: Prüffall, **keine automatische Zuordnung** |
+| `unmatched` | Kein OSM-Gebäude innerhalb des Suchradius: offener Fall |
+
+```powershell
+git pull --ff-only origin main
+python scripts\join_bev_building_points_osm.py --gemeinde 20619
+python scripts\review_building_als_heights.py --gemeinde 20619 --open
+```
+
+Der Zuordner erzeugt `reports/20619/addresses/bev_gebaeudepunkte_osm_zuordnung.csv` (jede BEV-Subcode-Geometrie inklusive Kandidaten), `gebaeude_adressen.csv` (alle OSM-Gebäude mit BEV-Adressinformationen) und `bev_osm_zuordnung_summary.json` (Statuszahlen und Provenienz). **Achtung:** Bestehende Zuordnungsdateien werden zum Schutz vor versehentlicher Überschreibung nur mit dem expliziten Schalter `--overwrite` ersetzt.
+
+Erst nachdem die lokale Ausgabe der Zuordnung vorliegt, können wir belastbar sagen, wie viele OSM-Gebäude einen geometrisch eindeutigen BEV-Gebäudepunkt enthalten. Eine solche Zuordnung ist **kein amtlich bestätigter OSM-Identitätsnachweis**; bei mehreren Adressen je Gebäude werden Adresscode und Gebäude-Subcode getrennt erhalten. Fehlende Adressen bedeuten nicht, dass ein Gebäude ungenutzt ist.
