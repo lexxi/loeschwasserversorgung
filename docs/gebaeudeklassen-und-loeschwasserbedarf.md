@@ -23,7 +23,7 @@ Die gesamte OSM-Gebäudemenge wird untersucht – **auch außerhalb der Baulandw
 | [TRVB 137 F/21 – Löschwasserbedarf](https://www.bundesfeuerwehrverband.at/produkt/trvb-137-21-f-loeschwasserbedarf/) | **01.09.2021**, ÖBFV / Brandverhütungsstellen; [veröffentlichte PDF-Fassung](https://www.noe122.at/vorbeugender-brandschutz/gr%C3%BCner-ordner/4-12-trvb-137-f-21.pdf) | Grundschutz §/Abschnitt 4.1, spezielle Nutzungen Abschnitt 5, Objektschutz Abschnitt 6, Anhänge | Technische Richtlinie; Anwendbarkeit/Einbindung im konkreten Verfahren prüfen, Original und Urheberrecht beachten |
 | [ÖBFV-Richtlinie VB-01/23 – Die Löschwasserversorgung](https://www.bundesfeuerwehrverband.at/produkt/vb-01-23-rl-die-loeschwasserversorgung/) | **15.10.2023** | Entnahmestellen, Versorgungseinrichtungen, Eignung und Abstimmung mit TRVB 137 F | Aktuelle Ausgabe laut ÖBFV-Katalog; vollständigen Text vor quantitativer Umsetzung prüfen |
 
-**Urheberrecht:** Die Original-Richtlinien/PDFs werden hier **nur verlinkt**, nicht in das öffentliche Repository kopiert. Werte werden als zusammenfassende Arbeitsnotizen dokumentiert; für eine normativ verbindliche Prüfung sind Originaltext, jeweils gültige Fassung, Anwendbarkeit und ggf. fachliche Freigabe maßgeblich.
+**Urheberrecht:** Die Original-Richtlinien/PDFs werden im öffentlichen Repository **nur verlinkt**, nicht ins Repository kopiert. Für die lokale Offline-Nutzung gibt es `config/reference_documents.json` und `reports/references/` (berechtigte Dateien mit SHA-256-Manifest). Werte werden als zusammenfassende Arbeitsnotizen dokumentiert; für eine normativ verbindliche Prüfung sind Originaltext, jeweils gültige Fassung, Anwendbarkeit und ggf. fachliche Freigabe maßgeblich.
 
 ## AP 1 – Gebäudeklassen GK1–GK5
 
