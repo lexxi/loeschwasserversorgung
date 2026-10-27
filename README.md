@@ -82,6 +82,7 @@ Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **
 - `probe_bev_address_municipality.py` – Exakte Malta-Gemeindeschlüssel und Relationen zu BEV-Gebäudepunkten prüfen.
 - `export_bev_municipality_addresses.py` – Amtliche BEV-Adress- und Gebäudereferenzpunkte für eine Gemeinde getrennt lokal exportieren.
 - `join_bev_building_points_osm.py` – BEV-Gebäudereferenzpunkte konservativ mit OSM-Gebäudegrundrissen abgleichen; Rand- und Nahfälle getrennt prüfen.
+- `show_bev_osm_review_map.py` – Offline-Prüfkarte für BEV/OSM-Nah-, Rand- und Nichttreffer mit Straßen, Gebäuden und Subcodes.
 - `import_odb_water_sources.py` – Privaten ODB-Export lokal importieren.
 - `import_osm.py` – Alternativer/älterer OSM-Gebäudeimport und Hilfsfunktionen.
 - `import_osm_buildings_pbf.py` – OSM-Gebäude aus lokalem PBF importieren.
