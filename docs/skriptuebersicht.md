@@ -113,3 +113,40 @@ Die `validate_firewater_rulebook.py`-Prüfung läuft unabhängig davon auf dem V
 - [ODB-Wasserentnahmestellen](odb-wasserentnahmestellen.md)
 - [Gemeindebericht](gemeindebericht.md)
 - [Rechtsgrundlagen](rechtsgrundlagen.md)
+
+## Windows PowerShell: venv-Aktivierung durch Execution Policy blockiert
+
+**Symptom:** Der Aufruf `\.\.venv\Scripts\Activate.ps1` scheitert mit **PSSecurityException / UnauthorizedAccess** und der Meldung, dass die Ausführung von Skripts deaktiviert ist.
+
+**Ursache:** Die PowerShell-Ausführungsrichtlinie verhindert die Aktivierung per `Activate.ps1`. Die virtuelle Python-Umgebung ist dadurch nicht automatisch beschädigt.
+
+### Empfehlung A: Python direkt aus der virtuellen Umgebung starten
+
+Die Aktivierung ist nicht erforderlich. Der direkte Interpreter funktioniert auch bei gesperrter Skriptausführung:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe scripts\download_bev_als_subset.py --gemeinde 20619 --stichtag 20250915
+```
+
+Falls `.venv` noch fehlt, zuerst mit `py -m venv .venv` erstellen. Bei einem anderen venv-Namen den entsprechenden Python-Pfad verwenden.
+
+### Alternative B: Nur für das aktuelle PowerShell-Fenster freigeben
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+Die Prozesseinstellung verfällt beim Schließen des PowerShell-Fensters. Bei restriktiver Gruppenrichtlinie kann die Änderung unwirksam sein. Dann Methode A verwenden oder die IT-Administration kontaktieren.
+
+Zum Nachsehen:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+**Nicht erforderlich und nicht empfohlen:** Die Richtlinie nur wegen der Python-venv-Aktivierung dauerhaft für `LocalMachine` oder `CurrentUser` mit `Unrestricted` oder `Bypass` lockern. Keine Administratorrechte nötig.
+
+Weitere Infos: [Microsoft: about_Execution_Policies](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies).
