@@ -91,3 +91,7 @@ Die Anforderungsmatrix enthält nur öffentliche Methodik. Keine gemeindescharfe
 **Mögliche Anlieferung, sofern ausdrücklich freigegeben:** Objektkennung, normalisierte Adresse, verfügbare verifizierte Eingangsmerkmale (insbesondere Geschosse, Fluchtniveau, BGF, Nutzung/Einheiten), Datenstand, Quelltyp/Bauaktbezug, optional bereits dokumentierte GK und **getrennt davon** höchstzulässige planungsrechtliche Werte. Keine Eigentümerdaten anfordern. Aktuelle OSM-/BEV-Zuordnungen sind kein Nachweis amtlicher Gebäudeidentität.
 
 Die Anfrage kann gemeinsam mit der separaten **Liste der 25 offenen BEV-/OSM-Geometriefälle** an die Gemeinde gerichtet werden; Rückmeldungen bleiben zwei getrennte Datenstränge. Bis zu einer fachlich verifizierten Antwort bleibt die GK-Einstufung im Projekt **unbekannt** (`auto_assignment_enabled=false`).
+
+## 8. Neue priorisierte Datenquelle: GWR/AGWR (Recherche 27.10.2026)
+
+Die [GWR-Recherche mit konkretem AGWR-Verwaltungsbericht](gwr-datenquelle-gk-merkmale.md) weist nach, dass das Register unter anderem oberirdische Geschosszahlen (`ANZGESCHO`), Geschossflächen und Nutzungsinformationen als eigene Merkmale führt. Statt eine fertige Gebäudeklassenliste anzufragen, soll die Gemeinde Malta zunächst **Verfügbarkeit, Vollständigkeit, Exportmöglichkeit und zulässige Nutzung** des „Verwaltungsberichts Gebäude“ prüfen. Die Zugriffsrechte sind beschränkt; weder der Bericht noch gebäudescharfe GWR-Einzeldaten sind öffentlich frei verfügbar. **Die GWR-Gebäudekategorie ist nicht die OIB-GK1–GK5.**
