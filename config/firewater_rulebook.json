@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
-  "rulebook_version": "0.1.0",
+  "rulebook_version": "0.2.0",
   "as_of": "2026-10-27",
   "status": "draft_review_required",
   "auto_assignment_enabled": false,
-  "purpose": "AP1: Definitionen und Richtwert-Niveaus. Kein automatischer GK- oder Löschwasserbedarfsnachweis.",
+  "purpose": "AP1: quellenbasiert strukturierte GK-Varianten, TRVB-Tabellenzeilen und Teilraten; keine automatische Anwendung auf reale Gebäude.",
   "source_refs": {
     "oib_definitions": {
       "title": "OIB-Begriffsbestimmungen",
       "edition": "Mai 2023",
-      "url": "https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf"
+      "url": "https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf",
+      "reference_location": "Seite 6 von 13, Mai 2023"
     },
     "oib_fire": {
       "title": "OIB-Richtlinie 2 Brandschutz",
@@ -24,7 +25,8 @@
       "title": "TRVB 137 F/21 Löschwasserbedarf",
       "edition": "01.09.2021",
       "section": "4.1 / Tabelle 1",
-      "url": "https://www.bundesfeuerwehrverband.at/produkt/trvb-137-21-f-loeschwasserbedarf/"
+      "url": "https://www.bundesfeuerwehrverband.at/produkt/trvb-137-21-f-loeschwasserbedarf/",
+      "pdf_url": "https://www.noe122.at/vorbeugender-brandschutz/gr%C3%BCner-ordner/4-12-trvb-137-f-21.pdf"
     },
     "vb01": {
       "title": "ÖBFV VB-01/23 Die Löschwasserversorgung",
@@ -92,7 +94,21 @@
       "volume_m3": 48,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 1,
+      "applies_to": [
+        "GK1",
+        "GK2-a",
+        "GK2-b",
+        "garage_or_covered_parking_area_le_250_m2"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 0,
+        "additional_250_to_500m": 0
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     },
     {
       "id": "GS-1200",
@@ -103,7 +119,20 @@
       "volume_m3": 108,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 2,
+      "applies_to": [
+        "GK2-c",
+        "GK3_or_GK4_predominantly_residential",
+        "garage_or_covered_parking_area_gt_250_m2"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 400,
+        "additional_250_to_500m": 0
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     },
     {
       "id": "GS-1600",
@@ -114,7 +143,20 @@
       "volume_m3": 192,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 3,
+      "applies_to": [
+        "GK3_or_GK4_other_than_row_2",
+        "GK5_predominantly_residential",
+        "parking_deck"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 800,
+        "additional_250_to_500m": 0
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     },
     {
       "id": "GS-2400",
@@ -125,7 +167,19 @@
       "volume_m3": 288,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 4,
+      "applies_to": [
+        "GK5_other_than_row_3",
+        "escape_level_gt_22_m"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 800,
+        "additional_250_to_500m": 800
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     },
     {
       "id": "GS-3200-GE",
@@ -136,7 +190,18 @@
       "volume_m3": 384,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 5,
+      "applies_to": [
+        "commercial_or_business_zone"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 1200,
+        "additional_250_to_500m": 1200
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     },
     {
       "id": "GS-3200-IND",
@@ -147,19 +212,32 @@
       "volume_m3": 576,
       "conditions_complete": false,
       "source": "trvb_137",
-      "reference": "Tabelle 1"
+      "reference": "Tabelle 1",
+      "trvb_table_row": 6,
+      "applies_to": [
+        "industrial_zone"
+      ],
+      "distance_incremental_flow_l_min": {
+        "within_125m": 800,
+        "additional_125_to_250m": 1200,
+        "additional_250_to_500m": 1200
+      },
+      "distance_reference": "along_traffic_accessible_property_boundary",
+      "application_note": "Tabellenfall als Referenz strukturiert; Nutzungs-/Gebietsprüfung, Anwendbarkeit und Überlagerung bedürfen fachlicher Freigabe."
     }
   ],
   "distance_reference": {
     "source": "trvb_137",
-    "qualifier": "Die Verteilung auf Entnahmestellen in Entfernungsbereichen erfordert Bedingungen der Originaltabelle und Prüfung von Grundstücksgrenze/Wegeführung.",
+    "qualifier": "Teilraten je Zeile erfasst; für den Grundschutz entlang der verkehrstechnisch erschlossenen Grundstücksgrenze. Noch kein Wegealgorithmus, keine hydraulische Addierbarkeit und keine Anwendung auf ODB.",
     "bands_m": [
       125,
       250,
       500
     ],
-    "partial_flow_conditions_encoded": false,
-    "not_equivalent_to": "footprint_to_odb_airline_distance"
+    "partial_flow_conditions_encoded": true,
+    "not_equivalent_to": "footprint_to_odb_airline_distance",
+    "operational_interpretation_enabled": false,
+    "source_section": "TRVB 137 F/21 Abschnitt 4.1 Tabelle 1 und Anhang C"
   },
   "object_protection": {
     "status": "not_encoded",
@@ -178,5 +256,117 @@
     "planning_gk_separate_from_actual_gk": true,
     "never_assume_existing_building_retrofit_duty": true,
     "requires_full_conditions_and_professional_review": true
+  },
+  "gk_variants": [
+    {
+      "id": "GK1",
+      "class_id": "GK1",
+      "variant": "base",
+      "max_above_ground_storeys": 3,
+      "max_escape_level_m": 7,
+      "max_total_bgf_m2": 400,
+      "requires_detached": true,
+      "min_exterior_fire_access_sides": 3,
+      "max_dwellings": 2,
+      "alternative_one_business_unit": true,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK2-a",
+      "class_id": "GK2",
+      "variant": "a",
+      "max_above_ground_storeys": 3,
+      "max_escape_level_m": 7,
+      "max_total_bgf_m2": 400,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK2-b",
+      "class_id": "GK2",
+      "variant": "b",
+      "requires_row_house": true,
+      "max_above_ground_storeys": 3,
+      "max_escape_level_m": 7,
+      "max_bgf_per_dwelling_or_business_unit_m2": 400,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK2-c",
+      "class_id": "GK2",
+      "variant": "c",
+      "requires_detached": true,
+      "min_exterior_fire_access_sides": 3,
+      "exclusive_residential_use": true,
+      "max_above_ground_storeys": 3,
+      "max_escape_level_m": 7,
+      "max_total_bgf_m2": 800,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK3",
+      "class_id": "GK3",
+      "variant": "base",
+      "max_above_ground_storeys": 3,
+      "max_escape_level_m": 7,
+      "exclude_classes": [
+        "GK1",
+        "GK2"
+      ],
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK4-a",
+      "class_id": "GK4",
+      "variant": "a",
+      "max_above_ground_storeys": 4,
+      "max_escape_level_m": 11,
+      "requires_multiple_units": true,
+      "max_usable_area_per_dwelling_or_business_unit_m2": 400,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK4-b",
+      "class_id": "GK4",
+      "variant": "b",
+      "max_above_ground_storeys": 4,
+      "max_escape_level_m": 11,
+      "requires_exactly_one_dwelling_or_business_unit": true,
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    },
+    {
+      "id": "GK5",
+      "class_id": "GK5",
+      "variant": "base",
+      "max_escape_level_m": 22,
+      "exclude_classes": [
+        "GK1",
+        "GK2",
+        "GK3",
+        "GK4"
+      ],
+      "all_conditions_required": true,
+      "source": "oib_definitions"
+    }
+  ],
+  "gk_variant_notes": [
+    "Nur aus OIB-Begriffsbestimmungen strukturierte Definitionen; Sonderregeln/Abweichungen nach OIB-Richtlinie 2 sowie Landesrecht vor Anwendung prüfen.",
+    "Fluchtniveau und gesamte BGF aller oberirdischen Geschosse sind keine direkt aus OSM ableitbaren Werte.",
+    "Die Varianten entsprechen noch keinem geprüften Klassifikationsalgorithmus. GK4-a verlangt Nutzfläche pro Einheit, nicht BGF."
+  ],
+  "special_uses": {
+    "status": "referenced_not_encoded",
+    "trvb_sections": [
+      "5.1",
+      "5.2",
+      "5.3"
+    ],
+    "note": "Besondere Nutzung und Schutz nach Originalregel prüfen; nur Grundschutztabelle strukturiert."
   }
 }
