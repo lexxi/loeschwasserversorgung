@@ -14,7 +14,10 @@ import geopandas as gpd
 
 FIELDS = ["osm_id", "building", "name", "amenity", "tourism", "shop",
           "addr:city", "addr:postcode", "addr:street", "addr:housenumber",
-          "building:use", "building:levels", "landuse", "geometry"]
+          "building:use", "building:levels", "building:levels:underground",
+          "height", "min_height", "roof:height", "roof:levels",
+          "building:flats", "building:units", "building:part",
+          "start_date", "landuse", "geometry"]
 
 
 def sha256(path):
