@@ -164,7 +164,7 @@
 <text x="151" y="1107" class="small">16 Toleranzfälle (2 m) weiterhin separat gekennzeichnet</text>
 <text x="72" y="1152" class="code">export_bev_osm_municipality_questions.py → CSV</text>
 <text x="72" y="1180" class="note">Rückmeldung durch Gemeinde / Datenführende · kein automatischer Versand</text>
-<path d="M1516 693v299H835v24" stroke="#a98ac7" stroke-width="2.6" stroke-dasharray="5 6" fill="none" marker-end="url(#tip)"/>
+<path d="M1738 624 H1773 V1000 H835 V1016" stroke="#a98ac7" stroke-width="2.6" stroke-dasharray="5 6" fill="none" marker-end="url(#tip)"/>
 <rect x="918" y="1016" width="839" height="182" rx="23" fill="#eef7fd" stroke="#b8d7ea" stroke-width="2" filter="url(#shadow)"/>
 <circle cx="974" cy="1071" r="32" fill="#d4ebfa"/>
 <path d="M962 1052h23l8 8v31h-31zM983 1053v9h10M970 1073h15m-15 9h15" stroke="#3475a2" fill="none" stroke-width="3" stroke-linejoin="round"/>
