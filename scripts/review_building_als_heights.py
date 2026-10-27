@@ -171,6 +171,21 @@ def main():
         raise ValueError(f"OSM-/Hoeheninventar nicht deckungsgleich: "
                          f"{len(missing)} fehlen, {len(extra)} zusaetzlich. "
                          "Höhenanalyse mit aktuellem OSM-Stand erneut ausfuehren.")
+    official_by_id = {}
+    official_file = ROOT / "reports" / mid / "addresses" / "gebaeude_adressen.csv"
+    if official_file.is_file():
+        with official_file.open("r", encoding="utf-8-sig", newline="") as handle:
+            for entry in csv.DictReader(handle, delimiter=";"):
+                oid = safe_text(entry.get("osm_id"))
+                if not oid or oid in official_by_id:
+                    raise ValueError(f"Doppelte oder leere OSM-ID bei amtlichen Adressen: {oid}")
+                official_by_id[oid] = entry
+        if set(official_by_id) != set(ids):
+            raise ValueError("Hausnummern-Zuordnung passt nicht zum aktuellen OSM-Gebaeudestand. "
+                             "join_buildings_addresses.py erneut ausfuehren.")
+        print(f"[INFO] Amtliche Hausnummernzuordnung eingebunden: {official_file}")
+    else:
+        print("[INFO] Keine amtliche Hausnummernzuordnung vorhanden; nur OSM-Adressen.")
     rows = []
     plotted = []
     counts = Counter()
@@ -212,6 +227,9 @@ def main():
             "building": safe_text(feature.get("building")),
             "footprint_m2": round(float(feature.geometry.area), 1),
             **{field:safe_text(feature.get(field)) for field in ATTRIBUTES if field != "building"},
+            "official_address": safe_text(official_by_id.get(osm_id, {}).get("official_addresses")),
+            "official_address_count": safe_text(official_by_id.get(osm_id, {}).get("address_count")),
+            "official_address_status": safe_text(official_by_id.get(osm_id, {}).get("address_status")) or "not_imported",
             "height_median_m": median_m if median_m is not None else "",
             "height_p90_m": p90 if p90 is not None else "",
             "height_max_m": max_m if max_m is not None else "",
@@ -267,6 +285,9 @@ def main():
             "quality":r["height_quality"],"flags":r["height_review_flags"],
             "street":r.get("addr:street",""),"number":r.get("addr:housenumber",""),
             "city":r.get("addr:city",""),
+            "official_address":r.get("official_address",""),
+            "official_count":r.get("official_address_count",""),
+            "official_status":r.get("official_address_status",""),
             "levels":r.get("building:levels",""),
             "osm_height":r.get("height",""),"use":r.get("building:use",""),
             "tourism":r.get("tourism",""),"amenity":r.get("amenity",""),
@@ -331,7 +352,11 @@ function moveTo(el){if(selected)selected.classList.remove('selected');selected=e
 const x=JSON.parse(el.dataset.info);const fmt=(v)=>v===''?'—':v;
 document.getElementById('detail').textContent=
 'OSM-ID: '+x.id+'\\nAdresse: '+([x.street,x.number].filter(Boolean).join(' ')||'—')+
-'\\nOrt: '+fmt(x.city)+'\\nGebäudetyp: '+fmt(x.building)+'\\nGrundriss: '+x.area+' m²'+
+'\\nOrt: '+fmt(x.city)+
+'\\nAmtliche Adresse(n): '+fmt(x.official_address)+
+'\\nAdresszuordnung: '+fmt(x.official_status)+
+'\\nAnzahl: '+fmt(x.official_count)+
+'\\nGebäudetyp: '+fmt(x.building)+'\\nGrundriss: '+x.area+' m²'+
 '\\nHöhe Median: '+fmt(x.median)+' m\\nP90: '+fmt(x.p90)+' m\\nMaximum: '+fmt(x.max)+' m'+
 '\\nQualität: '+x.quality+'\\nPrüfhinweise: '+fmt(x.flags)+
 '\\nOSM-Geschosse: '+fmt(x.levels)+'\\nOSM-Höhe: '+fmt(x.osm_height)+
