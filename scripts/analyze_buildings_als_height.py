@@ -34,7 +34,9 @@ def sample_building(geom, dom, dtm, inset, minimum_pixels):
     sampling = geom.buffer(-inset) if inset > 0 else geom
     if sampling.is_empty:
         sampling = geom
-    col0, row0, col1, row1 = from_bounds(*sampling.bounds, transform=dom.transform).flatten()
+    bounds_window = from_bounds(*sampling.bounds, transform=dom.transform)
+    col0, row0 = bounds_window.col_off, bounds_window.row_off
+    col1, row1 = col0 + bounds_window.width, row0 + bounds_window.height
     left, top = max(0, int(np.floor(min(col0, col1)))), max(0, int(np.floor(min(row0, row1))))
     right, bottom = min(dom.width, int(np.ceil(max(col0, col1)))), min(dom.height, int(np.ceil(max(row0, row1))))
     if right <= left or bottom <= top:
