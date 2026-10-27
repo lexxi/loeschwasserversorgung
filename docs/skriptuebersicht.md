@@ -246,3 +246,5 @@ python scripts\review_building_als_heights.py --gemeinde 20619 --open
 ```
 
 Die Ausgabedatei bleibt `reports/20619/gk_inventory/gebaeude_als_hoehenkarte.html`. Der Befehl erstellt daneben die bereits bekannten CSV-/JSON-Dateien erneut; die BEV-Raster werden **nicht** noch einmal heruntergeladen. Wenn `roads.geojson` fehlt, zeigt die Karte 0 Straßen/Wege an, ohne die Gebäudekarte zu verhindern.
+
+**Hausnummern in der ALS-Karte:** Die OSM-Attribute `addr:street`, `addr:housenumber` und `addr:city` werden im Gebäudeimport soweit vorhanden beibehalten. Seit Commit `c58797e` übernimmt auch `review_building_als_heights.py` diese Felder in `gebaeude_gk_merkmale_mit_als.csv` und zeigt Straße/Hausnummer/Ort in den Gebäudedetails. Fehlende OSM-Adressattribute bleiben leer; die separat importierten amtlichen Hausnummern werden dadurch **noch nicht** automatisch gebäudeweise verknüpft.
