@@ -74,3 +74,20 @@ Die Originalverweise und ggf. zulässige Offline-Kopien sind in `config/referenc
 Die Anforderungsmatrix enthält nur öffentliche Methodik. Keine gemeindescharfen privaten Adresslisten oder ODB-Koordinaten in GitHub committen. Personen-/bauaktbezogene Angaben nur mit Berechtigung und Datenminimierung lokal verarbeiten.
 
 **Verwandt:** [Quellenkatalog](../config/reference_documents.json) · [Regelwerksentwurf](../config/firewater_rulebook.json) · [offene Datenbestände](offene-datenbestaende-und-fragen.md) · [Skriptübersicht](skriptuebersicht.md)
+
+## 7. Geplante Anfrage an Gemeinde Malta: tatsächliche und zulässige Gebäudeklassen
+
+**Status: Anfrageentwurf; noch nicht versandt.** Ziel ist zunächst die Klärung von **Verfügbarkeit, Datenformat, Rechtsstand, Berechtigung und Ansprechpartner**, nicht die ungeprüfte Übermittlung sämtlicher personenbezogener Bauaktinformationen.
+
+**Fragen:**
+
+1. Liegen für bestehende Gebäude dokumentierte **tatsächliche Gebäudeklassen GK1–GK5** vor? Falls ja: für welche Objekte/Datenstände und mit welcher fachlichen bzw. rechtlichen Zuordnung?
+2. Sind die Angaben **strukturiert** verfügbar (z. B. Tabelle mit Objektkennung/Adresse, GK, Stand und Quelle) oder nur in einzelnen Bauakten?
+3. Sind bei älteren Gebäuden statt einer GK lediglich andere Daten vorhanden, insbesondere **Fluchtniveau, oberirdische Geschosse, Brutto-Grundfläche, Nutzung, Zahl der Nutzungseinheiten und Gebäudeart**?
+4. Bestehen auf Grundstücks-/Planungsebene Informationen zur **höchsten zulässigen Bebauung** und dazu ein digital zugänglicher rechtswirksamer Bebauungsplan? Diese ist getrennt von der tatsächlichen GK zu führen.
+5. Welche **Nutzungs- und Weitergaberechte** gelten für eine ausschließlich interne bzw. fachlich abgestimmte gemeindeweite GIS-Bestandsaufnahme? Wäre ein minimierter Datenauszug ohne Namen/Eigentümer möglich?
+6. Wer ist die **zuständige Ansprechstelle** für eine fachliche Validierung und für Fragen zu historischen Bauakten?
+
+**Mögliche Anlieferung, sofern ausdrücklich freigegeben:** Objektkennung, normalisierte Adresse, tatsächliche GK oder „nicht dokumentiert“, Datenstand, Quelltyp/Bauaktbezug, verifizierte GK-Merkmale und getrennt davon höchstzulässige planungsrechtliche Werte. Keine Eigentümerdaten anfordern. Aktuelle OSM-/BEV-Zuordnungen sind kein Nachweis amtlicher Gebäudeidentität.
+
+Die Anfrage kann gemeinsam mit der separaten **Liste der 25 offenen BEV-/OSM-Geometriefälle** an die Gemeinde gerichtet werden; Rückmeldungen bleiben zwei getrennte Datenstränge. Bis zu einer fachlich verifizierten Antwort bleibt die GK-Einstufung im Projekt **unbekannt** (`auto_assignment_enabled=false`).
