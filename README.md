@@ -225,3 +225,5 @@ Die weitere Fachentwicklung ist in **zwei getrennte Arbeitspakete** gegliedert: 
 ## Skriptkatalog und Speicherorte
 
 Für alle Python-Skripte sind **Zweck, benötigte Eingaben, erzeugte Dateien, Ablageorte und aktueller/historischer Status** in der [Skriptübersicht](docs/skriptuebersicht.md) dokumentiert. Für den BEV-ALS-Test bevorzugt [`download_bev_als_subset.py`](scripts/download_bev_als_subset.py) statt des vollständigen Kacheldownloads; die Originalkachel überschreitet das 8-GiB-Limit.
+
+Für eine **gemeindeweite** BEV-ALS-Höheninventur ohne Vollkachel-Download: [`scripts/process_bev_als_municipality.py`](scripts/process_bev_als_municipality.py) (zuerst nur planen, danach `--download --max-tiles 3`, anschließend gesamte Auswahl und `--analyze`). Bedienung und Speicherorte: [Skriptübersicht](docs/skriptuebersicht.md).
