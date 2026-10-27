@@ -299,3 +299,7 @@ Ergebnis: `reports/20619/addresses/gemeinde_rueckfragen_bev_osm.csv`, verlinkt i
 Die zentrale Berichts-Navigation erzeugt nun **`reports/glossar.html`**, vollständig offline, und verlinkt sie sowohl in `reports/index.html` als auch in `reports/20619/index.html`. Enthalten sind u. a. BEV, OSM, ODB, ALS, DOM, DGM, GIS, EPSG, GPKG, GKZ, INSPIRE, GK, OIB, TRVB, ÖBFV, RIS sowie die geometrischen Statuscodes und die Differenz zwischen 2-m-/15-m-Heuristik und fachlicher Bestätigung.
 
 **OEM und BSM:** Im derzeitigen Projekt nicht als eindeutige Fachkürzel dokumentiert, daher bewusst als klärungsbedürftig beschrieben; „OEM“ könnte „OSM“ gemeint haben, wird aber nicht stillschweigend umgedeutet.
+
+### AP1 – Anforderungsmatrix als Arbeitsgrundlage (27.10.2026)
+
+Die neue [Anforderungsmatrix GK/Löschwasser](anforderungsmatrix-gk-loeschwasser.md) verknüpft die Kärntner Bautechnikverordnung 2024, OIB 2023, K-GFPO §31 sowie die dokumentierten TRVB-/ÖBFV-Quellen mit tatsächlich vorhandenen Daten und fehlenden Nachweisen. Sie dient der Vorbereitung fachlicher Rückfragen und **verändert die Automatisierungssperre im Regelwerksentwurf nicht**. Als erste priorisierte offene Merkmale gelten Fluchtniveau, Geschosszahl, Brutto-Grundfläche, Nutzungseinheiten, nachgewiesene Entnahmeleistung und Erreichbarkeit.
