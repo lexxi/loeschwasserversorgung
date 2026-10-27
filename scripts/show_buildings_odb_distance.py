@@ -42,6 +42,30 @@ def polygon_path(geom, project):
     return " ".join(parts)
 
 
+def road_path(geom, project):
+    """Draw only genuine linear geometry, never interpret a path as routing."""
+    if geom.geom_type == "LineString":
+        lines = [geom]
+    elif geom.geom_type == "MultiLineString":
+        lines = geom.geoms
+    else:
+        return ""
+    return " ".join(
+        "M " + " L ".join(f"{project(x, y)[0]:.2f},{project(x, y)[1]:.2f}" for x, y in line.coords)
+        for line in lines if len(line.coords) >= 2
+    )
+
+
+def road_class(kind):
+    if kind in ("motorway", "trunk", "primary", "secondary", "tertiary",
+                "motorway_link", "trunk_link", "primary_link", "secondary_link",
+                "tertiary_link"):
+        return "major"
+    if kind in ("residential", "unclassified", "living_street", "service", "road"):
+        return "local"
+    return "path"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gemeinde", required=True, help="Fuenfstellige Gemeindenummer, z. B. 20619")
@@ -55,6 +79,7 @@ def main():
     odb_file = base / "odb_water_sources" / "odb_water_sources.geojson"
     boundary_file = base / "boundary.geojson"
     distances_file = ROOT / "reports" / mid / "gebaeude_odb_abstaende.csv"
+    roads_file = base / "osm" / "roads.geojson"
     for path in (building_file, odb_file, boundary_file, distances_file):
         if not path.is_file():
             parser.error(f"Datei fehlt: {path}. Zuerst die jeweiligen Importe und die Abstandsanalyse ausfuehren.")
@@ -90,6 +115,24 @@ def main():
 
     def project(x, y):
         return ((x-x0)/scale, (y1-y)/scale)
+
+    road_drawings = []
+    if roads_file.is_file():
+        roads = gpd.read_file(roads_file)
+        if roads.crs is None:
+            raise ValueError("OSM-Strassen ohne Koordinatensystem")
+        roads = roads.to_crs(31287)
+        for _, road in roads.iterrows():
+            kind = str(road.get("highway") or "")
+            geom = road.geometry
+            if geom is None or geom.is_empty:
+                continue
+            road_svg = road_path(geom, project)
+            if road_svg:
+                road_drawings.append(
+                    f'<path class="road {road_class(kind)}" d="{road_svg}">'
+                    f'<title>{escape(str(road.get("name") or kind))}</title></path>'
+                )
 
     # Resolve source coordinates before rendering buildings. Use the actual
     # shortest building-footprint-to-source segment, not a centroid line.
@@ -188,6 +231,10 @@ input[type=search]{box-sizing:border-box;width:100%;padding:9px;border:1px solid
 button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 12px;cursor:pointer}
 .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
 #map{display:block;width:100%;height:min(74vh,820px);min-height:420px;touch-action:none;border-radius:8px;background:#f9fbfd}
+.road{fill:none;pointer-events:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.road.major{stroke:#d4a370;stroke-width:2.4}
+.road.local{stroke:#b7bfc8;stroke-width:1.65}
+.road.path{stroke:#9bab9a;stroke-width:1;stroke-dasharray:3 3}
 .building{stroke:#33485a;stroke-width:.32;cursor:pointer;vector-effect:non-scaling-stroke}
 .building:hover{stroke:#081a2a;stroke-width:2;stroke-opacity:1}
 .source-marker{cursor:pointer}.source-marker circle{vector-effect:non-scaling-stroke}.source-marker:hover circle{stroke-width:3}
@@ -205,6 +252,7 @@ button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 1
 <input id="search" type="search" placeholder="OSM-ID oder Gebäudetyp">
 <p><strong id="visible">__NUM__</strong> sichtbare Gebäude</p>
 <label class="filterline"><input type="checkbox" id="show-sources" checked> ODB-Wasserentnahmestellen zeigen</label>
+<label class="filterline"><input type="checkbox" id="show-roads" checked> OSM-Straßen und Wege (__ROADCOUNT__) anzeigen</label>
 <p class="note">ODB-Punkte: grün = verwendbar, orange = eingeschränkt verwendbar, grau = nicht verwendbar / unbekannt.</p>
 <p class="note">Die Klassen beschreiben geometrische Luftlinienabstände; sie sind keine normativen Versorgungsgrenzen. Keine Aussage über Entnahmeleistung, Hydraulik, Schlauchwege oder Erreichbarkeit.</p>
 </aside><section class="map-panel">
@@ -213,7 +261,7 @@ button{border:1px solid #bdcbd9;border-radius:7px;background:white;padding:7px 1
 <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 800" role="img" aria-label="Gebäude nach Luftlinienabstand und ODB-Wasserentnahmestellen">
 <rect width="1150" height="800" fill="#f7fafc"/>
 <path d="__OUTLINE__" fill="#f0f5f1" stroke="#48775f" stroke-width="1.7" fill-rule="evenodd"/>
-<g id="buildings">__BUILDINGS__</g><line id="selected-link" style="display:none"/><g id="sources">__MARKERS__</g></svg>
+<g id="roads">__ROADS__</g><g id="buildings">__BUILDINGS__</g><line id="selected-link" style="display:none"/><g id="sources">__MARKERS__</g></svg>
 <div id="detail" aria-live="polite">Gebäude oder ODB-Punkt anklicken, um Details anzuzeigen.</div>
 <p class="credit">Gebäudegrundflächen: © OpenStreetMap-Mitwirkende · ODbL 1.0 ·
 <a href="https://www.openstreetmap.org/copyright">openstreetmap.org/copyright</a>.<br>
@@ -239,10 +287,11 @@ function setV(){svg.setAttribute('viewBox',[v.x,v.y,v.w,v.h].join(' '));resizeMa
 function update(){const bands=new Set([...document.querySelectorAll('.band-toggle:checked')].map(i=>i.value));const q=search.value.trim().toLocaleLowerCase();let n=0;
  for(const b of bs){const ok=bands.has(b.dataset.band)&&(b.dataset.id.toLocaleLowerCase().includes(q)||b.dataset.type.toLocaleLowerCase().includes(q));b.style.display=ok?'':'none';if(ok)n++}
  counter.textContent=n;document.getElementById('sources').style.display=document.getElementById('show-sources').checked?'':'none';
+ document.getElementById('roads').style.display=document.getElementById('show-roads').checked?'':'none';
 }
 function point(ev){const m=svg.getScreenCTM();if(!m)return null;const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(m.inverse())}
 function zoom(f,px=v.x+v.w/2,py=v.y+v.h/2){const w=Math.max(2,Math.min(full.w*10,v.w*f));const h=w*full.h/full.w;v={x:px-(px-v.x)*w/v.w,y:py-(py-v.y)*h/v.h,w,h};setV()}
-document.querySelectorAll('.band-toggle').forEach(i=>i.addEventListener('change',update));search.addEventListener('input',update);document.getElementById('show-sources').addEventListener('change',update);
+document.querySelectorAll('.band-toggle').forEach(i=>i.addEventListener('change',update));search.addEventListener('input',update);document.getElementById('show-sources').addEventListener('change',update);document.getElementById('show-roads').addEventListener('change',update);
 document.getElementById('plus').onclick=()=>zoom(.65);document.getElementById('minus').onclick=()=>zoom(1.5);document.getElementById('reset').onclick=()=>{v={...full};setV()};
 svg.addEventListener('wheel',ev=>{ev.preventDefault();const p=point(ev);if(p)zoom(ev.deltaY<0?.8:1.25,p.x,p.y)},{passive:false});
 svg.addEventListener('pointerdown',ev=>{if(ev.target.closest('.building,.source-marker'))return;drag={x:ev.clientX,y:ev.clientY,v:{...v}};svg.setPointerCapture(ev.pointerId)});
@@ -282,6 +331,9 @@ update();setV();window.addEventListener('resize',resizeMarkers);
             .replace("__NUM__", str(len(drawings)))
             .replace("__SOURCES__", str(len(markers)))
             .replace("__TOGGLES__", toggles)
+            .replace("__ROADCOUNT__", str(len(road_drawings)))
+            .replace("__ROADS__", "
+".join(road_drawings))
             .replace("__OUTLINE__", polygon_path(border, project))
             .replace("__BUILDINGS__", "\n".join(drawings))
             .replace("__MARKERS__", "\n".join(markers)))
@@ -289,6 +341,7 @@ update();setV();window.addEventListener('resize',resizeMarkers);
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     print(f"[OK] Gemeinde {mid}: {len(drawings)} Gebaeude, {len(markers)} ODB-Quellen")
+    print(f"[INFO] OSM-Strassen/Wege: {len(road_drawings)} (Hintergrund {'aktiv' if roads_file.is_file() else 'fehlt, bitte importieren'})")
     print("[INFO] Klassen:", json.dumps(dict(summary), ensure_ascii=False))
     print(f"[OK] {out}")
     print("[HINWEIS] Die HTML-Karte enthaelt lokale Fachdaten und darf nicht oeffentlich eingecheckt werden.")
