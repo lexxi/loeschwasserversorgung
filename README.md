@@ -83,6 +83,7 @@ Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **
 - `import_osm_roads_pbf.py` – OSM-Straßen/Wege aus lokalem PBF importieren.
 - `import_water_sources.py` – Historischer OSM-Wasserquellenimport, **nicht aktiv**.
 - `inventory_gk_building_attributes.py` – GK-relevante vorhandene/fehlende Gebäudemerkmale inventarisieren.
+- `join_buildings_addresses.py` – Amtliche Adresspunkte geometrisch mit OSM-Gebäudegrundrissen verbinden und Prüffälle ausweisen.
 - `join_buildings_zoning.py` – Gebäude und Widmung räumlich überlagern.
 - `list_building_overlaps.py` – Mehrfachwidmungen als HTML/CSV prüfen.
 - `municipality_text.py` – Hilfsmodul zur Korrektur von Textkodierung.
@@ -305,3 +306,13 @@ python scripts\generate_report_index.py --gemeinde 20619 --open
 ```
 
 Die Originale liegen **ausschließlich lokal** unter `reports/references/`, mit SHA-256-Manifest. Die technischen Richtlinien und RIS-Fassungen können bei entsprechender Berechtigung/Prüfung mittels `--import-file` aufgenommen werden. Nicht vorhandene Originale haben in der Indexseite nur einen Online-Link. [Bedienung und Rechtehinweise](docs/skriptuebersicht.md#offline-quellenarchiv-oib-trvb-öbfv-und-ris).
+
+## AP3 – Amtliche Hausnummern
+
+Für die Verknüpfung von **amtlichen Adresspunkten** mit OSM-Gebäuden wurde `scripts/join_buildings_addresses.py` ergänzt. Die tatsächlich vorhandene amtliche Datenquelle und deren Feldnamen müssen zuerst geprüft werden:
+
+```powershell
+python scripts\join_buildings_addresses.py --gemeinde 20619 --addresses "C:\Pfad\amtliche_adressen.geojson" --inspect
+```
+
+Erst anschließend ohne `--inspect` verknüpfen und die offline Gebäudehöhenkarte mit `python scripts\review_building_als_heights.py --gemeinde 20619 --open` neu erstellen. Nur geometrisch eindeutige Innen-Treffer werden verknüpft; nahe Adressen und Mehrfachtreffer bleiben Prüffälle. Sämtliche Adress-Rohdaten und Ergebnisse werden lokal gehalten. [Methodik und Beispiele](docs/skriptuebersicht.md#ap3--amtliche-hausnummern-mit-osm-gebäuden-verknüpfen).
