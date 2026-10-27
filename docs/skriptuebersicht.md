@@ -336,3 +336,23 @@ python scripts\archive_reference_documents.py --import-file "C:\Pfad\zu\Erlaeute
 ```
 
 Die Originaldatei nur aus verlässlicher amtlicher Quelle beziehen; **keine stillen Fassungswechsel** (z. B. 2023 auf 2025). Die Indexseite bietet Offline-Links ausschließlich auf tatsächlich vorhandene archivierte Dokumente.
+
+### RIS-Fassungen datiert archivieren (Landesrecht Kärnten)
+
+Die beiden Quellen `k_btv_2024` (Gesetzesnummer 20000961) und `k_gfpo_2000` (Gesetzesnummer 20000024) lassen sich im RIS unter **„Gesamte Rechtsvorschrift“ → „Andere Formate“ → PDF** als konsolidierte Rechtsfassung exportieren. Vor dem Export den gewünschten **Stichtag** im RIS wählen. Ein konsolidierter RIS-Auszug ist eine Arbeitshilfe; der rechtlich verbindliche Originaltext ist die jeweils authentische Kundmachung. Siehe [offizielles RIS-Handbuch für Landesnormen](https://rism.bka.gv.at/RisInfo/HandbuchLandesnormen.pdf).
+
+- [Kärntner Bautechnikverordnung 2024 – RIS](https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrK&Gesetzesnummer=20000961)
+- [Kärntner Gefahrenpolizei- und Feuerpolizeiordnung 2000 – RIS](https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrK&Gesetzesnummer=20000024)
+
+Beispiel für den gewählten Stichtag **27.10.2026** (nur verwenden, wenn die PDFs im RIS tatsächlich auf diesen Stichtag eingestellt wurden):
+
+```powershell
+python scripts\archive_reference_documents.py --import-file "C:\Downloads\K-BTV-2024.pdf" --id k_btv_2024 --as-of 2026-10-27
+python scripts\archive_reference_documents.py --import-file "C:\Downloads\K-GFPO-2000.pdf" --id k_gfpo_2000 --as-of 2026-10-27
+python scripts\archive_reference_documents.py --status
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+`--as-of` ist für diese beiden RIS-Quellen **Pflicht** und wird als `legal_as_of` im lokalen `archive_manifest.json` gespeichert. Vorhandene Original-PDFs werden nicht überschrieben. Eine spätere Rechtsänderung erfordert einen ausdrücklich archivierten neuen Datenstand; der bereits gesicherte Snapshot bleibt reproduzierbar.
+
+Die **TRVB 137 F/21** und **VB-01/23** werden beim ÖBFV als kostenpflichtige Fachrichtlinien angeboten (Quellenlinks im Index). Ihr PDF-Original wird nicht automatisiert von Fremdservern heruntergeladen, sondern bei entsprechender Nutzungsberechtigung mit `--import-file` archiviert. Der Quellenkatalog allein stellt keine Erwerbs-/Weitergabeberechtigung dar.
