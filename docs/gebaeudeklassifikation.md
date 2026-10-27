@@ -30,3 +30,9 @@ Der Datensatz enthält die bereits ermittelten Widmungszuordnungen und zusätzli
 ## Methodische Grenzen
 
 OSM kann unvollständige oder falsche Tags enthalten; ein Gebäude mit Hausnummer ist nicht automatisch ein Wohngebäude. Die räumliche Lage in `Bauland – Dorfgebiet` begründet ebenfalls keine Wohnnutzung. Für Siedlungsanalysen muss explizit angegeben werden, welche Klassen einbezogen werden. Alle Berechnungen zur Löschwasserversorgung bleiben davon getrennt.
+
+## Abgrenzung zur baurechtlichen Gebäudeklasse und nächste Arbeitspakete
+
+Diese OSM-Nutzungshinweise (`residential_candidate`, `non_residential_tag`, `use_unknown`) sind **keine** baurechtlichen Gebäudeklassen GK1–GK5 und lösen keine automatische Löschwasserbedarfszuordnung aus. Die **Regeldefinition** nach OIB/Kärntner Bautechnikrecht und TRVB ist ein eigenes Arbeitspaket; die **nachweisbare tatsächliche GK-Zuordnung jedes einzelnen Gebäudes** ein zweites. Auch die höchste planungsrechtlich zulässige GK für den Grundschutz ist separat von der tatsächlichen GK zu erfassen. Alle Gebäude bleiben enthalten, selbst wenn ihre GK unbekannt ist.
+
+Siehe [Gebäudeklassen und Löschwasserbedarf](gebaeudeklassen-und-loeschwasserbedarf.md) mit Primärquellen, Vorgehensweise und Datenlücken.
