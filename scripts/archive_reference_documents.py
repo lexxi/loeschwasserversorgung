@@ -7,7 +7,7 @@ TRVB/VB-01/RIS nur autorisiert manuell lokal ablegen.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import hashlib
 import json
 import os
@@ -43,11 +43,19 @@ def main():
     p.add_argument("--status", action="store_true", help="Nur lokales Archiv pruefen (Standard)")
     p.add_argument("--import-file", type=Path, help="Berechtigt vorhandene PDF-Datei lokal ins Archiv kopieren")
     p.add_argument("--id", help="Quellen-ID zu --import-file")
+    p.add_argument("--as-of", help="Rechtsstand/Pruefstichtag der importierten PDF im ISO-Format YYYY-MM-DD")
     args = p.parse_args()
     if args.download and args.import_file:
         p.error("--download und --import-file nicht kombinieren")
     if args.import_file and not args.id:
         p.error("--import-file braucht --id")
+    if args.as_of and not args.import_file:
+        p.error("--as-of nur zusammen mit --import-file")
+    if args.as_of:
+        try:
+            date.fromisoformat(args.as_of)
+        except ValueError:
+            p.error("--as-of muss ein gueltiges Datum YYYY-MM-DD sein")
     catalog = json.loads(CONFIG.read_text(encoding="utf-8"))
     entries = catalog["documents"]
     known = {e["id"]:e for e in entries}
@@ -55,6 +63,7 @@ def main():
     state_file = DEST / "archive_manifest.json"
     state = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() else {"schema_version":1,"documents":{}}
     modified = False
+    imported_as_of = {}
     failures = []
     download_sources = {}
 
@@ -75,6 +84,9 @@ def main():
             os.replace(temporary,target)
         finally:
             temporary.unlink(missing_ok=True)
+        if known[args.id]["id"] in ("k_btv_2024", "k_gfpo_2000") and not args.as_of:
+            p.error("Fuer RIS-Exporte ist --as-of YYYY-MM-DD zwingend erforderlich")
+        imported_as_of[args.id] = args.as_of
         print(f"[IMPORT] {args.id} -> {target}")
         modified = True
 
@@ -137,6 +149,7 @@ def main():
                 "archived_utc":previous.get("archived_utc") or datetime.now(timezone.utc).isoformat(),
                 "acquisition":entry["acquisition"],
                 "downloaded_from":download_sources.get(key) or previous.get("downloaded_from"),
+                "legal_as_of":imported_as_of.get(key) or previous.get("legal_as_of"),
             }
             print(f"[OK]   {key}: {file.name} ({file.stat().st_size//1024} KiB, sha256 {digest[:12]}...)")
             if not previous:
