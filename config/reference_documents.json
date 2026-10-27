@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "purpose": "Lokales, versioniertes Quellenarchiv fuer offline Berichte; keine Verbreitungsrechte ableitbar.",
+  "documents": [
+    {
+      "id": "oib_definitions_2023",
+      "title": "OIB-Begriffsbestimmungen",
+      "edition": "Mai 2023",
+      "category": "OIB / Gebäudeklassen",
+      "online_url": "https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf",
+      "download_url": "https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf",
+      "filename": "oib_begriffsbestimmungen_2023.pdf",
+      "acquisition": "auto_pdf",
+      "usage_note": "Definitionen GK1-GK5; Landesrecht und Uebergangsrecht pruefen."
+    },
+    {
+      "id": "oib_fire_2023",
+      "title": "OIB-Richtlinie 2 – Brandschutz",
+      "edition": "Mai 2023",
+      "category": "OIB / Gebäudeklassen",
+      "online_url": "https://www.oib.or.at/sites/default/files/oib-rl_2_ausgabe_mai_2023.pdf",
+      "download_url": "https://www.oib.or.at/sites/default/files/oib-rl_2_ausgabe_mai_2023.pdf",
+      "filename": "oib_richtlinie_2_brandschutz_2023.pdf",
+      "acquisition": "auto_pdf",
+      "usage_note": "Brandschutz, Sonderfälle, keine automatisierte GK-Zuordnung."
+    },
+    {
+      "id": "oib_fire_explanations_2023",
+      "title": "OIB-Richtlinie 2 – Erläuterungen",
+      "edition": "Mai 2023",
+      "category": "OIB / Gebäudeklassen",
+      "online_url": "https://www.oib.or.at/sites/default/files/erlaeuterungen_oib-rl_2_ausgabe_mai_2023.pdf",
+      "download_url": "https://www.oib.or.at/sites/default/files/erlaeuterungen_oib-rl_2_ausgabe_mai_2023.pdf",
+      "filename": "oib_richtlinie_2_erlaeuterungen_2023.pdf",
+      "acquisition": "auto_pdf",
+      "usage_note": "Auslegungshilfe; kein Ersatz fuer Originalrichtlinie."
+    },
+    {
+      "id": "trvb_137_2021",
+      "title": "TRVB 137 F/21 – Löschwasserbedarf",
+      "edition": "01.09.2021",
+      "category": "Technische Richtlinien / Löschwasser",
+      "online_url": "https://www.bundesfeuerwehrverband.at/produkt/trvb-137-21-f-loeschwasserbedarf/",
+      "additional_online_url": "https://www.noe122.at/vorbeugender-brandschutz/gr%C3%BCner-ordner/4-12-trvb-137-f-21.pdf",
+      "filename": "trvb_137_f_21.pdf",
+      "acquisition": "manual",
+      "usage_note": "Nur bei Berechtigung lokale Kopie hinterlegen; Nutzungsrechte vor Weitergabe pruefen."
+    },
+    {
+      "id": "vb01_2023",
+      "title": "ÖBFV VB-01/23 – Die Löschwasserversorgung",
+      "edition": "15.10.2023",
+      "category": "Technische Richtlinien / Löschwasser",
+      "online_url": "https://www.bundesfeuerwehrverband.at/produkt/vb-01-23-rl-die-loeschwasserversorgung/",
+      "filename": "oebfv_vb_01_23.pdf",
+      "acquisition": "manual",
+      "usage_note": "Ggf. erworbene/berechtigte lokale Kopie; nicht automatisiert beziehen."
+    },
+    {
+      "id": "k_btv_2024",
+      "title": "Kärntner Bautechnikverordnung 2024",
+      "edition": "RIS-Fassung, Stichtag separat dokumentieren",
+      "category": "Kärntner Landesrecht",
+      "online_url": "https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrK&Gesetzesnummer=20000961",
+      "filename": "kaerntner_bautechnikverordnung_2024_ris.pdf",
+      "acquisition": "manual",
+      "usage_note": "Geltende Fassung kann sich aendern; offline Export mit Datum speichern."
+    },
+    {
+      "id": "k_gfpo_2000",
+      "title": "Kärntner Gefahrenpolizei- und Feuerpolizeiordnung 2000",
+      "edition": "RIS-Fassung, Stichtag separat dokumentieren",
+      "category": "Kärntner Landesrecht",
+      "online_url": "https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrK&Gesetzesnummer=20000024",
+      "filename": "kaerntner_gfpo_2000_ris.pdf",
+      "acquisition": "manual",
+      "usage_note": "Insbesondere §31; offline Export mit Datum speichern."
+    }
+  ]
+}
