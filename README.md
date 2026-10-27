@@ -221,3 +221,7 @@ Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kär
 Die weitere Fachentwicklung ist in **zwei getrennte Arbeitspakete** gegliedert: **(1) Gebäudeklassen GK1–GK5 und Löschwasseranforderungen quellenbasiert definieren; (2) alle erfassten Gebäude anhand nachprüfbarer Daten zuordnen – mit ausdrücklicher Kennzeichnung unbekannter GK**. Tatsächliche Gebäude-GK und höchste planungsrechtlich zulässige GK werden für Objekt- bzw. Grundschutz separat behandelt. Die derzeitige OSM-Nutzungsklassifikation ist **keine** rechtlich gesicherte Gebäudeklasse. Details, technische Richtwerte, Rechtsgrundlagen und Links zu den Originaldokumenten: [Gebäudeklassen und Löschwasserbedarf](docs/gebaeudeklassen-und-loeschwasserbedarf.md).
 
 **Technischer Stand AP 1 (v0.2.0):** [Versioniertes Regelwerk `config/firewater_rulebook.json`](config/firewater_rulebook.json) und [formaler Validator](scripts/validate_firewater_rulebook.py) sind vorhanden (`python scripts\validate_firewater_rulebook.py`). **Entwurf mit acht OIB-Varianten und sechs TRVB-Distanzstaffeln; keine automatische Gebäudeklassen- oder Bedarfszuordnung.**
+
+## Skriptkatalog und Speicherorte
+
+Für alle Python-Skripte sind **Zweck, benötigte Eingaben, erzeugte Dateien, Ablageorte und aktueller/historischer Status** in der [Skriptübersicht](docs/skriptuebersicht.md) dokumentiert. Für den BEV-ALS-Test bevorzugt [`download_bev_als_subset.py`](scripts/download_bev_als_subset.py) statt des vollständigen Kacheldownloads; die Originalkachel überschreitet das 8-GiB-Limit.
