@@ -126,3 +126,31 @@ python scripts\validate_firewater_rulebook.py
 ```
 
 Der Validator verwendet nur die Python-Standardbibliothek, benötigt keine Gemeinde-/ODB-Daten und gibt **keine fachliche Freigabe**. Die nächste Arbeit in AP 1 ist die vollständige und fachlich überprüfte Übernahme aller Entscheidungsbedingungen der OIB-GK-Varianten und der TRVB-Tabelle einschließlich Teilraten und Anwendungsbereich; erst danach wird eine separate Einstufungslogik geplant. Die 1.686 Gebäude bleiben bis AP 2 unverändert.
+
+## AP 1 – Version 0.2.0: OIB-Varianten und TRVB-Distanzstaffel (27.10.2026)
+
+Die maschinenlesbare [Regeldatei](../config/firewater_rulebook.json) enthält jetzt die **acht Definitionsvarianten GK1, GK2-a/b/c, GK3, GK4-a/b und GK5** aus den [OIB-Begriffsbestimmungen, Mai 2023](https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf), dort Seite 6. GK4-a ist insbesondere durch **Nutzfläche der jeweiligen Wohneinheit bzw. Betriebseinheit** begrenzt, nicht durch gesamte BGF; GK4-b ist die Variante mit genau einer solchen Einheit. Bei GK2 sind die Varianten a/b/c ausdrücklich separat dokumentiert. `gk_variants` ist eine **Definitionsdatenstruktur, kein Klassifikationsalgorithmus**. Die vollständige Prüfung etwaiger Sondervorschriften bleibt offen.
+
+Aus [TRVB 137 F/21, Abschnitt 4.1, Tabelle 1 (Seite 6/24)](https://www.noe122.at/vorbeugender-brandschutz/gr%C3%BCner-ordner/4-12-trvb-137-f-21.pdf) wurden die **zusätzlich erforderlichen Löschwasserraten je Entfernungsstufe** erfasst:
+
+| Tabellenzeile | Typischer Grundschutzfall (verkürzt) | Gesamt l/min | Bis 125 m | Zusätzlich bis 250 m | Zusätzlich bis 500 m |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 | GK1; GK2-a/b; kleine Garagen | 800 | 800 | 0 | 0 |
+| 2 | GK2-c; GK3/GK4 überwiegend Wohnen; größere Garagen | 1.200 | 800 | 400 | 0 |
+| 3 | GK3/GK4 sonst; GK5 überwiegend Wohnen; Parkdecks | 1.600 | 800 | 800 | 0 |
+| 4 | GK5 sonst; Fluchtniveau über 22 m | 2.400 | 800 | 800 | 800 |
+| 5 | Betriebs- und Gewerbegebiete | 3.200 | 800 | 1.200 | 1.200 |
+| 6 | Industriegebiete | 3.200 | 800 | 1.200 | 1.200 |
+
+Die Staffeln sind **zusätzliche Teilraten**, die zur Gesamt-Löschwasserrate addiert werden. Maßgebliche Entfernungsdefinition für Grundschutz laut Tabelle: entlang der verkehrstechnisch erschlossenen **Grundstücksgrenze**. Nicht zu verwechseln mit Gebäudegrundriss–ODB-Luftlinie, OSM-Straßennetzabstand oder einer tatsächlichen Schlauchverlegelänge. Die TRVB berücksichtigt zusätzlich unter anderem die tatsächlich über die Mindestlieferdauer verfügbare Versorgung und die mögliche **gegenseitige hydraulische Beeinflussung** mehrerer Hydranten (Abschnitte 4.1/4.2). Die Addierbarkeit darf nicht einfach unterstellt werden.
+
+**Wichtig:** `auto_assignment_enabled=false`, sämtliche `conditions_complete=false`, `operational_interpretation_enabled=false`. Die Struktur modelliert belegte Tabellenfälle, jedoch **keine verbindliche Anwendung auf die Bestandsgebäude**. Überlappende Fallformulierungen (insbesondere GK3/GK4 und GK5), planungsrechtliche Gebietszuordnung, spezielle Nutzungen nach Abschnitt 5 und Objektschutz nach Abschnitt 6 benötigen fachlich bestätigte Entscheidungslogik. Über 22 m Fluchtniveau sind zusätzliche OIB-Regeln gesondert zu prüfen. Bestehende Siedlungsgebiete liegen grundsätzlich außerhalb des hauptsächlichen Anwendungsziels der TRVB (Abschnitt 2); eine heutige Nachrüstpflicht wird nicht automatisch unterstellt.
+
+Die formalen Prüfungen wurden erweitert:
+
+```powershell
+git pull --ff-only origin main
+python scripts\validate_firewater_rulebook.py
+```
+
+Erwartet werden **fünf GK-Klassen, acht Varianten und sechs Grundschutz-Zeilen** sowie die Kontrolle, dass die gestaffelten l/min die Gesamtrate ergeben. Ein erfolgreicher Validatorlauf ersetzt weiterhin weder die fachliche Freigabe noch AP 2.
