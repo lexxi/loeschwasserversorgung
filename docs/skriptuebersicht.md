@@ -66,6 +66,21 @@ python scripts\generate_report_index.py --open
 
 ## C. GK-Regelwerk und Gebäudeeigenschaften – aktueller Entwicklungszweig
 
+### GK-Datenvollständigkeit: OSM-, BEV- und ALS-Indizien zusammenführen
+
+Das neue Skript [`analyze_gk_data_completeness.py`](../scripts/analyze_gk_data_completeness.py) liest die bereits lokal erzeugten CSV-Dateien und erstellt **noch keine Gebäudeklassen**. Für jedes Gebäude listet es vorhandene OSM-Indizien, BEV-Adresskandidaten und ALS-Objekthöhen sowie die erforderlichen, aber **nicht verifiziert vorhandenen** OIB-Merkmale. Dies ist bewusst eine **Nachweislückenanalyse**, keine Prozentzahl „bereits klassifizierbarer“ Gebäude.
+
+```powershell
+python scripts\\inventory_gk_building_attributes.py --gemeinde 20619 --expected-count 1686
+python scripts\\analyze_gk_data_completeness.py --gemeinde 20619 --expected-count 1686
+```
+
+**Optional vorab:** Für den BEV-Teil muss `reports/20619/addresses/gebaeude_adressen.csv` vorhanden sein (aus `join_bev_building_points_osm.py`); für den ALS-Teil `reports/20619/gk_inventory/gebaeude_als_hoehen.csv` (aus der bestehenden ALS-Analyse). Fehlende optionale Quellen werden als „nicht geladen“ gekennzeichnet. Bestehende Quelldateien werden nicht überschrieben.
+
+**Ergebnisse (nur lokal):** `reports/20619/gk_inventory/gk_datenvollstaendigkeit.csv` und `gk_datenvollstaendigkeit_summary.json`. Die Ausgabe behandelt geometrische BEV-Matches ausdrücklich nur als Kandidaten. Aus den vorhandenen GIS-Quellen wird kein rechtlich bestätigtes Fluchtniveau, keine gesamte BGF und keine GK abgeleitet. Die acht Prüffelder bilden die Datenerhebung ab; nicht jede GK-Variante verlangt dieselben Merkmale.
+
+
+
 | Skript | Was und warum? | Eingaben | Erzeugte Daten |
 | --- | --- | --- | --- |
 | [`validate_firewater_rulebook.py`](../scripts/validate_firewater_rulebook.py) | Kontrolliert **formal** den versionierten GK-/TRVB-Regelwerksentwurf: Definitionseinträge, Teilraten, Quellen, Volumenrechnung und Sperren für ungeprüfte automatische Einstufungen. | `config/firewater_rulebook.json` | Konsolenausgabe, **keine Ausgabedatei**, keine fachliche Freigabe |
