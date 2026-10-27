@@ -212,6 +212,6 @@ Der eigene Quellcode und die selbst erstellte Projektdokumentation stehen unter 
 
 ## Datenfluss
 
-![Datenfluss Löschwasserversorgung](docs/datenfluss-loeschwasserversorgung.svg)
+![Datenfluss Löschwasserversorgung](docs/datenfluss_löschwasserversorgung_in_kärnten.png)
 
-Die [bearbeitbare SVG-Datenflussgrafik](docs/datenfluss-loeschwasserversorgung.svg) zeigt Datenquellen, Importskripte, Zwischenstände und Berichte ohne die archivierten OSM-Wasserquellen.
+Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kärnten.png) zeigt Datenquellen, Importskripte, Zwischenstände und Berichte ohne die archivierten OSM-Wasserquellen. Eine [zusätzliche bearbeitbare SVG-Version](docs/datenfluss-loeschwasserversorgung.svg) ist ebenfalls verfügbar.
