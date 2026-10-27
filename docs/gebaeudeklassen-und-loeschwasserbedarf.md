@@ -109,3 +109,20 @@ Die Daten bleiben lokal, insbesondere alle Details aus der Kärntner Objektdaten
 - **AP 1:** Jede Regel hat eine überprüfbare Quellenfundstelle und explizite Bedingungen; ein Testfall kann **nicht** allein aufgrund eines OSM-Tags einen Löschwasserbedarf erhalten.
 - **AP 2:** Alle Gebäude bleiben im Bestand und besitzen eine explizite GK-Kennzeichnung (inkl. unbekannt); echte und höchste zulässige GK werden nicht verwechselt.
 - **Versorgungsbewertung:** Erst mit nachvollziehbarer Erreichbarkeit und belastbaren Leistungsdaten – **kein** automatischer Rechtsnachweis durch Kartenfarbe, Distanzklasse oder Nähe zur ODB-Quelle.
+
+## AP 1 – Maschinenlesbares Regelwerk, Version 0.1.0 (27.10.2026)
+
+Der erste strukturierte Entwurf liegt unter [`config/firewater_rulebook.json`](../config/firewater_rulebook.json). Er ist bewusst als `draft_review_required` markiert und setzt `auto_assignment_enabled=false`.
+
+Enthalten sind fünf GK-Definitionseinträge mit OIB-Verweisen und explizit unvollständigen Entscheidungsbedingungen; sechs **Grundschutz-Richtwert-Niveaus** aus TRVB 137 F/21, Tabelle 1, mit l/min, Dauer und daraus berechnetem Mindestvorrat; Quellen-/Fassungsangaben, die Distanzbereiche 125/250/500 m und die noch offenen Teilraten- und Zugangsbedingungen sowie Schutzregeln gegen automatisches Erraten von GK und Bedarfsstufen.
+
+**Keine automatisierte Regelanwendung:** Weder tatsächliche GK noch höchste planungsrechtlich zulässige GK eines konkreten Gebäudes lassen sich damit bereits bestimmen. Die verkürzten Bedarfskategorien sind **keine vollständige Codierung** der TRVB-Tabelle; `conditions_complete=false` ist für jede Zeile gesetzt. Objektschutz und Spezialnutzungen sind explizit `not_encoded`. Die Luftliniendistanzen der bestehenden Karte bleiben getrennt von den Entfernungsanforderungen der TRVB.
+
+Mit folgendem Befehl wird **nur die formale Konsistenz** (IDs, Quellenverweise, l/min × Minuten = m³, Sicherheitsmerkmale) geprüft:
+
+```powershell
+git pull --ff-only origin main
+python scripts\validate_firewater_rulebook.py
+```
+
+Der Validator verwendet nur die Python-Standardbibliothek, benötigt keine Gemeinde-/ODB-Daten und gibt **keine fachliche Freigabe**. Die nächste Arbeit in AP 1 ist die vollständige und fachlich überprüfte Übernahme aller Entscheidungsbedingungen der OIB-GK-Varianten und der TRVB-Tabelle einschließlich Teilraten und Anwendungsbereich; erst danach wird eine separate Einstufungslogik geplant. Die 1.686 Gebäude bleiben bis AP 2 unverändert.
