@@ -332,8 +332,7 @@ update();setV();window.addEventListener('resize',resizeMarkers);
             .replace("__SOURCES__", str(len(markers)))
             .replace("__TOGGLES__", toggles)
             .replace("__ROADCOUNT__", str(len(road_drawings)))
-            .replace("__ROADS__", "
-".join(road_drawings))
+            .replace("__ROADS__", "\n".join(road_drawings))
             .replace("__OUTLINE__", polygon_path(border, project))
             .replace("__BUILDINGS__", "\n".join(drawings))
             .replace("__MARKERS__", "\n".join(markers)))
