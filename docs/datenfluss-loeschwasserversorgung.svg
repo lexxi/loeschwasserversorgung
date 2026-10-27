@@ -1,124 +1,116 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950" role="img" aria-labelledby="title description">
-<title id="title">Datenfluss der Löschwasserversorgung</title>
-<desc id="description">Amtliche Geodaten, Kärntner Objektdatenbank und OSM-Gebäude werden über Importskripte zu lokalen Daten und Berichten verarbeitet. Keine OSM-Wasserquellen.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1140" viewBox="0 0 1600 1140" role="img" aria-labelledby="title description">
+<title id="title">Datenfluss Löschwasserversorgung – aktuelle GIS-Pipeline mit BEV-Adresszuordnung</title>
+<desc id="description">Datenquellen Statistik Austria, KAGIS, OSM, BEV Adressregister, BEV ALS und Kärntner ODB werden lokal importiert und analysiert. Geometrische BEV-OSM-Fälle gehen als Rückfrageliste an die Gemeinde; Glossar und Berichtsindex führen die Offline-Berichte zusammen. Kein rechtlicher Löschwassernachweis.</desc>
 <style>
 text{font-family:Arial,Helvetica,sans-serif;fill:#243349}
-.h{font-size:30px;font-weight:700}.sub{font-size:17px;fill:#64748b}
-.head{font-size:19px;font-weight:700;fill:white}
-.name{font-size:16px;font-weight:700}
-.info{font-size:13px;fill:#43546b}
-.path{font-family:Consolas,monospace;font-size:12px;fill:#30445b}
-.arrow{fill:none;stroke:#2e6aab;stroke-width:3;stroke-linejoin:round}
-.source{fill:#e6f2ff;stroke:#3d8ad0;stroke-width:2}
-.process{fill:#e7f6e6;stroke:#40a367;stroke-width:2}
-.file{fill:#edf1f7;stroke:#8293a7;stroke-width:2}
-.analysis{fill:#fff0df;stroke:#ef983e;stroke-width:2}
+.title{font-size:29px;font-weight:700}.subtitle{font-size:16px;fill:#617185}
+.head{font-size:18px;fill:#fff;font-weight:700}
+.name{font-size:17px;font-weight:700}.detail{font-size:14px;fill:#43546b}
+.small{font-size:13px;fill:#476177}.mono{font-family:Consolas,monospace;font-size:13px;fill:#243d57}
+.src{fill:#e7f2ff;stroke:#3e85be;stroke-width:2}
+.proc{fill:#e9f6e9;stroke:#419565;stroke-width:2}
+.dat{fill:#f0f3f8;stroke:#8499ae;stroke-width:2}
+.out{fill:#fff2e5;stroke:#d88b3e;stroke-width:2}
+.line{fill:none;stroke:#68819b;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.flag{fill:#fff5e4;stroke:#daa44d;stroke-width:1.5}
 </style>
-<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#2e6aab"/></marker>
-<!-- Self-contained vector symbols: no fonts or external image URLs -->
-<symbol id="symbol-austria" viewBox="0 0 64 48">
-  <path d="M6 22 13 17 18 20 23 11 29 14 34 8 41 14 47 10 52 17 59 18 55 26 61 30 51 35 45 33 38 40 31 37 26 42 18 36 12 37 9 29 3 27Z"
-        fill="#fff" stroke="#326caa" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M12 24 55 24 M14 30 48 30" stroke="#df5151" stroke-width="3" opacity=".8"/>
-</symbol>
-<symbol id="symbol-map" viewBox="0 0 48 48">
-  <path d="M5 9 17 5 31 10 43 5V38L31 43 17 38 5 43Z" fill="#b6d6ef" stroke="#326caa" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M17 5V38M31 10V43" stroke="#326caa" stroke-width="2.5" fill="none"/>
-</symbol>
-<symbol id="symbol-water" viewBox="0 0 48 48">
-  <path d="M24 4C20 13 10 22 10 30a14 14 0 0 0 28 0C38 22 28 13 24 4Z" fill="#79badb" stroke="#2876a6" stroke-width="2.5"/>
-  <path d="M16 31c1 6 5 9 10 9" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
-</symbol>
-<symbol id="symbol-house" viewBox="0 0 48 48">
-  <path d="M5 23 24 7 43 23" stroke="#2c658f" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M10 21V42H38V21" fill="#a8d0ec" stroke="#2c658f" stroke-width="2.5"/>
-  <rect x="20" y="29" width="8" height="13" rx="1" fill="white" stroke="#2c658f" stroke-width="2"/>
-</symbol>
-<symbol id="symbol-gear" viewBox="0 0 48 48">
-  <path d="M21 3H27L29 9 34 11 40 8 44 13 41 19 43 22 46 25 44 31 38 31 35 36 37 42 32 45 27 41 21 45 16 42 17 36 12 32 5 32 3 26 8 22 8 18 4 14 8 9 14 11 19 9Z"
-        fill="#62b881" stroke="#2f7551" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="24" cy="24" r="9" fill="white" stroke="#2f7551" stroke-width="3"/>
-</symbol>
-<symbol id="symbol-file" viewBox="0 0 48 48">
-  <path d="M10 3H29L40 14V45H10Z" fill="#f8fafc" stroke="#697d94" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M29 3V14H40M16 23H34M16 30H34M16 37H30" fill="none" stroke="#697d94" stroke-width="2.2" stroke-linecap="round"/>
-</symbol>
-<symbol id="symbol-chart" viewBox="0 0 48 48">
-  <rect x="3" y="5" width="42" height="38" rx="6" fill="#fff8ef" stroke="#db8b31" stroke-width="2.5"/>
-  <path d="M12 35V25M24 35V14M36 35V20" fill="none" stroke="#dd903b" stroke-width="5" stroke-linecap="round"/>
-</symbol>
-</defs>
-<rect width="1600" height="950" fill="#fff"/>
-<text x="800" y="52" text-anchor="middle" class="h">Datenfluss / Verarbeitungsübersicht – Löschwasserversorgung</text>
-<text x="800" y="81" text-anchor="middle" class="sub">Gemeindeanalyse aus amtlichen Geodaten, Kärntner Objektdatenbank und OSM-Gebäuden</text>
-<rect x="28" y="115" width="272" height="45" rx="9" fill="#367fc2"/><text x="164" y="144" text-anchor="middle" class="head">Datenquellen</text>
-<rect x="323" y="115" width="340" height="45" rx="9" fill="#318c5c"/><text x="493" y="144" text-anchor="middle" class="head">Import / Aufbereitung</text>
-<rect x="684" y="115" width="392" height="45" rx="9" fill="#63748a"/><text x="880" y="144" text-anchor="middle" class="head">Zwischenergebnisse</text>
-<rect x="1101" y="115" width="474" height="45" rx="9" fill="#ed8a37"/><text x="1338" y="144" text-anchor="middle" class="head">Analysen / Berichte</text>
-
-<!-- source nodes -->
-<rect class="source" x="28" y="190" width="272" height="94" rx="10"/><text class="name" x="45" y="220">Statistik Austria</text><text class="info" x="45" y="247">Gemeindegrenzen</text><use href="#symbol-austria" x="244" y="232" width="43" height="33"/>
-<rect class="source" x="28" y="305" width="272" height="94" rx="10"/><text class="name" x="45" y="335">KAGIS</text><text class="info" x="45" y="362">Flächenwidmung / Bauland</text><use href="#symbol-map" x="251" y="358" width="30" height="30"/>
-<rect class="source" x="28" y="448" width="272" height="116" rx="10"/><text class="name" x="45" y="479">Kärntner Objektdatenbank</text><text class="info" x="45" y="509">GeoJSON, Kategorie 1724</text><text class="info" x="45" y="532">Wasserentnahmestellen</text><use href="#symbol-water" x="250" y="522" width="28" height="30"/>
-<rect class="source" x="28" y="648" width="272" height="95" rx="10"/><text class="name" x="45" y="680">OpenStreetMap</text><text class="info" x="45" y="711">Gebäudegrundflächen</text><use href="#symbol-house" x="244" y="698" width="37" height="37"/>
-
-<!-- imports -->
-<rect class="process" x="323" y="229" width="340" height="136" rx="10"/>
-<text class="name" x="342" y="255">scripts/import_geodata.py</text>
-<text class="info" x="342" y="286">• Gemeindegrenzen importieren</text><text class="info" x="342" y="311">• Widmung importieren</text><text class="info" x="342" y="336">• Bauland ableiten</text><use href="#symbol-gear" x="620" y="322" width="30" height="30"/>
-<rect class="process" x="323" y="448" width="340" height="116" rx="10"/>
-<text class="name" x="342" y="477">scripts/import_odb_water_sources.py</text>
-<text class="info" x="342" y="508">• Lokalen GeoJSON-Export lesen</text><text class="info" x="342" y="535">• An Gemeindegrenze filtern</text><use href="#symbol-gear" x="619" y="528" width="30" height="30"/>
-<rect class="process" x="323" y="630" width="340" height="128" rx="10"/>
-<text class="name" x="342" y="658">scripts/import_osm.py</text>
-<text class="info" x="342" y="681">oder</text><text class="name" x="342" y="703">scripts/import_osm_buildings_pbf.py</text>
-<text class="info" x="342" y="731">Gebäude aus Overpass / lokalem PBF</text><use href="#symbol-gear" x="619" y="735" width="28" height="28"/>
-
-<!-- intermediate files -->
-<rect class="file" x="684" y="229" width="392" height="136" rx="10"/>
-<text class="name" x="701" y="254">data/processed/&lt;GKZ&gt;/</text>
-<text class="path" x="701" y="281">boundary.geojson</text><text class="path" x="701" y="305">zoning.geojson · bauland.geojson</text>
-<text class="path" x="701" y="329">import_manifest.json</text><use href="#symbol-file" x="1035" y="320" width="29" height="29"/>
-<rect class="file" x="684" y="448" width="392" height="116" rx="10"/>
-<text class="name" x="701" y="475">data/processed/&lt;GKZ&gt;/odb_water_sources/</text>
-<text class="path" x="701" y="502">odb_water_sources.geojson / .csv</text>
-<text class="path" x="701" y="531">odb_water_sources_manifest.json</text><use href="#symbol-file" x="1035" y="523" width="29" height="29"/>
-<rect class="file" x="684" y="630" width="392" height="128" rx="10"/>
-<text class="name" x="701" y="660">data/processed/&lt;GKZ&gt;/osm/</text>
-<text class="path" x="701" y="690">buildings.geojson</text><text class="path" x="701" y="714">osm_manifest.json</text><use href="#symbol-file" x="1035" y="705" width="29" height="29"/>
-
-<!-- analysis boxes and outputs -->
-<rect class="analysis" x="1101" y="196" width="474" height="96" rx="10"/>
-<text class="name" x="1118" y="227">scripts/show_odb_water_sources.py</text><text class="path" x="1118" y="254">reports/&lt;GKZ&gt;/odb_wasserentnahmestellen.html</text><text class="info" x="1118" y="275">Interaktive Offline-Karte</text><use href="#symbol-chart" x="1539" y="253" width="26" height="27"/>
-<rect class="analysis" x="1101" y="378" width="474" height="97" rx="10"/>
-<text class="name" x="1118" y="409">scripts/analyze_odb_water_sources.py</text><text class="path" x="1118" y="437">reports/&lt;GKZ&gt;/odb_bestandsanalyse.*</text>
-<text class="info" x="1118" y="458">Bestandsanalyse (Markdown, CSV, JSON)</text><use href="#symbol-chart" x="1539" y="435" width="26" height="27"/>
-<rect class="analysis" x="1101" y="600" width="474" height="100" rx="10"/>
-<text class="name" x="1118" y="632">scripts/analyze_buildings_odb_distance.py</text>
-<text class="path" x="1118" y="658">reports/&lt;GKZ&gt;/gebaeude_odb_abstaende.*</text>
-<text class="info" x="1118" y="682">Abstände aller erfassten Gebäude zur ODB</text><use href="#symbol-chart" x="1539" y="660" width="26" height="27"/>
-
-<!-- connections -->
-<path class="arrow" marker-end="url(#arr)" d="M300 238H309V273H323"/>
-<path class="arrow" marker-end="url(#arr)" d="M300 352H308V324H323"/>
-<path class="arrow" marker-end="url(#arr)" d="M300 506H323"/>
-<path class="arrow" marker-end="url(#arr)" d="M300 695H323"/>
-<path class="arrow" marker-end="url(#arr)" d="M663 297H684"/>
-<path class="arrow" marker-end="url(#arr)" d="M663 506H684"/>
-<path class="arrow" marker-end="url(#arr)" d="M663 694H684"/>
-<path class="arrow" marker-end="url(#arr)" d="M1076 297H1087V246H1101"/>
-<path class="arrow" marker-end="url(#arr)" d="M1076 506H1083V427H1101"/>
-<path class="arrow" marker-end="url(#arr)" d="M1076 506H1085V280H1101"/>
-<path class="arrow" marker-end="url(#arr)" d="M1076 506H1081V650H1101"/>
-<path class="arrow" marker-end="url(#arr)" d="M1076 694H1088V669H1101"/>
-
-<rect x="28" y="796" width="755" height="92" rx="12" fill="#e6f5e8" stroke="#9bd1a4"/>
-<text x="48" y="825" class="name">Fachliche Projektentscheidung</text>
-<text x="48" y="849" class="info">Nur ODB-Wasserentnahmestellen als Löschwasserquellen.</text>
-<text x="48" y="871" class="info">Die Archivdaten aus OSM sind nicht Teil dieses Datenflusses.</text>
-<rect x="800" y="796" width="775" height="92" rx="12" fill="#edf2f8" stroke="#bdc8d8"/>
-<text x="820" y="825" class="name">Geltungsbereich</text>
-<text x="820" y="849" class="info">Alle erfassten Gebäude – unabhängig von Widmung und Gebäudetyp.</text>
-<text x="820" y="871" class="info">Luftlinienabstände sind kein Leistungs- oder Versorgungsnachweis.</text>
-<text x="800" y="922" text-anchor="middle" class="sub">Legende: Blau = Datenquelle · Grün = Verarbeitung · Grau = lokale Daten · Orange = Analyse / Bericht</text>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#68819b"/></marker></defs>
+<rect width="1600" height="1140" fill="#fff"/>
+<text x="800" y="43" text-anchor="middle" class="title">Datenfluss / Verarbeitungsübersicht – Löschwasserversorgung</text>
+<text x="800" y="72" text-anchor="middle" class="subtitle">Bestandsaufnahme · BEV-/OSM-Adressprüfung · ALS-Höhen · ODB-Wasserquellen · lokale Berichte</text>
+<text x="800" y="95" text-anchor="middle" class="subtitle">Stand: 27.10.2026 · Beispielgemeinde Malta (GKZ 20619) · Datenstände und Prüffälle bleiben nachvollziehbar</text>
+<rect x="24" y="119" width="282" height="45" rx="8" fill="#397fbb"/><text x="165" y="148" class="head" text-anchor="middle">Datenquellen</text>
+<rect x="333" y="119" width="379" height="45" rx="8" fill="#348b59"/><text x="522.5" y="148" class="head" text-anchor="middle">Import / Aufbereitung</text>
+<rect x="739" y="119" width="377" height="45" rx="8" fill="#687d91"/><text x="927.5" y="148" class="head" text-anchor="middle">Lokale Datensätze</text>
+<rect x="1143" y="119" width="430" height="45" rx="8" fill="#d98635"/><text x="1358" y="148" class="head" text-anchor="middle">Analyse / Bericht</text>
+<rect class="src" x="24" y="183" width="282" height="133" rx="10"/>
+<text x="39" y="223" class="name">Statistik Austria / KAGIS</text>
+<text x="39" y="252" class="detail">Gemeindegrenze, Widmung, Bauland</text>
+<path class="line" marker-end="url(#arrow)" d="M306 249.5 H326"/>
+<rect class="proc" x="333" y="183" width="379" height="133" rx="10"/>
+<text x="348" y="223" class="name">import_geodata.py</text>
+<text x="348" y="252" class="detail">Amtlichen Gemeindebezug herstellen</text>
+<path class="line" marker-end="url(#arrow)" d="M712 249.5 H732"/>
+<rect class="dat" x="739" y="183" width="377" height="133" rx="10"/>
+<text x="754" y="223" class="mono">data/processed/&lt;GKZ&gt;/</text>
+<text x="754" y="252" class="mono">boundary / zoning / bauland.geojson</text>
+<path class="line" marker-end="url(#arrow)" d="M1116 249.5 H1136"/>
+<rect class="out" x="1143" y="183" width="430" height="133" rx="10"/>
+<text x="1158" y="223" class="name">Widmungs- und Bestandsanalyse</text>
+<text x="1158" y="252" class="detail">GIS-Lagebezug / Grenzfälle</text>
+<rect class="src" x="24" y="344" width="282" height="133" rx="10"/>
+<text x="39" y="384" class="name">OpenStreetMap (OSM)</text>
+<text x="39" y="413" class="detail">Gebäude und Straßen / Wege</text>
+<path class="line" marker-end="url(#arrow)" d="M306 410.5 H326"/>
+<rect class="proc" x="333" y="344" width="379" height="133" rx="10"/>
+<text x="348" y="384" class="name">import_osm_buildings_pbf.py</text>
+<text x="348" y="413" class="detail">import_osm_roads_pbf.py</text>
+<path class="line" marker-end="url(#arrow)" d="M712 410.5 H732"/>
+<rect class="dat" x="739" y="344" width="377" height="133" rx="10"/>
+<text x="754" y="384" class="mono">osm/buildings.geojson</text>
+<text x="754" y="413" class="mono">osm/roads.geojson</text>
+<path class="line" marker-end="url(#arrow)" d="M1116 410.5 H1136"/>
+<rect class="out" x="1143" y="344" width="430" height="133" rx="10"/>
+<text x="1158" y="384" class="name">Gebäudehöhen- und ODB-Abstandskarte</text>
+<text x="1158" y="413" class="detail">Offline-Straßen als Orientierung</text>
+<rect class="src" x="24" y="505" width="282" height="133" rx="10"/>
+<text x="39" y="545" class="name">BEV – Adressregister INSPIRE</text>
+<text x="39" y="574" class="detail">Stichtag 01.10.2026 · GPKG</text>
+<path class="line" marker-end="url(#arrow)" d="M306 571.5 H326"/>
+<rect class="proc" x="333" y="505" width="379" height="133" rx="10"/>
+<text x="348" y="545" class="name">inspect / probe / export_bev_*</text>
+<text x="348" y="574" class="detail">join_bev_building_points_osm.py</text>
+<path class="line" marker-end="url(#arrow)" d="M712 571.5 H732"/>
+<rect class="dat" x="739" y="505" width="377" height="133" rx="10"/>
+<text x="754" y="545" class="mono">bev_addresses/</text>
+<text x="754" y="574" class="mono">Adress- und Gebäudepunkte getrennt</text>
+<path class="line" marker-end="url(#arrow)" d="M1116 571.5 H1136"/>
+<rect class="out" x="1143" y="505" width="430" height="133" rx="10"/>
+<text x="1158" y="545" class="name">Geometrische Adresszuordnung</text>
+<text x="1158" y="574" class="detail">747 innen · 16 Toleranz · 25 offen</text>
+<rect class="src" x="24" y="666" width="282" height="133" rx="10"/>
+<text x="39" y="706" class="name">BEV – ALS DOM / DGM</text>
+<text x="39" y="735" class="detail">Laserscandaten, Höhenmodelle</text>
+<path class="line" marker-end="url(#arrow)" d="M306 732.5 H326"/>
+<rect class="proc" x="333" y="666" width="379" height="133" rx="10"/>
+<text x="348" y="706" class="name">process_bev_als_municipality.py</text>
+<text x="348" y="735" class="detail">review_building_als_heights.py</text>
+<path class="line" marker-end="url(#arrow)" d="M712 732.5 H732"/>
+<rect class="dat" x="739" y="666" width="377" height="133" rx="10"/>
+<text x="754" y="706" class="mono">gk_inventory/ Höheninventur</text>
+<text x="754" y="735" class="mono">1634 von 1686 Höhen geschätzt</text>
+<path class="line" marker-end="url(#arrow)" d="M1116 732.5 H1136"/>
+<rect class="out" x="1143" y="666" width="430" height="133" rx="10"/>
+<text x="1158" y="706" class="name">Gebäudehöhenkarte + Merkmals-CSV</text>
+<text x="1158" y="735" class="detail">Keine automatische OIB-GK</text>
+<rect class="src" x="24" y="827" width="282" height="133" rx="10"/>
+<text x="39" y="867" class="name">Kärntner Objektdatenbank</text>
+<text x="39" y="896" class="detail">Autorisierter lokaler ODB-Export</text>
+<path class="line" marker-end="url(#arrow)" d="M306 893.5 H326"/>
+<rect class="proc" x="333" y="827" width="379" height="133" rx="10"/>
+<text x="348" y="867" class="name">import_odb_water_sources.py</text>
+<text x="348" y="896" class="detail">Lokale ODB-Punkte / Status</text>
+<path class="line" marker-end="url(#arrow)" d="M712 893.5 H732"/>
+<rect class="dat" x="739" y="827" width="377" height="133" rx="10"/>
+<text x="754" y="867" class="mono">odb_water_sources/</text>
+<text x="754" y="896" class="mono">Wasserentnahmestellen.geojson</text>
+<path class="line" marker-end="url(#arrow)" d="M1116 893.5 H1136"/>
+<rect class="out" x="1143" y="827" width="430" height="133" rx="10"/>
+<text x="1158" y="867" class="name">ODB-Bestandskarte und Luftlinien</text>
+<text x="1158" y="896" class="detail">Keine hydraulische Prüfung</text>
+<path class="line" stroke-dasharray="5 5" marker-end="url(#arrow)" d="M927 477 V488 H1308 V505"/>
+<text x="949" y="492" class="small">Gebäudegrundrisse für BEV-Abgleich</text>
+<path class="line" stroke-dasharray="5 5" marker-end="url(#arrow)" d="M1116 732 H1128 V908 H1143"/>
+<text x="1139" y="792" text-anchor="end" class="small">Höhen / Merkmale</text>
+<rect x="24" y="982" width="748" height="114" rx="12" class="flag"/>
+<text x="43" y="1012" class="name">Fachliche Rückfrage statt geschätzter Korrektur</text>
+<text x="43" y="1038" class="detail">13 near_review + 12 unmatched → CSV für Gemeinde/Fachstelle</text>
+<text x="43" y="1060" class="detail">16 boundary_tolerance (2 m): separat und vorläufig dokumentiert</text>
+<text x="43" y="1083" class="small">scripts/export_bev_osm_municipality_questions.py · keine automatische Übermittlung</text>
+<rect x="795" y="982" width="778" height="114" rx="12" class="dat"/>
+<text x="813" y="1012" class="name">Berichtszentrale und Glossar</text>
+<text x="813" y="1038" class="detail">scripts/generate_report_index.py → reports/index.html</text>
+<text x="813" y="1060" class="detail">reports/&lt;GKZ&gt;/index.html · reports/glossar.html</text>
+<text x="813" y="1083" class="small">Offline nutzbar; private ODB-/Adressdaten nicht öffentlich bereitstellen</text>
+<text x="800" y="1125" text-anchor="middle" class="subtitle">Nur ODB als Löschwasserquellenbasis · OSM-Wasserquellen ausgeschlossen · Luftlinien sind kein Versorgungsnachweis</text>
 </svg>
