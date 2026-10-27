@@ -320,7 +320,7 @@ Beim ersten `python scripts\archive_reference_documents.py --download` lieferte 
 
 **Lösung:** Im Quellenkatalog sind für die OIB-Begriffsbestimmungen und die OIB-Richtlinie 2 (jeweils **Ausgabe Mai 2023**) zusätzliche PDF-Kopien vom **Land Tirol** hinterlegt. Die Dokumentversion bleibt unverändert. Der Downloader versucht die URLs der Reihe nach, validiert die PDF-Signatur und protokolliert den tatsächlich verwendeten Download-Link im SHA-256-Archivmanifest. Ein weiterhin fehlendes Dokument wird als **[WARN]/[FEHLER]** gelistet, die übrigen Quellen werden trotzdem verarbeitet.
 
-Geprüfte Herkunft: [Land Tirol – OIB-Richtlinien 1–6 Ausgabe Mai 2023](https://www.tirol.gv.at/bauen-wohnen/zentrale-baudienste/baupolizei/oib-richtlinien-1-6-ausgabe-mai-2023/). Für die Erläuterungen zur Richtlinie 2 wurde noch kein zusätzlicher funktionierender Direktlink unabhängig bestätigt; bei weiterem 404 kann diese PDF von der verlinkten offiziellen Downloadseite geladen und lokal importiert werden:
+Geprüfte Herkunft: [Land Tirol – OIB-Richtlinien 1–6 Ausgabe Mai 2023](https://www.tirol.gv.at/bauen-wohnen/zentrale-baudienste/baupolizei/oib-richtlinien-1-6-ausgabe-mai-2023/). Auch die **Erläuternden Bemerkungen zu OIB-Richtlinie 2 (Mai 2023)** sind inzwischen über den offiziellen Link des Landes Tirol als PDF verfügbar (ca. 16,9 MB). Der bestätigte Link wurde am 27.10.2026 ergänzt. Für einen erneuten Downloadversuch:
 
 ```powershell
 git pull --ff-only origin main
@@ -329,7 +329,7 @@ python scripts\archive_reference_documents.py --status
 python scripts\generate_report_index.py --gemeinde 20619 --open
 ```
 
-Falls die Erläuterungen auf der OIB-/Tirol-Webseite manuell heruntergeladen wurden:
+Falls die Erläuterungen stattdessen manuell von der OIB-/Tirol-Webseite heruntergeladen wurden:
 
 ```powershell
 python scripts\archive_reference_documents.py --import-file "C:\Pfad\zu\Erlaeuterungen.pdf" --id oib_fire_explanations_2023
