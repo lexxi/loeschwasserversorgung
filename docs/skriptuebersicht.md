@@ -150,3 +150,24 @@ Get-ExecutionPolicy -List
 **Nicht erforderlich und nicht empfohlen:** Die Richtlinie nur wegen der Python-venv-Aktivierung dauerhaft für `LocalMachine` oder `CurrentUser` mit `Unrestricted` oder `Bypass` lockern. Keine Administratorrechte nötig.
 
 Weitere Infos: [Microsoft: about_Execution_Policies](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies).
+
+## Fehlerbehebung: BEV-ALS „Ausschnitt nicht am Pixelgitter ausgerichtet“
+
+**Beobachteter Fehler beim BEV-Pilot am 27.10.2026:**
+
+```text
+[INFO] DSM Ausschnitt per HTTPS-Range: https://data.bev.gv.at/download/ALS/DSM/20250915/ALS_DSM_CRS3035RES50000mN2650000E4550000.tif
+ValueError: DSM: Ausschnitt nicht am Pixelgitter ausgerichtet
+```
+
+**Ursache:** Version 1 von `download_bev_als_subset.py` berechnete den Ausschnitt aus ganzzahligen EPSG:3035-Meterkoordinaten und nahm fälschlich an, diese seien automatisch **Pixelgrenzen im Original-GeoTIFF**. Das Raster besitzt aber einen eigenen GeoTIFF-Transformationsursprung. Das Programm konnte die BEV-Datei bereits öffnen; es stoppte bei seiner lokalen Rastergitterprüfung, **vor dem Schreiben des DSM-Ausschnitts**.
+
+**Korrektur:** Seit Commit `a693ccd` wird der angefragte Ausschnitt nach außen an die **tatsächlichen Rasterpixel des DSM** angepasst. Das DTM muss dieselben Pixelgrenzen, den gleichen Rastertransform und dieselben Dimensionen besitzen. Falls nicht, stoppt das Skript **ohne stillschweigendes Resampling**, um verfälschte Höhenunterschiede zu vermeiden.
+
+```powershell
+git pull --ff-only origin main
+python scripts\download_bev_als_subset.py --gemeinde 20619 --stichtag 20250915
+```
+
+**Falls ein früherer Lauf bereits eine lokale TIFF-Datei erzeugt hat:** Das Skript überschreibt sie bewusst nicht. Vor einem erneuten Versuch die vorhandene Datei/deren Herkunft prüfen; nur bekannte, unvollständige Pilotdateien gezielt entfernen. Bei erneutem Fehler die Ausgabe mit **Rasterursprung, Dimensionen und der konkreten DSM-/DTM-Fehlermeldung** dokumentieren. Ein korrektes DSM-/DTM-Gitter ist Voraussetzung für `analyze_buildings_als_height.py`.
+
