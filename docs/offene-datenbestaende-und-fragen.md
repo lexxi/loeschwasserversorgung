@@ -119,3 +119,34 @@ Die lokale Probe ergab:
 **Folgerung:** Die früher genannte Bestandskennzahl **758** ist nicht mit dem nun abgefragten BEV-Datenstand gleichzusetzen. Derzeit sind **824 verschiedene Adresscodes**, aber noch **nicht 824 Gebäude** oder zwingend **824 unterschiedliche postalische Hausnummern** nachgewiesen.
 
 **Nächster Prüfbefehl:** `python scripts\probe_bev_address_municipality.py --gemeinde 20619 --check-building-links`. Er liefert zusätzlich vorhandene `AD_BuildingGeometry`-Zeilen, die Anzahl verknüpfter Adresscodes und Gebäudesubcodes sowie Beispielwerte. Keine automatische Verknüpfung mit OSM-Gebäuden vor Prüfung der Geometrien und Datenmodell-Semantik.
+
+### BEV-Gebäudebeziehungen geprüft und Gemeindeexport vorbereitet (27.10.2026)
+
+Die zweite Probe der **BEV INSPIRE Adressen, Datenstand 01.10.2026**, bestätigte für Malta (GKZ `20619`):
+
+| Kennzahl | Ergebnis | Interpretation |
+| --- | ---: | --- |
+| Amtliche Matching-Zeilen | **824** | Exakt `AT.BEV.AD.GKZ.20619` |
+| Unterschiedliche Adresscodes `localId_ADRCD` | **824** | Keine leeren oder doppelten Adresscodes in der Auswahl |
+| BEV-`AD_BuildingGeometry`-Zeilen | **788** | Gebäude-**Referenzpunkte**, keine OSM-Gebäudepolygone |
+| Mit BEV-Gebäudezeilen verknüpfte Adresscodes | **779** | 45 der 824 Adresscodes ohne zugehörige Gebäudezeile |
+| Unterschiedliche Gebäude-Subcodes | **788** | `localId_ADRCD_SUBCD`, z. B. `6106447.001` |
+| Zusätzliche Gebäudezeilen relativ zu 1 je Adresse | **9** | Verteilung auf tatsächlich mehrfach zugeordnete Adressen noch nicht ausgewiesen |
+
+Die Beispieldaten enthalten u. a. `buildingIdentifier = Osnabrückerhütte`, `Kattowitzerhütte`, `Gmünder Hütte` und `buildingNumber` wie `0163792`. Die Spalte `addressIdentifierGeneral` trägt Werte wie `7a` und `7b`.
+
+**Neue Verarbeitung:** [`scripts/export_bev_municipality_addresses.py`](../scripts/export_bev_municipality_addresses.py) extrahiert anhand des **exakten** Gemeindeschlüssels aus dem lokalen 1,66-GB-GPKG die zugehörigen Datensätze. Die Abfragen laufen über SQLite; der nationale Datenbestand wird nicht komplett in den Arbeitsspeicher geladen. Die GeoPackage-Punktgeometrien werden von **EPSG:3035 nach WGS84 (EPSG:4326)** umgerechnet und absichtlich **getrennt** exportiert:
+
+- `data/processed/20619/bev_addresses/bev_adresspunkte.geojson`: BEV-Adressreferenzpunkte.
+- `data/processed/20619/bev_addresses/bev_gebaeudepunkte.geojson`: BEV-Gebäudereferenzpunkte inklusive originaler BEV-Adresscodes und Gebäude-Subcodes.
+- `data/processed/20619/bev_addresses/bev_adressen.csv`: alle 824 Adresscodes und textuelle Hausnummer, Orts-/Straßenreferenzen, Anzahl verknüpfter Gebäudereferenzen.
+- `data/processed/20619/bev_addresses/bev_adressen_summary.json`: Quelle, SHA-256, Projektionsangaben, Geometriezahlen und Mehrfachrelationen.
+
+```powershell
+git pull --ff-only origin main
+python scripts\export_bev_municipality_addresses.py --gemeinde 20619
+```
+
+**Bewusst noch nicht gemacht:** Ein BEV-Gebäudereferenzpunkt beweist ohne räumliche Prüfung **nicht**, welcher der **1.686 OSM-Gebäudegrundrisse** dazugehört. Der vorhandene Adresspunkt-PIP-Prototyp darf **nicht direkt** auf die BEV-Zugangs-/Adresspunkte als sichere Gebäudeidentifikation angewendet werden. Im nächsten Arbeitsschritt werden die amtlichen **Gebäudepunkte** räumlich mit OSM-Polygonen abgeglichen und eindeutige Treffer bzw. Grenz-/Abweichungsfälle ausgewiesen.
+
+**Datenschutz und Reproduzierbarkeit:** Alle Ausgabedateien in `data/processed/` bleiben lokal und außerhalb von Git. Ausgangs-GPKG mit SHA-256 `34c21e933febacd4eed80b9a88d542212e419bf63c94f22455d79d6b62319382`.
