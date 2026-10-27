@@ -322,3 +322,9 @@ python scripts\join_buildings_addresses.py --gemeinde 20619 --addresses "C:\Pfad
 ```
 
 Erst anschließend ohne `--inspect` verknüpfen und die offline Gebäudehöhenkarte mit `python scripts\review_building_als_heights.py --gemeinde 20619 --open` neu erstellen. Nur geometrisch eindeutige Innen-Treffer werden verknüpft; nahe Adressen und Mehrfachtreffer bleiben Prüffälle. Sämtliche Adress-Rohdaten und Ergebnisse werden lokal gehalten. [Methodik und Beispiele](docs/skriptuebersicht.md#ap3--amtliche-hausnummern-mit-osm-gebäuden-verknüpfen).
+
+### Gemeinde-Rückfragen und Glossar
+
+Offene BEV/OSM-Fälle werden nicht durch Schätzung entschieden: `python scripts\export_bev_osm_municipality_questions.py --gemeinde 20619` erzeugt die lokale CSV zur fachlichen Rückfrage (standardmäßig 13 Nah- und 12 Nichttreffer). Die 2-m-Toleranzfälle lassen sich optional ergänzen, bleiben aber als vorläufig gekennzeichnet. Es erfolgt kein automatischer Versand.
+
+`python scripts\generate_report_index.py --gemeinde 20619 --open` erzeugt außerdem `reports/glossar.html` und verlinkt das Offline-Glossar auf der zentralen und der kommunalen Startseite (BEV, OSM, ODB, ALS, OIB, GK, Qualitäts- und Prüfstatus).
