@@ -33,6 +33,8 @@ PAGES = (
          "Übersicht mit anklickbaren Gebäudeprüfungen."),
     )),
     ("Berichte und Auswertungen", (
+        ("BEV/OSM – Rückfragen an die Gemeinde (CSV)", "addresses/gemeinde_rueckfragen_bev_osm.csv",
+         "Offene Prüffälle mit Rückmeldefeldern; keine automatische Übermittlung."),
         ("BEV/OSM – Zuordnungsprüfung CSV", "addresses/bev_gebaeudepunkte_osm_zuordnung.csv",
          "BEV-Subcodes mit OSM-Kandidaten, Status und gemessenen Abständen."),
         ("BEV/OSM – Zuordnungszusammenfassung", "addresses/bev_osm_zuordnung_summary.json",
@@ -63,6 +65,19 @@ PAGES = (
          "Maschinenlesbare Berichtsdaten."),
     )),
 )
+
+
+GLOSSARY = [["BEV","Bundesamt für Eich- und Vermessungswesen; amtliches Adressregister und Gebäudereferenzpunkte."],["OSM","OpenStreetMap; gemeinschaftlich gepflegte Gebäudegrundrisse, Straßen und Wege. Nicht amtlich identisch mit BEV."],["ODB","Kärntner Objektdatenbank; im Projekt lokale autorisierte Daten der Wasserentnahmestellen."],["ALS","Airborne Laserscanning; flugzeuggestützte Lasermessungen für geschätzte Gebäudehöhen."],["DOM","Digitales Oberflächenmodell: Höhen inklusive Dächer und Vegetation."],["DGM","Digitales Geländemodell: angenäherte Geländeoberfläche."],["GIS","Geoinformationssystem für räumliche Daten und Analysen."],["GPKG","GeoPackage: Datei mit räumlichen Daten und Tabellen."],["GeoJSON","Textformat für Geometrien und Attribute."],["EPSG","Kennnummer für Koordinatenreferenzsysteme, z. B. 3035, 31287 oder 4326."],["GKZ","Gemeindekennzahl; Malta: 20619."],["INSPIRE","EU-Rahmen für interoperable Geodaten."],["GK","Gebäudeklasse nach anwendbarem Baurecht; nicht automatisch aus Geometrie abzuleiten."],["OIB","Österreichisches Institut für Bautechnik; Begriffsbestimmungen und Richtlinien."],["TRVB","Technische Richtlinien Vorbeugender Brandschutz; die gültige Fassung muss fachlich geprüft werden."],["ÖBFV","Österreichischer Bundesfeuerwehrverband."],["RIS","Rechtsinformationssystem des Bundes."],["Luftlinie","Geometrisch kürzester Abstand; keine Schlauchstrecke oder befahrbare Route."],["ADRCD","BEV-Adresscode zur Identifikation einer amtlichen Adresse."],["ADRCD_SUBCD","BEV-Gebäude-Subcode; keine OSM-Gebäude-ID."],["OSM-ID","Technischer Bezeichner eines OpenStreetMap-Objekts."],["inside_unique","BEV-Gebäudepunkt liegt streng innerhalb genau eines OSM-Gebäudegrundrisses."],["boundary_tolerance","BEV-Gebäudepunkt liegt außerhalb, maximal 2 m von genau einem Gebäude: vorläufiger geometrischer Zuordnungskandidat."],["near_review","BEV-Punkt außerhalb, ein Kandidat im 15-m-Radius, aber keine eindeutige 2-m-Zuordnung."],["unmatched","Kein OSM-Grundriss innerhalb 15 m. Das tatsächliche Gebäude kann dennoch existieren."],["multiple_or_boundary","Punkt auf Polygonkante oder mehrere Gebäudegrundrisse berührt: Prüffall."],["2 m / 15 m","Projektinterne Toleranz beziehungsweise Suchradius; keine gesetzlichen Grenzwerte oder Genauigkeitsnachweise."],["OEM / BSM","Im aktuellen Projekt nicht eindeutig definierte Kürzel. Falls OEM eigentlich OSM meint: siehe OSM. BSM bleibt bis zur fachlichen Klärung offen."]]
+
+
+def glossary_body():
+    blocks=['<div class="note"><strong>Leseschlüssel:</strong> Projektbegriffe und Statuswerte; '
+            'keine fachliche oder rechtliche Freigabe von Löschwasserbedarf und Gebäudeklassen.</div>']
+    for abbr,meaning in GLOSSARY:
+        blocks.append('<div class="tile"><strong>'+escape(abbr)+'</strong><span>'
+                      +escape(meaning)+'</span></div>')
+    return '<h2>Abkürzungen und Erläuterungen</h2><div class="grid">' + ''.join(blocks) + '</div>'
+
 
 STYLE = """
 :root{font-family:system-ui,Segoe UI,Arial,sans-serif;color:#21344a;background:#f3f6fa}
@@ -190,6 +205,10 @@ def generate_municipality(mid: str, folder: Path) -> tuple[Path, int]:
             'Nachweis der Löschwasserversorgung oder einer Gebäudeklasse. '
             'Insbesondere die ODB-Karten enthalten nichtöffentliche Standortdaten; '
             'diese Seite und ihre Unterseiten nur lokal verwenden.</div>')
+    body += '<section><h2>Erläuterungen</h2><div class="grid">' + tile(
+        "Glossar und Abkürzungen", "../glossar.html",
+        "BEV, OSM, ODB, ALS, GK sowie Kartensymbole und Prüfstatus."
+    ) + '</div></section>'
     body += references_section("../")
     body += "".join(sections) if sections else (
         '<p class="empty">Noch keine Karten oder Berichte gefunden. '
@@ -240,6 +259,14 @@ def main() -> None:
     body += '<div class="grid">' + "".join(entries) + '</div>' if entries else (
         '<p class="empty">Keine Gemeindeberichte vorhanden.</p>')
     body += references_section("")
+    glossary_file = REPORTS / "glossar.html"
+    glossary_file.write_text(document("Glossar – Löschwasserversorgung", glossary_body(),
+                                     back="index.html"),encoding="utf-8")
+    print(f"[OK] {glossary_file}")
+    body += '<section><h2>Hilfe und Erläuterungen</h2><div class="grid">' + tile(
+        "Glossar und Abkürzungen", "glossar.html",
+        "BEV, OSM, ODB, ALS, Gebäudeklassen und Zuordnungsstatus."
+    ) + '</div></section>'
     root_index = REPORTS / "index.html"
     root_index.write_text(document("Löschwasserversorgung – Berichtszentrale", body),
                           encoding="utf-8")
