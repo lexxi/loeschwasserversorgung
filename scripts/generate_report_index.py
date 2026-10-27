@@ -21,6 +21,8 @@ SOURCE_CATALOG = ROOT / "config" / "reference_documents.json"
 
 PAGES = (
     ("Karten", (
+        ("BEV/OSM – 41 Gebäude-Prüffälle", "addresses/bev_osm_pruefkarte.html",
+         "Amtliche BEV-Gebäudepunkte ohne eindeutigen OSM-Innentreffer, mit Straßen und Gebäudekandidaten."),
         ("Gebäudehöhen – interaktive Karte", "gk_inventory/gebaeude_als_hoehenkarte.html",
          "Gebäudeflächen, geschätzte BEV-Höhen, Gemeindegrenze und OSM-Straßen."),
         ("Gebäude – ODB-Luftlinienabstände", "gebaeude_odb_abstandskarte.html",
@@ -31,6 +33,10 @@ PAGES = (
          "Übersicht mit anklickbaren Gebäudeprüfungen."),
     )),
     ("Berichte und Auswertungen", (
+        ("BEV/OSM – Zuordnungsprüfung CSV", "addresses/bev_gebaeudepunkte_osm_zuordnung.csv",
+         "BEV-Subcodes mit OSM-Kandidaten, Status und gemessenen Abständen."),
+        ("BEV/OSM – Zuordnungszusammenfassung", "addresses/bev_osm_zuordnung_summary.json",
+         "Fallzahlen und nachvollziehbare Herkunft des amtlichen Gebäudepunktabgleichs."),
         ("Gebäudehöhen – Qualität und Auffälligkeiten", "gk_inventory/als_hoehen_qualitaet.json",
          "Median, Perzentile und Prüfhinweise."),
         ("Gebäudehöhen – gemeinsame Merkmaltabelle", "gk_inventory/gebaeude_gk_merkmale_mit_als.csv",
