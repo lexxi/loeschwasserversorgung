@@ -282,9 +282,9 @@ Der eigene Quellcode und die selbst erstellte Projektdokumentation stehen unter 
 
 ## Datenfluss
 
-![Datenfluss Löschwasserversorgung](docs/datenfluss_löschwasserversorgung_in_kärnten.png)
+![Aktueller Datenfluss Löschwasserversorgung](docs/datenfluss-loeschwasserversorgung.svg)
 
-Die [illustrierte PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kärnten.png) zeigt Datenquellen, Importskripte, Zwischenstände und Berichte ohne die archivierten OSM-Wasserquellen. Eine [zusätzliche bearbeitbare SVG-Version](docs/datenfluss-loeschwasserversorgung.svg) ist ebenfalls verfügbar.
+Das [aktualisierte SVG-Datenflussdiagramm](docs/datenfluss-loeschwasserversorgung.svg) zeigt den aktuellen Stand mit BEV-Adressregister, amtlichen Gebäudepunkten, OSM-Gebäudezuordnung (2-m-Toleranz und Prüffälle), BEV-ALS-Höhen, ODB-Wasserquellen, Rückfragen an die Gemeinde sowie Offline-Berichtszentrale und Glossar. Die frühere [PNG-Übersicht](docs/datenfluss_löschwasserversorgung_in_kärnten.png) bleibt als **historische Darstellung** erhalten und bildet insbesondere die neue BEV-Adresspipeline noch nicht ab.
 
 ## Gebäudeklassen und Löschwasseranforderungen
 
