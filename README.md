@@ -21,27 +21,88 @@ Die bisherige Kennzeichnung `800_lpm` basiert auf **nicht validierten Parametern
 
 ## Repository-Struktur
 
-- `docs/rechtsgrundlagen.md`: Rechtsquellen, technische Regelwerke und offene Prüfaufgaben.
-- `data/sources.json`: Datenquellenregister für die geplante Erhebung.
-- `.gitignore`: Ausschluss lokaler Umgebungen und generierter GIS-Daten.
-- `scripts/import_geodata.py`: Beschaffung und Zuschnitt amtlicher Geodaten.
-- `docs/import.md`: Ausführungsanleitung.
-- `scripts/import_osm.py`: OSM-Gebäudeimport aus lokalem Export oder via Overpass.
-- `scripts/import_water_sources.py` und `docs/loeschwasserquellen-osm.md`: Eigenständige erste OSM-Bestandsaufnahme von Hydranten, Saugstellen, Löschwasserbehältern und Löschwasserteichen; ohne Leistungs- oder Eignungsnachweis.
-- `scripts/import_odb_water_sources.py` und `docs/odb-wasserentnahmestellen.md`: Separater lokaler Import von berechtigt exportierten Objektdatenbank-Wasserentnahmestellen (GeoJSON-Kategorie 1724).
-- `docs/osm-import.md`: Anleitung und Datenherkunft zum OSM-Import.
-- `docs/datenqualitaet-methodik.md`: Messergebnisse, Unsicherheiten und Prüfplan zur geometrischen Widmungszuordnung.
-- `scripts/classify_buildings.py` und `config/building_classification.json`: Konservative Klassifikation der OSM-Gebäudetags.
-- `docs/gebaeudeklassifikation.md`: Regeln und Grenzen der Gebäudezuordnung.
-- `scripts/run_municipality.py`: Gemeindebezogener Gesamtlauf von Geodatenimport bis Gemeindebericht.
-- `scripts/check_project.py` und `docs/projektcheck.md`: Lokaler Projektcheck (Python-Pakete, Git, Rohdaten, Gemeindeimporte und Löschwasserquellen) mit Handlungsempfehlungen.
-- `docs/gemeinde-pipeline.md`: Anleitung für weitere Kärntner Gemeinden und Regressionstest.
-- `scripts/show_building_zoning.py` und `docs/einzelgebaeude-visualisierung.md`: Einzelgebäude mit den tatsächlich geschnittenen Widmungspolygonen offline als HTML anzeigen (ohne QGIS).
-- `scripts/list_building_overlaps.py`: Durchsuchbare HTML-/CSV-Gesamtliste aller Gebäude mit Mehrfachschnitt, inklusive anklickbarer grafischer Detailansichten.
-- `scripts/generate_municipality_report.py`: Generiert einen Gemeindereport (Markdown und JSON) aus den vorhandenen Auswertungen.
-- `docs/gemeindebericht.md`: Aufbau, Ausführung und Datenanforderungen des Gemeindeberichts.
+Die Übersicht folgt der tatsächlichen Ordnerstruktur des Repositories. Innerhalb jedes Verzeichnisses sind die Dateien alphabetisch aufgeführt. **Lokale Rohdaten und erzeugte Berichte werden nicht nach GitHub hochgeladen.**
 
-Der Geodatenimport und die Gemeinde-Pipeline wurden für Malta (20619) regressionsgeprüft und für Gmünd in Kärnten (20608) erfolgreich ausgeführt; siehe [Gemeinde-Pipeline](docs/gemeinde-pipeline.md). Eine fachlich validierte Löschwasserbedarfsberechnung und umfassende automatisierte Tests stehen noch aus.
+### `config/` – Regeln und Konfiguration
+
+- [`config/building_classification.json`](config/building_classification.json) – Konservative Klassifikation der OSM-Gebäudetags.
+- [`config/firewater_rulebook.json`](config/firewater_rulebook.json) – Versionierter, noch fachlich zu validierender Entwurf der GK-/Löschwasser-Regelbasis; keine automatische Freigabe.
+
+### `data/` – Datenquellen und lokale GIS-Daten
+
+- [`data/sources.json`](data/sources.json) – Quellenregister der benötigten amtlichen und offenen Geodaten.
+- `data/raw/` – Lokale Originaldateien, z. B. OSM-PBF, berechtigt exportierte ODB-Daten und BEV-ALS-Rasterausschnitte (**nicht eingecheckt**).
+- `data/processed/` – Lokal erzeugte Gemeinde-, Gebäude-, Straßen-, Widmungs- und Wasserquellen-Geodaten (**nicht eingecheckt**).
+
+### `docs/` – Projektdokumentation
+
+- [`building-zoning-join.md`](docs/building-zoning-join.md) – Verknüpfung von Gebäuden mit Widmungsflächen.
+- [`datenfluss-loeschwasserversorgung.svg`](docs/datenfluss-loeschwasserversorgung.svg) – Datenflussdiagramm als SVG.
+- [`datenfluss_löschwasserversorgung_in_kärnten.png`](docs/datenfluss_l%C3%B6schwasserversorgung_in_k%C3%A4rnten.png) – Datenflussgrafik als PNG.
+- [`datenqualitaet-methodik.md`](docs/datenqualitaet-methodik.md) – Datenqualität, Messunsicherheiten und Prüfansatz.
+- [`einzelgebaeude-visualisierung.md`](docs/einzelgebaeude-visualisierung.md) – Offline-Ansicht einzelner Gebäude und Widmungsschnitte.
+- [`gebaeudeklassen-und-loeschwasserbedarf.md`](docs/gebaeudeklassen-und-loeschwasserbedarf.md) – OIB-GK-Merkmale, TRVB-Regelentwurf und BEV-Höhenverfahren.
+- [`gebaeudeklassifikation.md`](docs/gebaeudeklassifikation.md) – Grenzen der OSM-Gebäudeklassifikation.
+- [`gemeinde-pipeline.md`](docs/gemeinde-pipeline.md) – Analyseablauf für Kärntner Gemeinden.
+- [`gemeindebericht.md`](docs/gemeindebericht.md) – Aufbau und Erzeugung des Gemeindeberichts.
+- [`geodaten.md`](docs/geodaten.md) – Geodaten und Herkunft.
+- `docs/images/` – Abbildungen der Dokumentation.
+- [`import.md`](docs/import.md) – Import und Vorbereitung der Daten.
+- [`lizenzen-und-datenquellen.md`](docs/lizenzen-und-datenquellen.md) – Quellenangaben und Lizenzbedingungen.
+- [`loeschwasserquellen-osm.md`](docs/loeschwasserquellen-osm.md) – Historische OSM-Wasserquellen-Bestandsaufnahme.
+- [`odb-wasserentnahmestellen.md`](docs/odb-wasserentnahmestellen.md) – Aktuelle lokale ODB-Wasserquellen-Datenbasis.
+- [`osm-import.md`](docs/osm-import.md) – OSM-Import und Datenherkunft.
+- [`projektcheck.md`](docs/projektcheck.md) – Prüfung von Umgebung und Datenbestand.
+- [`rechtsgrundlagen.md`](docs/rechtsgrundlagen.md) – Rechtsgrundlagen und offene fachliche Fragen.
+- [`skriptuebersicht.md`](docs/skriptuebersicht.md) – **Vollständiger Skriptkatalog:** Zweck, Eingaben, Ausgaben und Speicherorte.
+- [`vergleich-wasserquellen.md`](docs/vergleich-wasserquellen.md) – Historische Vergleichsmethodik für Wasserquellendaten.
+
+### `scripts/` – Datenimporte, Analysen und Offline-Berichte
+
+Die Skripte sind hier alphabetisch aufgelistet. Eine ausführliche Erklärung **jedes Skripts** steht in der [Skriptübersicht](docs/skriptuebersicht.md).
+
+- `analyze_buildings_als_height.py` – Gebäudehöhen aus passenden BEV-Rastern schätzen.
+- `analyze_buildings_odb_distance.py` – Luftlinienabstände der Gebäude zu ODB-Quellen.
+- `analyze_odb_water_sources.py` – ODB-Bestandsstatistik.
+- `building_context.py` – Hilfsmodul zur Gebäude-Lageansicht.
+- `check_project.py` – Projekt- und Umgebungsprüfung.
+- `classify_buildings.py` – Konservative OSM-Nutzungsindikatoren.
+- `compare_osm.py` – Zwei OSM-Gebäudestände vergleichen.
+- `compare_water_sources.py` – Historischer OSM-/ODB-Vergleich, **nicht aktive Wasserbasis**.
+- `compare_zoning.py` – Zwei Widmungsstände vergleichen.
+- `download_bev_als.py` – Ganze BEV-Rasterkacheln planen/herunterladen (sehr groß).
+- `download_bev_als_subset.py` – Kleinen BEV-ALS-Testausschnitt abrufen.
+- `generate_municipality_report.py` – Gemeindebericht erzeugen.
+- `generate_report_index.py` – Lokale Startseiten `reports/index.html` und `reports/<GKZ>/index.html` erzeugen.
+- `import_geodata.py` – Amtliche Gemeindegrenze und Widmung importieren.
+- `import_odb_water_sources.py` – Privaten ODB-Export lokal importieren.
+- `import_osm.py` – Alternativer/älterer OSM-Gebäudeimport und Hilfsfunktionen.
+- `import_osm_buildings_pbf.py` – OSM-Gebäude aus lokalem PBF importieren.
+- `import_osm_roads_pbf.py` – OSM-Straßen/Wege aus lokalem PBF importieren.
+- `import_water_sources.py` – Historischer OSM-Wasserquellenimport, **nicht aktiv**.
+- `inventory_gk_building_attributes.py` – GK-relevante vorhandene/fehlende Gebäudemerkmale inventarisieren.
+- `join_buildings_zoning.py` – Gebäude und Widmung räumlich überlagern.
+- `list_building_overlaps.py` – Mehrfachwidmungen als HTML/CSV prüfen.
+- `municipality_text.py` – Hilfsmodul zur Korrektur von Textkodierung.
+- `plot_osm_water_sources.py` – Historische OSM-Wasserquellenkarte, **nicht aktiv**.
+- `process_bev_als_municipality.py` – Gemeindeweite, kachelweise BEV-Höhenauswertung.
+- `report_v3.py` – Hilfsmodul für Gemeindebericht und Prüfausgaben.
+- `review_building_als_heights.py` – Höhenqualität, gemeinsame Merkmaltabelle und Offline-Gebäudekarte.
+- `run_municipality.py` – Frühere Gemeinde-Analysepipeline steuern.
+- `show_building_zoning.py` – Einzelgebäude mit Widmungsschnitten anzeigen.
+- `show_buildings_odb_distance.py` – Offline-Gebäude-/ODB-Abstandskarte.
+- `show_odb_water_sources.py` – Offline-ODB-Wasserquellenkarte.
+- `validate_firewater_rulebook.py` – GK-/Löschwasser-Regelwerksentwurf formal prüfen.
+
+### Weitere Dateien und lokale Ergebnisse
+
+- `.gitignore` – Schließt lokale virtuelle Umgebungen, Rohdaten und erzeugte Ergebnisse von Git aus.
+- `LICENSE` – Repository-Lizenz.
+- `README.md` – Projekteinstieg und Bedienung.
+- `requirements.txt` – Python-Abhängigkeiten.
+- `reports/` – Lokal erzeugte Karten, CSV-/JSON-Ergebnisse und Gemeindeberichte (**nicht eingecheckt**). Einstieg über `reports/index.html`, erstellt mit `generate_report_index.py`.
+
+Der Geodatenimport und die ältere Gemeinde-Pipeline wurden für Malta (20619) regressionsgeprüft und für Gmünd in Kärnten (20608) erfolgreich ausgeführt; siehe [Gemeinde-Pipeline](docs/gemeinde-pipeline.md). Eine fachlich validierte Löschwasserbedarfsberechnung und umfassende automatisierte Tests stehen noch aus.
 
 ## Git und lokale Entwicklungsumgebung (Windows)
 
