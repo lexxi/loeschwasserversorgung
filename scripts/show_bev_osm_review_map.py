@@ -17,8 +17,8 @@ import webbrowser
 import geopandas as gpd
 
 ROOT = Path(__file__).resolve().parent.parent
-REVIEW = ("near_review", "unmatched", "multiple_or_boundary")
-COLORS = {"near_review":"#e7a12e","unmatched":"#d64e50","multiple_or_boundary":"#9352bd"}
+REVIEW = ("boundary_tolerance", "near_review", "unmatched", "multiple_or_boundary")
+COLORS = {"boundary_tolerance":"#37a67a","near_review":"#e7a12e","unmatched":"#d64e50","multiple_or_boundary":"#9352bd"}
 
 
 def polygon_path(geom):
@@ -91,6 +91,8 @@ def main():
         raise ValueError("BEV-Gebaeudepunkte und Zuordnung passen nicht zusammen: Abgleich erneut ausfuehren")
     expected={k:v for k,v in summary["status_counts"].items() if k in REVIEW}
     actual=Counter(row["status"] for row in matches if row["status"] in REVIEW)
+    # Include older summaries without this new status only when there are no
+    # such records; never silently mix two differing classification versions.
     if dict(expected)!=dict(actual):
         raise ValueError("Statuszahlen stimmen nicht mit Zuordnungs-Summary ueberein")
     if not any(actual.values()):
@@ -131,7 +133,7 @@ def main():
             "street":row["street"],"area":row.get("address_area",""),
             "building_number":row.get("building_number",""),
             "building_identifier":row.get("building_identifier",""),
-            "status":status,"candidates":row.get("candidate_osm_ids",""),
+            "status":status,"assigned_osm_id":row.get("osm_id",""),"candidates":row.get("candidate_osm_ids",""),
             "distance":row.get("distance_to_candidate_m",""),
         }
         points.append((pt.x,-pt.y,info))
@@ -176,9 +178,11 @@ small,.note{color:#61748a}.note{line-height:1.5;font-size:12px}
 @media(max-width:770px){.layout{grid-template-columns:1fr;grid-template-rows:290px 1fr;height:calc(100vh - 78px)}}
 </style></head><body><header>
 <h1>BEV/OSM – offene Gebäudezuordnungen · Gemeinde __MID__</h1>
-<p>__TOTAL__ BEV-Gebäudepunkte zur Prüfung · __NEAR__ nahe · __UNMATCHED__ ohne Treffer · __AMBIG__ Rand/Mehrfach</p>
+<p>__TOTAL__ BEV-Gebäudepunkte (inkl. 2-m-Toleranz) · __TOLERANCE__ Toleranzfälle · __NEAR__ nahe · __UNMATCHED__ ohne Treffer · __AMBIG__ Rand/Mehrfach</p>
 </header><div class="layout"><aside>
 <strong>Prüfstatus filtern</strong>
+<label><input type="checkbox" class="filter" value="boundary_tolerance" checked>
+<span class="dot" style="background:#37a67a"></span>2-m-Toleranz (__TOLERANCE__)</label>
 <label><input type="checkbox" class="filter" value="near_review" checked>
 <span class="dot" style="background:#e7a12e"></span>Nahe Gebäudepunkte (__NEAR__)</label>
 <label><input type="checkbox" class="filter" value="unmatched" checked>
@@ -192,7 +196,7 @@ small,.note{color:#61748a}.note{line-height:1.5;font-size:12px}
 <select id="case"><option value="">— Prüfpunkt wählen —</option>__OPTIONS__</select>
 <p><button id="next" type="button">Nächster sichtbarer Prüffall</button></p>
 <strong>Details</strong><div id="detail" aria-live="polite">Prüfpunkt anklicken oder auswählen.</div>
-<p class="note">Punktkoordinaten: BEV Gebäudereferenz (nicht Zugangs-/Adresskoordinate). Gelbe Grundrisse sind geometrische Kandidaten. Nahfälle werden nicht automatisch zugeordnet. Karte lokal, ohne Kacheldienst. Keine OIB-GK- oder Löschwasserbewertung.</p>
+<p class="note">Punktkoordinaten: BEV Gebäudereferenz (nicht Zugangs-/Adresskoordinate). Gelbe Grundrisse sind geometrische Kandidaten. Grüne Toleranzpunkte sind nur vorläufig geometrisch zugeordnet, nicht fachlich bestätigt. Nahfälle außerhalb 2 m bleiben ungeordnet. Karte lokal, ohne Kacheldienst. Keine OIB-GK- oder Löschwasserbewertung.</p>
 </aside><main>
 <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="__VIEWBOX__" aria-label="Interaktive offline BEV OSM Prüfkarte">
 <path id="boundary" d="__BOUNDARY__" fill-rule="evenodd"/>
@@ -244,6 +248,7 @@ function choose(index){
   '\nBEV-Gebäudenummer: '+(d.building_number||'—')+
   '\nBEV-Bezeichnung: '+(d.building_identifier||'—')+
   '\nPrüfstatus: '+d.status+
+  '\nZugeordnete OSM-ID: '+(d.assigned_osm_id||'keine')+
   '\nOSM-Kandidaten: '+(d.candidates||'keine')+
   '\nAbstand zum nächsten OSM-Kandidaten: '+(d.distance||'nicht innerhalb des Prüfradius')+' m';
 }
@@ -281,6 +286,7 @@ window.addEventListener('resize',markerSize);filter();markerSize();
 </script></body></html>'''
     replacements={
         "__MID__":escape(mid),"__TOTAL__":str(len(points)),
+        "__TOLERANCE__":str(actual["boundary_tolerance"]),
         "__NEAR__":str(actual["near_review"]),
         "__UNMATCHED__":str(actual["unmatched"]),
         "__AMBIG__":str(actual["multiple_or_boundary"]),
