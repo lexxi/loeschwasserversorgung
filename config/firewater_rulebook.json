@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "rulebook_version": "0.1.0",
+  "as_of": "2026-10-27",
+  "status": "draft_review_required",
+  "auto_assignment_enabled": false,
+  "purpose": "AP1: Definitionen und Richtwert-Niveaus. Kein automatischer GK- oder Löschwasserbedarfsnachweis.",
+  "source_refs": {
+    "oib_definitions": {
+      "title": "OIB-Begriffsbestimmungen",
+      "edition": "Mai 2023",
+      "url": "https://www.oib.or.at/sites/default/files/oib-rl_begriffsbestimmungen_ausgabe_mai_2023.pdf"
+    },
+    "oib_fire": {
+      "title": "OIB-Richtlinie 2 Brandschutz",
+      "edition": "Mai 2023",
+      "url": "https://www.oib.or.at/sites/default/files/oib-rl_2_ausgabe_mai_2023.pdf"
+    },
+    "k_btv": {
+      "title": "Kärntner Bautechnikverordnung 2024",
+      "url": "https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrK&Gesetzesnummer=20000961"
+    },
+    "trvb_137": {
+      "title": "TRVB 137 F/21 Löschwasserbedarf",
+      "edition": "01.09.2021",
+      "section": "4.1 / Tabelle 1",
+      "url": "https://www.bundesfeuerwehrverband.at/produkt/trvb-137-21-f-loeschwasserbedarf/"
+    },
+    "vb01": {
+      "title": "ÖBFV VB-01/23 Die Löschwasserversorgung",
+      "edition": "15.10.2023",
+      "url": "https://www.bundesfeuerwehrverband.at/produkt/vb-01-23-rl-die-loeschwasserversorgung/"
+    }
+  },
+  "building_classes": [
+    {
+      "id": "GK1",
+      "summary": "Freistehende Gebäude unter zusätzlichen Bedingungen bezüglich Geschosszahl, Fluchtniveau, BGF, Einheiten und Zugänglichkeit.",
+      "reference": "oib_definitions",
+      "conditions_complete": false,
+      "variant_review_required": true
+    },
+    {
+      "id": "GK2",
+      "summary": "Mehrere Varianten; abhängig unter anderem von Größe, Anordnung und Nutzung.",
+      "reference": "oib_definitions",
+      "conditions_complete": false,
+      "variant_review_required": true
+    },
+    {
+      "id": "GK3",
+      "summary": "Gebäude unter den festgelegten Geschoss- und Fluchtniveaugrenzen, die nicht GK1 oder GK2 sind.",
+      "reference": "oib_definitions",
+      "conditions_complete": false,
+      "variant_review_required": true
+    },
+    {
+      "id": "GK4",
+      "summary": "Gebäude unter den festgelegten Geschoss- und Fluchtniveaugrenzen und weiteren Bedingungen für Einheiten.",
+      "reference": "oib_definitions",
+      "conditions_complete": false,
+      "variant_review_required": true
+    },
+    {
+      "id": "GK5",
+      "summary": "Gebäude im einschlägigen Fluchtniveaubereich, die nicht GK1-GK4 sind; Gebäude über 22 m gesondert prüfen.",
+      "reference": "oib_definitions",
+      "conditions_complete": false,
+      "variant_review_required": true
+    }
+  ],
+  "classification_inputs": [
+    "escape_level_m",
+    "above_ground_storeys",
+    "total_above_ground_gross_floor_area_m2",
+    "dwellings",
+    "business_units",
+    "detached",
+    "external_fire_access",
+    "use_type",
+    "special_use",
+    "construction_legal_basis",
+    "planning_max_permitted_class"
+  ],
+  "water_demand_levels": [
+    {
+      "id": "GS-800",
+      "scope": "ground_protection",
+      "example": "GK1 und bestimmte GK2 / kleine Garagen",
+      "rate_l_min": 800,
+      "duration_min": 60,
+      "volume_m3": 48,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    },
+    {
+      "id": "GS-1200",
+      "scope": "ground_protection",
+      "example": "Weitere GK2, bestimmte GK3/GK4 mit Wohnnutzung",
+      "rate_l_min": 1200,
+      "duration_min": 90,
+      "volume_m3": 108,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    },
+    {
+      "id": "GS-1600",
+      "scope": "ground_protection",
+      "example": "Weitere GK3/GK4 sowie bestimmte GK5 bei Wohnnutzung",
+      "rate_l_min": 1600,
+      "duration_min": 120,
+      "volume_m3": 192,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    },
+    {
+      "id": "GS-2400",
+      "scope": "ground_protection",
+      "example": "Weitere GK5 und Fluchtniveau über 22 m",
+      "rate_l_min": 2400,
+      "duration_min": 120,
+      "volume_m3": 288,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    },
+    {
+      "id": "GS-3200-GE",
+      "scope": "ground_protection",
+      "example": "Betriebs- und Gewerbegebiete",
+      "rate_l_min": 3200,
+      "duration_min": 120,
+      "volume_m3": 384,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    },
+    {
+      "id": "GS-3200-IND",
+      "scope": "ground_protection",
+      "example": "Industriegebiete",
+      "rate_l_min": 3200,
+      "duration_min": 180,
+      "volume_m3": 576,
+      "conditions_complete": false,
+      "source": "trvb_137",
+      "reference": "Tabelle 1"
+    }
+  ],
+  "distance_reference": {
+    "source": "trvb_137",
+    "qualifier": "Die Verteilung auf Entnahmestellen in Entfernungsbereichen erfordert Bedingungen der Originaltabelle und Prüfung von Grundstücksgrenze/Wegeführung.",
+    "bands_m": [
+      125,
+      250,
+      500
+    ],
+    "partial_flow_conditions_encoded": false,
+    "not_equivalent_to": "footprint_to_odb_airline_distance"
+  },
+  "object_protection": {
+    "status": "not_encoded",
+    "source": "trvb_137",
+    "sections": [
+      "5",
+      "6"
+    ],
+    "requires_individual_review": true
+  },
+  "safety_rules": {
+    "unknown_gk": "unknown",
+    "unknown_demand": null,
+    "never_derive_gk_from_osm_tag": true,
+    "never_assign_level_from_gk_alone": true,
+    "planning_gk_separate_from_actual_gk": true,
+    "never_assume_existing_building_retrofit_duty": true,
+    "requires_full_conditions_and_professional_review": true
+  }
+}
