@@ -48,6 +48,7 @@ python scripts\generate_report_index.py --open
 | [`import_osm_roads_pbf.py`](../scripts/import_osm_roads_pbf.py) | Importiert OSM-Straßen und -Wege als **Orientierungshintergrund**, noch kein Routing oder Schlauchweg. | Geofabrik-PBF und Gemeindegrenze | `data/processed/<GKZ>/osm/roads.geojson`, `roads_manifest.json` |
 | [`import_odb_water_sources.py`](../scripts/import_odb_water_sources.py) | Bereitet den **lokalen autorisierten ODB-Export** auf und berücksichtigt Quellentyp und Status. Einzige Wasserquellenbasis der aktiven Analyse. | Privater Export, z. B. `data/raw/odb_wasserentnahmestellen.geojson`, Gemeindegrenze | `data/processed/<GKZ>/odb_water_sources/odb_water_sources.geojson`, `odb_water_sources.csv`, `odb_water_sources_manifest.json` |
 | [`import_osm.py`](../scripts/import_osm.py) | Alternativer/älterer OSM-Gebäudeimport aus lokaler GeoJSON oder OSMnx/Overpass. Enthält außerdem von den PBF-Importern genutzte Hilfsfunktionen/Feldliste. | `--input` oder `--download`, Gemeindegrenze | Im gemeindebezogenen Modus `data/processed/<GKZ>/osm/buildings.geojson`, `osm_manifest.json`; älterer Modus unter `data/processed/current/osm/` |
+| [`archive_reference_documents.py`](../scripts/archive_reference_documents.py) | Archiviert fixe OIB-PDF-Fassungen einmalig und übernimmt weitere berechtigt vorhandene PDFs lokal mit SHA-256; verändert keine Regelwerte. | `config/reference_documents.json`, ggf. berechtigte lokale PDF-Datei | `reports/references/<datei>.pdf`, `reports/references/archive_manifest.json` |
 | [`generate_report_index.py`](../scripts/generate_report_index.py) | Erzeugt eine zentrale lokale Startseite für vorhandene HTML-Karten, CSV-/JSON-Berichte und zusätzliche Unterseiten; überspringt fehlende Dateien. | `reports/<GKZ>/` mit bereits generierten Ergebnissen | `reports/index.html`, `reports/<GKZ>/index.html` |
 
 ## B. ODB-Bestandsaufnahme, Gebäudeabstände und Offline-Karten – aktuell
@@ -271,3 +272,44 @@ python scripts\review_building_als_heights.py --gemeinde 20619 --open
 Die Ausgabedatei bleibt `reports/20619/gk_inventory/gebaeude_als_hoehenkarte.html`. Der Befehl erstellt daneben die bereits bekannten CSV-/JSON-Dateien erneut; die BEV-Raster werden **nicht** noch einmal heruntergeladen. Wenn `roads.geojson` fehlt, zeigt die Karte 0 Straßen/Wege an, ohne die Gebäudekarte zu verhindern.
 
 **Hausnummern in der ALS-Karte:** Die OSM-Attribute `addr:street`, `addr:housenumber` und `addr:city` werden im Gebäudeimport soweit vorhanden beibehalten. Seit Commit `c58797e` übernimmt auch `review_building_als_heights.py` diese Felder in `gebaeude_gk_merkmale_mit_als.csv` und zeigt Straße/Hausnummer/Ort in den Gebäudedetails. Fehlende OSM-Adressattribute bleiben leer; die separat importierten amtlichen Hausnummern werden dadurch **noch nicht** automatisch gebäudeweise verknüpft.
+
+## Offline-Quellenarchiv: OIB, TRVB, ÖBFV und RIS
+
+Die verwendeten Fach- und Rechtsquellen sind zentral in [`config/reference_documents.json`](../config/reference_documents.json) mit **Titel, Fassung, Online-Link, lokalem Dateinamen und Beschaffungsart** aufgeführt. Das Werkzeug [`scripts/archive_reference_documents.py`](../scripts/archive_reference_documents.py) pflegt ein ausschließlich lokales Archiv mit **SHA-256-Prüfsummen** und verweigert stilles Ersetzen einer archivierten Dokumentversion.
+
+**Ablage:** `reports/references/` enthält die archivierten Original-PDFs und `archive_manifest.json`. Dieser Ordner gehört zu den lokalen Berichten und wird **nicht ins öffentliche GitHub-Repository eingecheckt**.
+
+### Erstmaliger Bezug und Prüfung
+
+```powershell
+git pull --ff-only origin main
+python scripts\archive_reference_documents.py --status
+python scripts\archive_reference_documents.py --download
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Der Download ist **opt-in**. Er betrifft ausschließlich die drei direkten **OIB-PDFs der Ausgabe Mai 2023** (Begriffsbestimmungen, Richtlinie 2 Brandschutz und Erläuterungen). Der Download prüft PDF-Signatur, Dateigröße (max. 30 MiB) und legt SHA-256 sowie genaue Fassung im lokalen Archivmanifest ab. Vorhandene PDFs werden nicht erneut heruntergeladen und beim Wiederholungslauf auf Veränderung geprüft. Der Download aktualisiert keine externen Dateien heimlich auf eine neue Ausgabe.
+
+### Manuelle Übernahme lizenzierter/amtlicher Originale
+
+Die folgenden Quellen sind zunächst bewusst **nur als Online-Links** hinterlegt: **TRVB 137 F/21**, **ÖBFV VB-01/23**, **Kärntner Bautechnikverordnung 2024** und **Kärntner Gefahrenpolizei- und Feuerpolizeiordnung 2000**. Rechts-/Richtlinientexte können gegebenenfalls gekauft oder vom jeweiligen Anbieter lokal zur Verfügung gestellt werden. RIS-Gesetzestexte können mit nachvollziehbarem Abrufdatum als PDF gesichert werden; **der jeweilige Rechtsstand ist zusätzlich zu vermerken**.
+
+Falls eine berechtigte lokale PDF-Datei vorhanden ist, kann sie ohne Veröffentlichung ins lokale Archiv kopiert werden:
+
+```powershell
+python scripts\archive_reference_documents.py --import-file "C:\Pfad\zur\TRVB_137_F_21.pdf" --id trvb_137_2021
+```
+
+Weitere IDs: `vb01_2023`, `k_btv_2024`, `k_gfpo_2000`. Der Import kopiert nur lokal, prüft PDF-Format und legt Prüfsummen ab. **Eine online auffindbare PDF-Version bedeutet nicht automatisch, dass sie öffentlich weiterverteilt werden darf.** Die Lizenz und eine etwaige Kauf-/Nutzungsberechtigung sind vor der lokalen Verwendung zu kontrollieren.
+
+### Offline-/Online-Links in der Berichtszentrale
+
+Nach jedem Archiv-Import bzw. Download die Indexseiten neu erstellen:
+
+```powershell
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+`reports/index.html` und `reports/20619/index.html` enthalten dann pro Quelle **„Offline öffnen“**, wenn die passende Datei tatsächlich existiert, und zusätzlich **„Online öffnen“** für die amtliche/Originalseite. Fehlt die Kopie, erscheint „Offline noch nicht vorhanden“ statt eines defekten Links. Ohne Internet funktionieren die archivierten PDF-Links; die Online-Links setzen erwartungsgemäß Internet voraus.
+
+**Grenzen:** Dieses Register erfasst die derzeit explizit für die GK-/Löschwasser-Regeldefinition verwendeten Fach- und Rechtsquellen. Größere GIS-Quelldaten (z. B. BEV-ALS-Raster, OSM-PBF und ODB) bleiben unabhängig davon unter `data/raw/` und `data/processed/`; sie sind keine PDF-Referenzen. Für neue inhaltlich verwendete Rechtsdokumente ist der Quellenkatalog zu ergänzen. Die technische Offline-Verfügbarkeit ersetzt weder den Geltungsstandsvergleich noch die fachliche Freigabe.
