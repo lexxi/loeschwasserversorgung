@@ -401,3 +401,20 @@ Drei lokale Ergebnisse:
 Wenn `gebaeude_adressen.csv` vorliegt und die OSM-IDs exakt zum aktuellen Import passen, zeigt `review_building_als_heights.py` bei jedem Gebäude zusätzlich **amtliche Adresse(n), Anzahl und Zuordnungsstatus**. Vorhandene OSM-Adressen bleiben separat; es erfolgt kein Überschreiben der OSM-Quelldaten. Bei verändertem Gebäudebestand wird die Zuordnung bewusst nicht stillschweigend übernommen.
 
 **Datenschutz/Interpretation:** Amtliche Rohadressen und die erzeugten verknüpften CSV-/HTML-Seiten bleiben ausschließlich lokal und gehören nicht ins öffentliche Repository. Fehlende Adressen bedeuten **nicht**, dass ein Gebäude unbewohnt oder ungenutzt ist. Keine Ableitung von OIB-GK oder Löschwasserbedarf.
+
+## Aktuelles Datenflussbild (27.10.2026)
+
+Die [SVG-Übersicht `datenfluss-loeschwasserversorgung.svg`](datenfluss-loeschwasserversorgung.svg) ist das **führende aktuelle Diagramm** und wird direkt im README angezeigt. Sie berücksichtigt jetzt:
+
+- Statistik Austria / KAGIS → Gemeindegrenze und Widmungen;
+- OSM → Gebäudegrundrisse sowie Straßen/Wege;
+- BEV-Adressregister INSPIRE (01.10.2026) → amtliche Adress- und Gebäudereferenzpunkte → `join_bev_building_points_osm.py`;
+- Zuordnungsstatus: **747** eindeutige Innentreffer, **16** vorläufige 2-m-Toleranzfälle, **13** weitere Nahfälle und **12** Nichttreffer;
+- BEV-ALS (DOM/DGM) → geschätzte Gebäudehöhen und Qualitätsmerkmale;
+- Kärntner ODB → Wasserentnahmestellen und geometrische Luftlinienabstände;
+- offene BEV-/OSM-Fälle → `export_bev_osm_municipality_questions.py` → CSV zur **manuellen** Weitergabe an Gemeinde/Fachstelle;
+- `generate_report_index.py` → lokale HTML-Berichtszentrale und Glossar.
+
+Die [ältere PNG-Grafik](datenfluss_löschwasserversorgung_in_kärnten.png) bleibt zur historischen Nachvollziehbarkeit erhalten, ist jedoch für den aktuellen Adressdatenfluss nicht mehr vollständig. Die neue SVG enthält keine lokalen vertraulichen Rohdaten oder einzelnen Adresskoordinaten.
+
+**Fachliche Grenze:** Eine 2-m-Toleranzzuordnung ist eine geometrische Hypothese, keine amtlich bestätigte Gebäudeidentität; sämtliche Löschwasserabstände bleiben rein geometrisch. Kein automatischer OIB-GK- oder Versorgungsnachweis.
