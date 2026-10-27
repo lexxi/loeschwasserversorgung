@@ -18,7 +18,6 @@ import numpy as np
 import rasterio
 from rasterio.errors import RasterioIOError
 from rasterio.windows import Window
-from rasterio.transform import from_origin
 
 from download_bev_als import BEV_ROOT, GRID, DATE_RE
 
@@ -78,15 +77,17 @@ def main():
     y0, y1 = math.floor(y-args.radius_m), math.ceil(y+args.radius_m)
     if not (e <= x0 < x1 <= e+GRID and n <= y0 < y1 <= n+GRID):
         p.error("Ausschnitt ueberschreitet eine BEV-Kachelgrenze: kleineren Radius/anderes Gebaeude waehlen")
-    width, height = x1-x0, y1-y0
-    if width*height*4 > args.max_mb*1024*1024:
-        p.error(f"Unkomprimierter Ausschnitt pro Modell etwa {width*height*4/1024**2:.1f} MiB > Limit")
+    planned_width, planned_height = x1-x0, y1-y0
+    if planned_width*planned_height*4 > args.max_mb*1024*1024:
+        p.error(f"Unkomprimierter Ausschnitt pro Modell etwa {planned_width*planned_height*4/1024**2:.1f} MiB > Limit")
     outdir = ROOT / "data" / "raw" / "bev" / args.stichtag / "subsets" / mid
     outdir.mkdir(parents=True, exist_ok=True)
     urls = {}
     outputs = {}
     hashes = {}
-    out_transform = from_origin(x0, y1, 1, 1)
+    out_transform = None
+    aligned_bounds = None
+    width = height = None
     nodata = -9999.0
     # Rasterio/GDAL uses HTTPS range requests for source COG blocks.
     with rasterio.Env(
@@ -111,12 +112,39 @@ def main():
                             or src.transform.b != 0 or src.transform.d != 0):
                         raise ValueError(f"{kind}: Raster hat nicht 1m Aufloesung oder ist gedreht")
                     win = rasterio.windows.from_bounds(x0, y0, x1, y1, transform=src.transform)
-                    # Must lie exactly on the same source grid; don't resample silently.
-                    for v in (win.col_off, win.row_off, win.width, win.height):
-                        if abs(v-round(v)) > 1e-6:
-                            raise ValueError(f"{kind}: Ausschnitt nicht am Pixelgitter ausgerichtet")
-                    if int(round(win.width)) != width or int(round(win.height)) != height:
-                        raise ValueError(f"{kind}: unerwartete Rasterdimensionen")
+                    # Snap the requested physical bounds OUTWARDS to actual BEV pixel boundaries.
+                    # BEV COG raster origin need not be aligned to whole-number metre values.
+                    if kind == "DSM":
+                        left = math.floor(win.col_off + 1e-7)
+                        top = math.floor(win.row_off + 1e-7)
+                        right = math.ceil(win.col_off + win.width - 1e-7)
+                        bottom = math.ceil(win.row_off + win.height - 1e-7)
+                        if left < 0 or top < 0 or right > src.width or bottom > src.height:
+                            raise ValueError("DSM Ausschnitt ausserhalb des Kachelrasters")
+                        win = Window(left, top, right-left, bottom-top)
+                        out_transform = src.window_transform(win)
+                        width, height = int(win.width), int(win.height)
+                        aligned_bounds = rasterio.windows.bounds(win, src.transform)
+                        print(f"[INFO] Am echten BEV-Raster ausgerichtet: {width}x{height} Pixel, "
+                              f"Ursprung {out_transform.c:.3f}/{out_transform.f:.3f}", flush=True)
+                    else:
+                        # Both outputs MUST use one pixel grid for subsequent DOM-DGM subtraction.
+                        win = rasterio.windows.from_bounds(*aligned_bounds, transform=src.transform)
+                        vals = (win.col_off, win.row_off, win.width, win.height)
+                        if any(abs(v-round(v)) > 1e-5 for v in vals):
+                            raise ValueError(
+                                "DSM und DTM verwenden unterschiedliche Pixelurspruenge. "
+                                "Kein stilles Resampling; zuerst Quellenraster vergleichen.")
+                        win = Window(*(int(round(v)) for v in vals))
+                        if (win.col_off < 0 or win.row_off < 0 or
+                                win.col_off+win.width > src.width or
+                                win.row_off+win.height > src.height or
+                                win.width != width or win.height != height):
+                            raise ValueError("DTM Rastergrenzen passen nicht zum DSM-Ausschnitt")
+                        if not src.window_transform(win).almost_equals(out_transform, precision=1e-6):
+                            raise ValueError("DTM Rastertransform passt nicht zum DSM")
+                    if width * height * 4 > args.max_mb * 1024**2:
+                        raise ValueError("Am Raster ausgerichteter Ausschnitt zu gross")
                     arr = src.read(1, window=win, masked=True, boundless=False)
                     data = np.asarray(arr.filled(nodata), dtype=np.float32)
                     if not np.isfinite(data).all():
@@ -142,7 +170,8 @@ def main():
         "generated_utc":datetime.now(timezone.utc).isoformat(),
         "municipality_id":mid,"selected_osm_id":osm_id,
         "stichtag":args.stichtag,"radius_m":args.radius_m,
-        "tile":{"n":n,"e":e},"bounds_epsg3035":[x0,y0,x1,y1],
+        "tile":{"n":n,"e":e},"requested_bounds_epsg3035":[x0,y0,x1,y1],
+        "aligned_bounds_epsg3035":list(aligned_bounds),
         "urls":urls,"output_files":outputs,"sha256":hashes,
         "height_reference_claim":"AdriaTriest" if args.stichtag=="20210915" else "EVRF2000",
         "warning":"Nur technischer Testausschnitt. BEV Stichtag ist nicht ALS Befliegungsdatum.",
