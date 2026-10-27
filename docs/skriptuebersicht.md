@@ -356,3 +356,16 @@ python scripts\generate_report_index.py --gemeinde 20619 --open
 `--as-of` ist für diese beiden RIS-Quellen **Pflicht** und wird als `legal_as_of` im lokalen `archive_manifest.json` gespeichert. Vorhandene Original-PDFs werden nicht überschrieben. Eine spätere Rechtsänderung erfordert einen ausdrücklich archivierten neuen Datenstand; der bereits gesicherte Snapshot bleibt reproduzierbar.
 
 Die **TRVB 137 F/21** und **VB-01/23** werden beim ÖBFV als kostenpflichtige Fachrichtlinien angeboten (Quellenlinks im Index). Ihr PDF-Original wird nicht automatisiert von Fremdservern heruntergeladen, sondern bei entsprechender Nutzungsberechtigung mit `--import-file` archiviert. Der Quellenkatalog allein stellt keine Erwerbs-/Weitergabeberechtigung dar.
+
+### ODB-Wasserentnahmestellenkarte: Straßennetz und kompakte Marker (27.10.2026)
+
+Der Generator [`scripts/show_odb_water_sources.py`](../scripts/show_odb_water_sources.py) erstellt `reports/<GKZ>/odb_wasserentnahmestellen.html` nun mit einer optionalen, standardmäßig eingeblendeten Ebene **OSM-Straßen und Wege** aus `data/processed/<GKZ>/osm/roads.geojson`. Die Straßen werden nach Hauptstraße, Nebenstraße und Weg unterschieden und **nur als Hintergrund** verwendet (keine OSM-Wasserquellen, keine Netzwerkanfragen oder Routingberechnung). Fehlt die Straßen-Datei, funktioniert die Karte weiterhin ohne Straßendarstellung.
+
+Die ODB-Punkte verwenden statt der bisherigen großen Kreise dieselbe kompakte Basisgröße von **5,5 Bildschirm-Pixeln Radius** wie die ODB-Abstandskarte; ihr Radius wird bei Zoom und Fensteränderungen nachgeführt. Typfarbe und Status-Umrandung bleiben erhalten. Marker lassen sich weiter anklicken, durchsuchen und nach Typ/Status filtern. Die ODB-Originaldaten bleiben lokal und dürfen nicht öffentlich bereitgestellt werden.
+
+```powershell
+git pull --ff-only origin main
+python scripts\show_odb_water_sources.py --gemeinde 20619 --open
+```
+
+Anschließend ist bei Bedarf die Berichtszentrale mit `python scripts\generate_report_index.py --gemeinde 20619 --open` erneut zu erzeugen. Die Änderung wurde eingecheckt, aber mit lokalen ODB-Daten noch nicht getestet.
