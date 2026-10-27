@@ -277,3 +277,25 @@ Alle drei Verarbeitungsschritte wurden lokal erfolgreich ausgeführt: `join_bev_
 **Methodischer Vorbehalt:** Die neue Kennzahl **753** ist keine Zahl amtlich bestätigter BEV/OSM-Gebäudeidentitäten; die 16 Toleranzpunkte sind explizit nur Kandidaten unter unserer selbst gewählten 2-m-Heuristik. Für Analysen, die ausschließlich streng geprüfte Geometriezuordnungen verwenden sollen, ist weiterhin die Menge der **737 OSM-Gebäude mit `inside_unique`** maßgeblich. Die 45 amtlichen Adresscodes ohne BEV-Gebäudepunkt werden durch diese Berechnung nicht verändert.
 
 **Nächste fachliche Arbeiten:** Die **13 Nahfälle** und **12 nicht zuordenbaren BEV-Punkte** untersuchen, anschließend die **16 grün markierten Toleranzfälle** plausibilisieren. Eine manuell freigegebene Zuordnung getrennt mit Quelle, Prüfer und Datum dokumentieren; weder OSM- noch BEV-Rohdaten überschreiben.
+
+### Übergabe ungeklärter Geometriefälle an Gemeinde / Fachstelle (27.10.2026)
+
+**Entscheidung:** Wir lösen unklare BEV/OSM-Geometrien nicht allein aufgrund von Karteneindruck oder eines Toleranzwertes auf. Fachliche Rückmeldung von Gemeinde, Datenführenden oder zuständiger Stelle ist vorzuziehen.
+
+[`scripts/export_bev_osm_municipality_questions.py`](../scripts/export_bev_osm_municipality_questions.py) stellt aus dem existierenden lokalen Abgleich eine **CSV-Liste mit zunächst 25 offenen Fällen** bereit: **13 `near_review` und 12 `unmatched`**. Es enthält BEV-Gebäude-Subcode, Adresscode, Straße/Ortsteil/Hausnummer, BEV-Gebäudenummer und -bezeichnung, OSM-Kandidaten, Abstand und präzise Rückfrage sowie leere Spalten für Prüfer, Prüftag, Rückmeldung, Entscheidung und Nachweis.
+
+```powershell
+git pull --ff-only origin main
+python scripts\export_bev_osm_municipality_questions.py --gemeinde 20619
+python scripts\generate_report_index.py --gemeinde 20619 --open
+```
+
+Ergebnis: `reports/20619/addresses/gemeinde_rueckfragen_bev_osm.csv`, verlinkt in der Gemeindeübersicht. **Optional** können 16 `boundary_tolerance`-Fälle mit `--include-tolerance` ergänzt werden. Die Standardliste enthält diese bewusst **nicht**.
+
+**Wichtig:** Die CSV ist ein Arbeitsentwurf zur fachlichen Abstimmung; keine Nachricht wird automatisch gesendet. Vor Weitergabe Inhalt, Herkunft und zulässigen Empfängerkreis prüfen. Um manuell eingetragene Antworten nicht zu verlieren, wird die CSV nicht ohne `--overwrite` erneut erzeugt. Bearbeitete Antworten vor einer Neu-Erzeugung separat sichern. Die ursprünglichen BEV-/OSM-Rohdaten bleiben unberührt.
+
+### Erläuterungsseite / Glossar
+
+Die zentrale Berichts-Navigation erzeugt nun **`reports/glossar.html`**, vollständig offline, und verlinkt sie sowohl in `reports/index.html` als auch in `reports/20619/index.html`. Enthalten sind u. a. BEV, OSM, ODB, ALS, DOM, DGM, GIS, EPSG, GPKG, GKZ, INSPIRE, GK, OIB, TRVB, ÖBFV, RIS sowie die geometrischen Statuscodes und die Differenz zwischen 2-m-/15-m-Heuristik und fachlicher Bestätigung.
+
+**OEM und BSM:** Im derzeitigen Projekt nicht als eindeutige Fachkürzel dokumentiert, daher bewusst als klärungsbedürftig beschrieben; „OEM“ könnte „OSM“ gemeint haben, wird aber nicht stillschweigend umgedeutet.
