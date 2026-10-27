@@ -20,7 +20,8 @@ import geopandas as gpd
 
 ROOT = Path(__file__).resolve().parent.parent
 HEIGHT_FIELDS = ("height_median_m", "height_p90_m", "height_max_m")
-ATTRIBUTES = ("building", "building:levels", "height", "roof:levels",
+ATTRIBUTES = ("building", "addr:street", "addr:housenumber", "addr:city",
+              "building:levels", "height", "roof:levels",
               "building:use", "building:flats", "building:units",
               "amenity", "tourism", "shop")
 BANDS = [
@@ -264,6 +265,8 @@ def main():
             "area":r["footprint_m2"],"median":r["height_median_m"],
             "p90":r["height_p90_m"],"max":r["height_max_m"],
             "quality":r["height_quality"],"flags":r["height_review_flags"],
+            "street":r.get("addr:street",""),"number":r.get("addr:housenumber",""),
+            "city":r.get("addr:city",""),
             "levels":r.get("building:levels",""),
             "osm_height":r.get("height",""),"use":r.get("building:use",""),
             "tourism":r.get("tourism",""),"amenity":r.get("amenity",""),
@@ -327,7 +330,8 @@ let selected=null,drag=null;
 function moveTo(el){if(selected)selected.classList.remove('selected');selected=el;el.classList.add('selected');
 const x=JSON.parse(el.dataset.info);const fmt=(v)=>v===''?'—':v;
 document.getElementById('detail').textContent=
-'OSM-ID: '+x.id+'\\nGebäudetyp: '+fmt(x.building)+'\\nGrundriss: '+x.area+' m²'+
+'OSM-ID: '+x.id+'\\nAdresse: '+([x.street,x.number].filter(Boolean).join(' ')||'—')+
+'\\nOrt: '+fmt(x.city)+'\\nGebäudetyp: '+fmt(x.building)+'\\nGrundriss: '+x.area+' m²'+
 '\\nHöhe Median: '+fmt(x.median)+' m\\nP90: '+fmt(x.p90)+' m\\nMaximum: '+fmt(x.max)+' m'+
 '\\nQualität: '+x.quality+'\\nPrüfhinweise: '+fmt(x.flags)+
 '\\nOSM-Geschosse: '+fmt(x.levels)+'\\nOSM-Höhe: '+fmt(x.osm_height)+
