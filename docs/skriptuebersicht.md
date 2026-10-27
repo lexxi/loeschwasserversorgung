@@ -48,7 +48,6 @@ python scripts\generate_report_index.py --open
 | [`import_osm_roads_pbf.py`](../scripts/import_osm_roads_pbf.py) | Importiert OSM-Straßen und -Wege als **Orientierungshintergrund**, noch kein Routing oder Schlauchweg. | Geofabrik-PBF und Gemeindegrenze | `data/processed/<GKZ>/osm/roads.geojson`, `roads_manifest.json` |
 | [`import_odb_water_sources.py`](../scripts/import_odb_water_sources.py) | Bereitet den **lokalen autorisierten ODB-Export** auf und berücksichtigt Quellentyp und Status. Einzige Wasserquellenbasis der aktiven Analyse. | Privater Export, z. B. `data/raw/odb_wasserentnahmestellen.geojson`, Gemeindegrenze | `data/processed/<GKZ>/odb_water_sources/odb_water_sources.geojson`, `odb_water_sources.csv`, `odb_water_sources_manifest.json` |
 | [`import_osm.py`](../scripts/import_osm.py) | Alternativer/älterer OSM-Gebäudeimport aus lokaler GeoJSON oder OSMnx/Overpass. Enthält außerdem von den PBF-Importern genutzte Hilfsfunktionen/Feldliste. | `--input` oder `--download`, Gemeindegrenze | Im gemeindebezogenen Modus `data/processed/<GKZ>/osm/buildings.geojson`, `osm_manifest.json`; älterer Modus unter `data/processed/current/osm/` |
-
 | [`generate_report_index.py`](../scripts/generate_report_index.py) | Erzeugt eine zentrale lokale Startseite für vorhandene HTML-Karten, CSV-/JSON-Berichte und zusätzliche Unterseiten; überspringt fehlende Dateien. | `reports/<GKZ>/` mit bereits generierten Ergebnissen | `reports/index.html`, `reports/<GKZ>/index.html` |
 
 ## B. ODB-Bestandsaufnahme, Gebäudeabstände und Offline-Karten – aktuell
