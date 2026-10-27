@@ -55,6 +55,8 @@ def main():
     state_file = DEST / "archive_manifest.json"
     state = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() else {"schema_version":1,"documents":{}}
     modified = False
+    failures = []
+    download_sources = {}
 
     if args.import_file:
         if args.id not in known:
@@ -83,30 +85,44 @@ def main():
             temporary = file.with_suffix(".part")
             if temporary.exists():
                 raise RuntimeError(f"Unvollstaendige Datei vorhanden: {temporary}")
-            url = entry["download_url"]
-            if not url.startswith("https://"):
-                raise ValueError("Download nur HTTPS")
-            print(f"[GET] {key}: {url}",flush=True)
-            try:
-                req = Request(url,headers={"User-Agent":"Loeschwasserversorgung-OfflineArchiv/1.0"})
-                total = 0
-                with urlopen(req,timeout=50) as resp, temporary.open("wb") as dest:
-                    final_url = resp.geturl()
-                    if not final_url.startswith("https://"):
-                        raise ValueError("Nicht-HTTPS-Redirect")
-                    while True:
-                        chunk = resp.read(65536)
-                        if not chunk:
-                            break
-                        total += len(chunk)
-                        if total > MAX_BYTES:
-                            raise ValueError(f"PDF-Groessenlimit 30 MiB: {key}")
-                        dest.write(chunk)
-                checked_file(temporary)
-                os.replace(temporary,file)
-                modified = True
-            finally:
-                temporary.unlink(missing_ok=True)
+            candidates = entry.get("download_urls") or [entry["download_url"]]
+            downloaded = False
+            for url in candidates:
+                if not url.startswith("https://"):
+                    raise ValueError("Download nur HTTPS")
+                print(f"[GET] {key}: {url}", flush=True)
+                try:
+                    req = Request(url, headers={
+                        "User-Agent": "Mozilla/5.0 (compatible; Loeschwasserversorgung-OfflineArchiv/1.1)",
+                        "Accept": "application/pdf,*/*;q=0.5",
+                    })
+                    total = 0
+                    with urlopen(req, timeout=50) as resp, temporary.open("wb") as dest:
+                        final_url = resp.geturl()
+                        if not final_url.startswith("https://"):
+                            raise ValueError("Nicht-HTTPS-Redirect")
+                        while True:
+                            chunk = resp.read(65536)
+                            if not chunk:
+                                break
+                            total += len(chunk)
+                            if total > MAX_BYTES:
+                                raise ValueError(f"PDF-Groessenlimit 30 MiB: {key}")
+                            dest.write(chunk)
+                    checked_file(temporary)
+                    os.replace(temporary, file)
+                    download_sources[key] = final_url
+                    downloaded = True
+                    modified = True
+                    print(f"[OK] Quelle erreicht: {key}", flush=True)
+                    break
+                except (OSError, ValueError) as ex:
+                    print(f"[WARN] {key}: {type(ex).__name__}: {ex}", flush=True)
+                finally:
+                    temporary.unlink(missing_ok=True)
+            if not downloaded:
+                failures.append(key)
+                print(f"[FEHLER] {key}: Keine der {len(candidates)} PDF-Quellen lieferte ein gueltiges Dokument.", flush=True)
         if file.is_file():
             checked_file(file)
             digest = sha(file)
@@ -120,6 +136,7 @@ def main():
                 "catalog_edition":entry["edition"],
                 "archived_utc":previous.get("archived_utc") or datetime.now(timezone.utc).isoformat(),
                 "acquisition":entry["acquisition"],
+                "downloaded_from":download_sources.get(key) or previous.get("downloaded_from"),
             }
             print(f"[OK]   {key}: {file.name} ({file.stat().st_size//1024} KiB, sha256 {digest[:12]}...)")
             if not previous:
@@ -131,6 +148,8 @@ def main():
         temporary.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         os.replace(temporary,state_file)
         print(f"[OK] Archivmanifest: {state_file}")
+    if failures:
+        print(f"[WARN] Nicht archiviert: {', '.join(failures)}. Bereits erfolgreiche Dateien bleiben erhalten.", flush=True)
     print("[HINWEIS] Quellenarchiv ausschliesslich lokal; Rechte und geltende Fassung selbst pruefen.")
 
 
